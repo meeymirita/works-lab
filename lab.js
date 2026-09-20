@@ -7,7 +7,6 @@ var LABS = [
     desc: 'Асинхронная обработка заказов через очереди: Transactional Outbox, идемпотентный consumer, prefetch, crash-тесты, retry с TTL→DLX, priority queues, fanout.',
     stack: ['Laravel 13', 'PostgreSQL 16', 'RabbitMQ', 'Mailpit'],
     difficulty: 'Высокая',
-    done: true,
     image: 'images/rabbitmq.png',
     open: '../rabbitmq/docs/RabbitMQ_Lab_Plan_v1_pro_max.html',
     repo: 'https://github.com/meeymirita/rabbitmq-lab',
@@ -21,7 +20,6 @@ var LABS = [
     desc: 'Redis как кэш, хранилище сессий, примитив синхронизации и брокер событий: cache-aside, distributed lock, rate limiter, Streams, XAUTOCLAIM, Pub/Sub-дашборд.',
     stack: ['Laravel 13', 'PostgreSQL 16', 'Redis 7'],
     difficulty: 'Средняя',
-    done: false,
     image: 'images/redis.png',
     open: '../redis/Redis_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/redis-lab',
@@ -35,7 +33,6 @@ var LABS = [
     desc: 'Reverse proxy и service discovery для стека из нескольких сервисов без ручной правки конфигов: EntryPoint → Router → Middleware → Service, TLS, canary-деплой.',
     stack: ['Traefik 3', 'Docker Compose', 'Node.js', 'PostgreSQL'],
     difficulty: 'Низкая–средняя',
-    done: false,
     image: '../traefik/traefik.png',
     open: '../traefik/Docker_and_Traefik_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/traefik-lab',
@@ -49,7 +46,6 @@ var LABS = [
     desc: 'ООП на PHP 8.4 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
     stack: ['PHP 8.4', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
     difficulty: 'Базовая',
-    done: false,
     image: 'images/php.png',
     open: '../php-coffee/docs/OOP_Lab_CoffeeShop.html',
     repo: 'https://github.com/meeymirita/oop-lab',
@@ -63,7 +59,6 @@ var LABS = [
     desc: 'Система тикетов на Vue 3 с нуля: реактивность, компоненты, слоты, Pinia, Vue Router с guard-ами, WebSocket, канбан-доска, тесты на Vitest.',
     stack: ['Vue 3.5', 'Vite', 'Pinia', 'Vue Router', 'NestJS'],
     difficulty: 'Высокая',
-    done: false,
     image: 'images/vue.png',
     open: '../vue/Vue_Lab_Helpdesk.html',
     repo: 'https://github.com/meeymirita/vue-lab',
@@ -77,7 +72,6 @@ var LABS = [
     desc: 'Типизация домена складского учёта с нуля: generics, размеченные объединения, mapped/conditional types, CLI на Zod, сквозная типизация API + Vue.',
     stack: ['TypeScript 5.6', 'Node 22', 'Zod', 'Vitest'],
     difficulty: 'Высокая',
-    done: false,
     image: 'images/typescript.png',
     open: '../typescript/TypeScript_Lab_Warehouse.html',
     repo: 'https://github.com/meeymirita/typescript-lab',
@@ -91,7 +85,6 @@ var LABS = [
     desc: 'Laravel 13 «изнутри»: ~30 компонентов illuminate/*, Eloquent-связи, Service Container, Auth/Policy, Observer, очереди, Mailable, кэш, Broadcasting, тесты.',
     stack: ['Laravel 13', 'PostgreSQL 17', 'Redis', 'RabbitMQ', 'Reverb'],
     difficulty: 'Высокая',
-    done: false,
     image: 'images/laravel.png',
     open: '../laravel/Laravel_Lab_TaskFlow.html',
     repo: 'https://github.com/meeymirita/laravel-lab',
@@ -105,7 +98,6 @@ var LABS = [
     desc: 'Docker и Bash с нуля: образы, контейнеры, docker-compose, сети и тома — через практику в терминале.',
     stack: ['Docker', 'Docker Compose', 'Bash'],
     difficulty: '—',
-    done: false,
     image: 'images/docker.png',
     open: '../docker/Docker_Bash_Lab.html',
     repo: 'https://github.com/meeymirita/docker-lab',
@@ -119,7 +111,6 @@ var LABS = [
     desc: 'В разработке — план ещё не составлен. Будет про то, что обычно прячет Laravel: автозагрузка без фреймворка, свой роутер, свой DI-контейнер, PDO напрямую, сессии и CSRF руками.',
     stack: ['PHP 8.4'],
     difficulty: '—',
-    done: false,
     image: '../php/php.png',
     open: null,
     repo: 'https://github.com/meeymirita/php-lab',
@@ -133,7 +124,6 @@ var LABS = [
     desc: 'В разработке — план ещё не составлен. Будет про то, что обычно прячет Vue: event loop, замыкания, прототипы, DOM и своя мини-реактивность на Proxy.',
     stack: ['JavaScript ES2023'],
     difficulty: '—',
-    done: false,
     image: '../js/JavaScript.png',
     open: null,
     repo: 'https://github.com/meeymirita/js-lab',
@@ -215,7 +205,6 @@ function renderLabPage(key) {
         '<div>' +
           '<div class="lab-eyebrow mono">' +
             '<span class="lab-eyebrow-index"><span class="lab-dot"></span>лабораторная ' + String(i + 1).padStart(2, '0') + ' / ' + LABS.length + '</span>' +
-            '<span class="lab-status-pill" style="background:' + (lab.done ? lab.accent : 'rgba(247,242,245,.85)') + '">' + (lab.done ? '✅ выполнена' : '⚪ не начата') + '</span>' +
           '</div>' +
           '<h1 class="lab-title display">' +
             '<span class="accent-word">' + escapeHtml(lab.titleMain) + '</span> <span class="outline-word">lab</span>' +
@@ -239,7 +228,6 @@ function renderLabPage(key) {
 
     '<div class="lab-stats">' +
       '<div class="lab-stat"><div class="lab-stat-label mono">сложность</div><div class="lab-stat-value accent display">' + escapeHtml(lab.difficulty) + '</div></div>' +
-      '<div class="lab-stat"><div class="lab-stat-label mono">статус</div><div class="lab-stat-value display">' + (lab.done ? 'выполнена' : 'не начата') + '</div></div>' +
       '<div class="lab-stat"><div class="lab-stat-label mono">тем внутри</div><div class="lab-stat-value accent-soft display">' + topics.length + '</div></div>' +
       '<div class="lab-stat"><div class="lab-stat-label mono">формат</div><div class="lab-stat-value display">git submodule</div></div>' +
     '</div>' +
