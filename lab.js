@@ -111,6 +111,34 @@ var LABS = [
     repo: 'https://github.com/meeymirita/docker-lab',
     accent: '#2496ED',
   },
+  {
+    key: 'php',
+    titleMain: 'php',
+    title: 'Чистый PHP Lab',
+    subtitle: 'Фундамент без фреймворка',
+    desc: 'В разработке — план ещё не составлен. Будет про то, что обычно прячет Laravel: автозагрузка без фреймворка, свой роутер, свой DI-контейнер, PDO напрямую, сессии и CSRF руками.',
+    stack: ['PHP 8.4'],
+    difficulty: '—',
+    done: false,
+    image: '../php/php.png',
+    open: null,
+    repo: 'https://github.com/meeymirita/php-lab',
+    accent: '#C9A876',
+  },
+  {
+    key: 'js',
+    titleMain: 'js',
+    title: 'Чистый JS Lab',
+    subtitle: 'Фундамент без фреймворка',
+    desc: 'В разработке — план ещё не составлен. Будет про то, что обычно прячет Vue: event loop, замыкания, прототипы, DOM и своя мини-реактивность на Proxy.',
+    stack: ['JavaScript ES2023'],
+    difficulty: '—',
+    done: false,
+    image: '../js/JavaScript.png',
+    open: null,
+    repo: 'https://github.com/meeymirita/js-lab',
+    accent: '#F4D35E',
+  },
 ];
 
 function escapeHtml(str) {
@@ -165,7 +193,9 @@ function renderLabPage(key) {
   var topics = parseTopics(lab.desc, lab.accent);
   var marqueeText = lab.titleMain + ' lab · ' + lab.stack.join(' · ') + ' · ';
 
-  var openHtml = '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-btn lab-btn-primary mono">Открыть методичку</a>';
+  var openHtml = lab.open
+    ? '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-btn lab-btn-primary mono">Открыть методичку</a>'
+    : '<span class="lab-btn lab-btn-primary mono" style="opacity:.5;cursor:not-allowed">Методичка скоро</span>';
 
   document.getElementById('lab-root').innerHTML =
     '<nav class="lab-nav">' +
@@ -240,7 +270,9 @@ function renderLabPage(key) {
       '<div class="lab-kicker mono">03 / материалы</div>' +
       '<h2 class="lab-h2 display">Куда открыть</h2>' +
       '<div class="lab-materials mono">' +
-        '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-material"><span>методичка (README)</span><span>↗</span></a>' +
+        (lab.open
+          ? '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-material"><span>методичка (README)</span><span>↗</span></a>'
+          : '<span class="lab-material" style="opacity:.5;cursor:not-allowed"><span>методичка скоро</span><span>—</span></span>') +
         '<a href="' + lab.repo + '" target="_blank" rel="noopener" class="lab-material"><span>репозиторий лабы</span><span>↗</span></a>' +
         '<a href="' + lab.repo + '/commits/main" target="_blank" rel="noopener" class="lab-material"><span>история коммитов</span><span>↗</span></a>' +
       '</div>' +
