@@ -110,7 +110,7 @@ var LABS = [
     subtitle: 'Фундамент без фреймворка',
     desc: 'Чистый PHP 8.4 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
     stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)'],
-    difficulty: 'Средняя',
+    difficulty: 'Базовая',
     image: '../php/php.png',
     open: '../php/PHP_Lab_VanillaCoffee.html',
     repo: 'https://github.com/meeymirita/php-lab',
