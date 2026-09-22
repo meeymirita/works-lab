@@ -142,6 +142,32 @@ var LABS = [
     repo: 'https://github.com/meeymirita/kubernetes-lab',
     accent: '#326CE5',
   },
+  {
+    key: 'nestjs',
+    titleMain: 'nestjs',
+    title: 'NestJS Lab',
+    subtitle: 'Helpdesk API с нуля',
+    desc: 'Тот же Helpdesk-бэкенд, что был дан готовым в Vue Lab, — собран с нуля слой за слоем: decorators/reflect-metadata под капотом, DI и provider scopes, DTO/Pipes, Prisma и N+1, Guards/JWT/refresh-токены, WebSocket Gateway, тесты.',
+    stack: ['NestJS 10', 'Prisma', 'PostgreSQL', 'Passport JWT', 'Socket.IO'],
+    difficulty: 'Высокая',
+    image: '../nestjs/nest.png',
+    open: '../nestjs/NestJS_Lab_Plan.html',
+    repo: 'https://github.com/meeymirita/nestjs-lab',
+    accent: '#E0234E',
+  },
+  {
+    key: 'graphql',
+    titleMain: 'graphql',
+    title: 'GraphQL Lab',
+    subtitle: 'Тот же Helpdesk без REST',
+    desc: 'Тот же backend, что в NestJS Lab — HTTP-контроллеры заменяются на GraphQL-резолверы: code-first типы, N+1 в резолверах и DataLoader, Guards через GqlExecutionContext, Subscriptions вместо WebSocket Gateway.',
+    stack: ['NestJS', '@nestjs/graphql', 'Apollo Server', 'DataLoader', 'Prisma'],
+    difficulty: 'Высокая',
+    image: '../graphql/GraphQL.png',
+    open: '../graphql/GraphQL_Lab_Plan.html',
+    repo: 'https://github.com/meeymirita/graphql-lab',
+    accent: '#E535AB',
+  },
 ];
 
 function escapeHtml(str) {
