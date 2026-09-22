@@ -129,6 +129,19 @@ var LABS = [
     repo: 'https://github.com/meeymirita/js-lab',
     accent: '#F4D35E',
   },
+  {
+    key: 'kubernetes',
+    titleMain: 'kubernetes',
+    title: 'Kubernetes Lab',
+    subtitle: 'От Compose к оркестрации',
+    desc: 'Миграция стека из Traefik-лабы в Kubernetes (kind): Pod и Deployment, Service и DNS, ConfigMap/Secret, Volumes и PVC, readiness/liveness-пробы, Traefik как Ingress-контроллер, HorizontalPodAutoscaler.',
+    stack: ['Kubernetes', 'kind', 'kubectl', 'Traefik'],
+    difficulty: 'Средняя–высокая',
+    image: '../kubernetes/kubernetes.png',
+    open: '../kubernetes/Kubernetes_Lab_Plan.html',
+    repo: 'https://github.com/meeymirita/kubernetes-lab',
+    accent: '#326CE5',
+  },
 ];
 
 function escapeHtml(str) {
