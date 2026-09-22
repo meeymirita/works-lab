@@ -170,12 +170,97 @@ function parseTopics(desc, accent) {
   });
 }
 
+var activeLab = null;
+
+function openToc() {
+  var modal = document.getElementById('lab-toc-modal');
+  var panel = document.getElementById('lab-toc-panel');
+  if (!modal || !panel) return;
+
+  modal.classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+
+  if (!panel.dataset.loaded) {
+    loadToc(activeLab, panel);
+  }
+}
+
+function closeToc() {
+  var modal = document.getElementById('lab-toc-modal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeToc();
+});
+
+function toggleTocNode(btn) {
+  var node = btn.closest('.lab-toc-node');
+  if (!node) return;
+  var open = node.classList.toggle('is-open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+function loadToc(lab, panel) {
+  panel.innerHTML = '<div class="lab-toc-status mono">загрузка…</div>';
+
+  fetch(lab.open)
+    .then(function (res) { return res.text(); })
+    .then(function (html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var sections = Array.prototype.slice.call(doc.querySelectorAll('h2[id]'));
+
+      var items = sections.map(function (h2) {
+        var title = h2.textContent.replace(/#\s*$/, '').trim();
+        var subs = [];
+        var el = h2.nextElementSibling;
+        while (el && el.tagName !== 'H2') {
+          if (el.tagName === 'H3') {
+            var subTitle = el.textContent.replace(/#\s*$/, '').trim();
+            if (/^\d+\.\d+/.test(subTitle)) subs.push(subTitle);
+          }
+          el = el.nextElementSibling;
+        }
+        return { id: h2.id, title: title, subs: subs };
+      });
+
+      panel.dataset.loaded = '1';
+
+      if (!items.length) {
+        panel.innerHTML = '<div class="lab-toc-status mono">не удалось разобрать оглавление — <a href="' + lab.open + '" target="_blank" rel="noopener">открой методичку напрямую</a></div>';
+        return;
+      }
+
+      panel.innerHTML = '<ol class="lab-toc-list">' + items.map(function (it) {
+        var hasSubs = it.subs.length > 0;
+        return '<li class="lab-toc-node">' +
+          '<div class="lab-toc-head">' +
+            (hasSubs
+              ? '<button type="button" class="lab-toc-toggle" onclick="toggleTocNode(this)" aria-expanded="false" aria-label="Развернуть раздел"><span class="lab-toc-arrow">▸</span></button>'
+              : '<span class="lab-toc-toggle-spacer"></span>') +
+            '<a class="lab-toc-item" href="' + lab.open + '#' + it.id + '" target="_blank" rel="noopener">' + escapeHtml(it.title) + '</a>' +
+          '</div>' +
+          (hasSubs
+            ? '<div class="lab-toc-body"><ul class="lab-toc-sub">' + it.subs.map(function (s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('') + '</ul></div>'
+            : '') +
+        '</li>';
+      }).join('') + '</ol>';
+    })
+    .catch(function () {
+      panel.dataset.loaded = '';
+      panel.innerHTML = '<div class="lab-toc-status mono">не удалось загрузить оглавление — <a href="' + lab.open + '" target="_blank" rel="noopener">открой методичку напрямую</a></div>';
+    });
+}
+
 function renderLabPage(key) {
   var i = LABS.findIndex(function (l) { return l.key === key; });
   if (i < 0) i = 0;
   var lab = LABS[i];
   var prev = LABS[(i - 1 + LABS.length) % LABS.length];
   var next = LABS[(i + 1) % LABS.length];
+  activeLab = lab;
 
   var rgb = hexToRgb(lab.accent).join(',');
   var accentSoft = mixWithWhite(lab.accent, .55);
@@ -203,8 +288,7 @@ function renderLabPage(key) {
   document.getElementById('lab-root').innerHTML =
     '<nav class="lab-nav">' +
       '<div class="lab-nav-brand">' +
-        '<a href="../index.html" class="display">🧪 group lab</a>' +
-        '<span class="lab-nav-code mono">' + escapeHtml(lab.key.toUpperCase()) + '</span>' +
+        '<a href="../index.html" class="display lab-nav-title">' + escapeHtml(lab.title) + '</a>' +
       '</div>' +
       '<div class="lab-nav-links mono">' +
         '<a href="../index.html#works">← все работы</a>' +
@@ -250,6 +334,9 @@ function renderLabPage(key) {
         '<div>' +
           '<div class="lab-kicker mono">01 / программа</div>' +
           '<h2 class="lab-h2 display">Что внутри</h2>' +
+          (lab.open
+            ? '<button type="button" id="lab-toc-btn" class="lab-btn lab-btn-outline mono" onclick="openToc()">Показать оглавление</button>'
+            : '') +
         '</div>' +
         '<div class="lab-topics">' +
           topics.map(function (t) {
@@ -258,6 +345,19 @@ function renderLabPage(key) {
         '</div>' +
       '</div>' +
     '</section>' +
+
+    (lab.open
+      ? '<div id="lab-toc-modal" class="lab-toc-modal">' +
+          '<div class="lab-toc-modal-backdrop" onclick="closeToc()"></div>' +
+          '<div class="lab-toc-modal-box">' +
+            '<div class="lab-toc-modal-head">' +
+              '<h3 class="lab-toc-modal-title display">Оглавление</h3>' +
+              '<button type="button" class="lab-toc-modal-close" onclick="closeToc()" aria-label="Закрыть">✕</button>' +
+            '</div>' +
+            '<div id="lab-toc-panel" class="lab-toc-modal-body"></div>' +
+          '</div>' +
+        '</div>'
+      : '') +
 
     '<section class="lab-section-alt"><div class="lab-section-inner">' +
       '<div class="lab-kicker mono">02 / стек</div>' +
