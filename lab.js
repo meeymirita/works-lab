@@ -176,6 +176,40 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function prefersReducedMotion() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+// GSAP (+ ScrollTrigger, Flip) is loaded from cdnjs as plain <script> tags before this file.
+// Every call site below checks for it and falls back to the plain CSS/JS behaviour that
+// already existed if the CDN failed to load or the visitor asked for less motion.
+var gsapReady = false;
+if (window.gsap && window.ScrollTrigger && window.Flip && !prefersReducedMotion()) {
+  gsap.registerPlugin(ScrollTrigger, Flip);
+  gsapReady = true;
+}
+
+function initNavAutoHide() {
+  if (!gsapReady) return;
+  var nav = document.querySelector('.lab-nav');
+  if (!nav) return;
+
+  ScrollTrigger.create({
+    start: 'top top',
+    end: 99999,
+    onUpdate: function (self) {
+      if (self.scroll() < nav.offsetHeight + 20) {
+        gsap.to(nav, { yPercent: 0, duration: .3, ease: 'power2.out', overwrite: 'auto' });
+        return;
+      }
+      gsap.to(nav, {
+        yPercent: self.direction === 1 ? -100 : 0,
+        duration: .3, ease: 'power2.out', overwrite: 'auto',
+      });
+    },
+  });
+}
+
 function hexToRgb(hex) {
   var n = parseInt(hex.replace('#', ''), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -203,7 +237,30 @@ function openToc() {
   var panel = document.getElementById('lab-toc-panel');
   if (!modal || !panel) return;
 
-  modal.classList.add('is-open');
+  var box = modal.querySelector('.lab-toc-modal-box');
+  var btn = document.getElementById('lab-toc-btn');
+
+  if (gsapReady && box && btn) {
+    // Morph the modal box out of the "Показать оглавление" button (GSAP Flip),
+    // instead of the plain CSS scale/fade pop-in.
+    try {
+      box.classList.add('js-flip');
+      modal.classList.add('is-open');
+      var state = Flip.getState(box);
+      Flip.fit(box, btn, { scale: true });
+      Flip.from(state, {
+        duration: .45,
+        ease: 'power3.inOut',
+        onComplete: function () { box.classList.remove('js-flip'); },
+      });
+    } catch (e) {
+      box.classList.remove('js-flip');
+      modal.classList.add('is-open');
+    }
+  } else {
+    modal.classList.add('is-open');
+  }
+
   document.body.style.overflow = 'hidden';
 
   if (!panel.dataset.loaded) {
@@ -225,8 +282,28 @@ document.addEventListener('keydown', function (e) {
 function toggleTocNode(btn) {
   var node = btn.closest('.lab-toc-node');
   if (!node) return;
+
+  if (!gsapReady) {
+    var openPlain = node.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', openPlain ? 'true' : 'false');
+    return;
+  }
+
+  // Reflow the whole list with GSAP Flip instead of relying only on the
+  // max-height transition, so sibling items smoothly shift as this one grows/shrinks.
+  var list = node.parentElement;
+  var body = node.querySelector('.lab-toc-body');
+  if (body) body.classList.add('js-flip');
+
+  var state = Flip.getState(list ? list.children : node);
   var open = node.classList.toggle('is-open');
   btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+  Flip.from(state, {
+    duration: .35,
+    ease: 'power2.inOut',
+    onComplete: function () { if (body) body.classList.remove('js-flip'); },
+  });
 }
 
 function loadToc(lab, panel) {
@@ -420,4 +497,6 @@ function renderLabPage(key) {
       '<span>Group Lab · собрано с ❤</span>' +
       '<span class="lab-footer-git"><span class="lab-spinner"></span>git submodules</span>' +
     '</footer>';
+
+  initNavAutoHide();
 }
