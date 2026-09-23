@@ -97,7 +97,7 @@ var LABS = [
     subtitle: 'Крепкое владение Docker и Bash с нуля',
     desc: 'Docker и Bash с нуля: образы, контейнеры, docker-compose, сети и тома — через практику в терминале.',
     stack: ['Docker', 'Docker Compose', 'Bash'],
-    difficulty: '—',
+    difficulty: 'Базовая',
     image: 'images/docker.png',
     open: '../docker/Docker_Bash_Lab.html',
     repo: 'https://github.com/meeymirita/docker-lab',
@@ -481,7 +481,7 @@ function renderLabPage(key) {
           '</div>' +
         '</div>' +
         '<div class="lab-hero-image">' +
-          '<img src="' + lab.image + '" alt="' + escapeHtml(lab.title) + '">' +
+          '<img src="images/thumbs/' + lab.key + '.webp" data-full="' + lab.image + '" alt="' + escapeHtml(lab.title) + '" decoding="async" width="1200" height="1200">' +
         '</div>' +
       '</div>' +
     '</section>' +

@@ -55,7 +55,7 @@
     var size = fitSize(img);
     clone = document.createElement('img');
     clone.className = 'fg-img';
-    clone.src = img.currentSrc || img.src;
+    clone.src = img.dataset.full || img.currentSrc || img.src;
     clone.alt = img.alt;
     clone.style.width = size.w + 'px';
     clone.style.height = size.h + 'px';
