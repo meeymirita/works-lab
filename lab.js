@@ -194,18 +194,18 @@ function initNavAutoHide() {
   var nav = document.querySelector('.lab-nav');
   if (!nav) return;
 
+  var hidden = false;
+  function setHidden(next) {
+    if (next === hidden) return;
+    hidden = next;
+    gsap.to(nav, { yPercent: hidden ? -100 : 0, duration: .3, ease: 'power2.out', overwrite: true });
+  }
+
   ScrollTrigger.create({
-    start: 'top top',
-    end: 99999,
+    start: 0,
+    end: 'max',
     onUpdate: function (self) {
-      if (self.scroll() < nav.offsetHeight + 20) {
-        gsap.to(nav, { yPercent: 0, duration: .3, ease: 'power2.out', overwrite: 'auto' });
-        return;
-      }
-      gsap.to(nav, {
-        yPercent: self.direction === 1 ? -100 : 0,
-        duration: .3, ease: 'power2.out', overwrite: 'auto',
-      });
+      setHidden(self.scroll() > nav.offsetHeight + 20 && self.direction === 1);
     },
   });
 }
@@ -232,47 +232,97 @@ function parseTopics(desc, accent) {
 
 var activeLab = null;
 
+// One timeline drives both directions (GSAP "interruptible single timeline enter/exit"):
+// [enter] -> addPause() -> [exit]. Opening plays up to the pause; closing plays on through
+// the exit. Interrupting mid-way just reverses back toward the pause (or to 0), so a fast
+// open/close/open never jumps or restarts.
+var tocTl = null;
+var tocPauseAt = 0;
+
+function tocNodes() {
+  return document.querySelectorAll('#lab-toc-panel .lab-toc-node');
+}
+
+function staggerTocNodes() {
+  var nodes = tocNodes();
+  if (!nodes.length) return;
+  gsap.fromTo(nodes,
+    { opacity: 0, x: -14 },
+    { opacity: 1, x: 0, duration: .35, ease: 'power2.out', stagger: .035, overwrite: true });
+}
+
+function finishCloseToc() {
+  var modal = document.getElementById('lab-toc-modal');
+  if (modal) modal.classList.remove('is-open');
+  document.body.style.overflow = '';
+  if (tocTl) tocTl.pause(0);
+}
+
+function getTocTimeline(modal) {
+  if (tocTl) return tocTl;
+
+  var backdrop = modal.querySelector('.lab-toc-modal-backdrop');
+  var box = modal.querySelector('.lab-toc-modal-box');
+  var headParts = modal.querySelectorAll('.lab-toc-modal-head > *');
+  var body = document.getElementById('lab-toc-panel');
+  modal.classList.add('js-tl');
+
+  tocTl = gsap.timeline({ paused: true, onComplete: finishCloseToc, onReverseComplete: finishCloseToc });
+
+  // enter
+  tocTl
+    .fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: .3, ease: 'none' }, 0)
+    .fromTo(box,
+      { opacity: 0, y: 40, clipPath: 'inset(50% 0% 50% 0%)' },
+      { opacity: 1, y: 0, clipPath: 'inset(0% 0% 0% 0%)', duration: .55, ease: 'power3.out' }, 0)
+    .fromTo(headParts, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .35, ease: 'power2.out', stagger: .07 }, .2)
+    .fromTo(body, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .35, ease: 'power2.out' }, .28)
+    .call(function () { if (!tocTl.reversed()) staggerTocNodes(); }, null, .3);
+
+  tocTl.addPause();
+  tocPauseAt = tocTl.duration();
+
+  // exit
+  tocTl
+    .to([headParts, body], { opacity: 0, y: -10, duration: .2, ease: 'power1.in', stagger: .03 })
+    .to(box, { y: -30, clipPath: 'inset(0% 0% 100% 0%)', duration: .4, ease: 'power3.in' }, '<.05')
+    .to(backdrop, { opacity: 0, duration: .3, ease: 'none' }, '<.1');
+
+  return tocTl;
+}
+
 function openToc() {
   var modal = document.getElementById('lab-toc-modal');
   var panel = document.getElementById('lab-toc-panel');
   if (!modal || !panel) return;
 
-  var box = modal.querySelector('.lab-toc-modal-box');
-  var btn = document.getElementById('lab-toc-btn');
-
-  if (gsapReady && box && btn) {
-    // Morph the modal box out of the "Показать оглавление" button (GSAP Flip),
-    // instead of the plain CSS scale/fade pop-in.
-    try {
-      box.classList.add('js-flip');
-      modal.classList.add('is-open');
-      var state = Flip.getState(box);
-      Flip.fit(box, btn, { scale: true });
-      Flip.from(state, {
-        duration: .45,
-        ease: 'power3.inOut',
-        onComplete: function () { box.classList.remove('js-flip'); },
-      });
-    } catch (e) {
-      box.classList.remove('js-flip');
-      modal.classList.add('is-open');
-    }
-  } else {
-    modal.classList.add('is-open');
-  }
-
+  modal.classList.add('is-open');
   document.body.style.overflow = 'hidden';
 
   if (!panel.dataset.loaded) {
     loadToc(activeLab, panel);
   }
+
+  if (!gsapReady) return;
+  try {
+    var tl = getTocTimeline(modal);
+    // mid-exit -> rewind the exit back up to the pause; otherwise play the enter forward
+    if (tl.time() > tocPauseAt) tl.reverse();
+    else tl.play();
+  } catch (e) {}
 }
 
 function closeToc() {
   var modal = document.getElementById('lab-toc-modal');
-  if (!modal) return;
-  modal.classList.remove('is-open');
-  document.body.style.overflow = '';
+  if (!modal || !modal.classList.contains('is-open')) return;
+
+  if (!gsapReady || !tocTl) {
+    finishCloseToc();
+    return;
+  }
+  // mid-enter -> reverse the enter back to 0; at/after the pause -> play on through the exit
+  if (tocTl.time() < tocPauseAt) tocTl.reverse();
+  else tocTl.play();
 }
 
 document.addEventListener('keydown', function (e) {
@@ -289,21 +339,32 @@ function toggleTocNode(btn) {
     return;
   }
 
-  // Reflow the whole list with GSAP Flip instead of relying only on the
-  // max-height transition, so sibling items smoothly shift as this one grows/shrinks.
-  var list = node.parentElement;
   var body = node.querySelector('.lab-toc-body');
-  if (body) body.classList.add('js-flip');
+  if (!body) return;
 
-  var state = Flip.getState(list ? list.children : node);
-  var open = node.classList.toggle('is-open');
+  // Animate the section's real height (0 <-> auto) instead of snapping it open;
+  // siblings below simply follow the growing box, so nothing jumps or overlaps.
+  body.style.transition = 'none';
+  body.style.maxHeight = 'none';
+  var subs = body.querySelectorAll('.lab-toc-sub li');
+  var open = !node.classList.contains('is-open');
   btn.setAttribute('aria-expanded', open ? 'true' : 'false');
 
-  Flip.from(state, {
-    duration: .35,
-    ease: 'power2.inOut',
-    onComplete: function () { if (body) body.classList.remove('js-flip'); },
-  });
+  if (open) {
+    node.classList.add('is-open');
+    gsap.fromTo(body, { height: 0 }, { height: 'auto', duration: .4, ease: 'power2.out', overwrite: true });
+    gsap.fromTo(subs, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: .3, ease: 'power2.out', stagger: .04, delay: .08, overwrite: true });
+  } else {
+    gsap.to(subs, { opacity: 0, duration: .15, overwrite: true });
+    gsap.to(body, {
+      height: 0, duration: .3, ease: 'power2.inOut', overwrite: true,
+      onComplete: function () {
+        node.classList.remove('is-open');
+        gsap.set(body, { clearProps: 'height' });
+        body.style.maxHeight = '';
+      },
+    });
+  }
 }
 
 function loadToc(lab, panel) {
@@ -350,6 +411,9 @@ function loadToc(lab, panel) {
             : '') +
         '</li>';
       }).join('') + '</ol>';
+
+      // content arrived after the enter already ran -> stagger it in now
+      if (gsapReady && tocTl && !tocTl.reversed() && tocTl.time() > 0) staggerTocNodes();
     })
     .catch(function () {
       panel.dataset.loaded = '';
@@ -391,10 +455,10 @@ function renderLabPage(key) {
   document.getElementById('lab-root').innerHTML =
     '<nav class="lab-nav">' +
       '<div class="lab-nav-brand">' +
-        '<a href="../index.html" class="display lab-nav-title">' + escapeHtml(lab.title) + '</a>' +
+        '<a href="../index.html" class="display lab-nav-title" data-pl-name="Tech Performance" data-pl-color="#ff2e88">' + escapeHtml(lab.title) + '</a>' +
       '</div>' +
       '<div class="lab-nav-links mono">' +
-        '<a href="../index.html#works">← все работы</a>' +
+        '<a href="../index.html#works" data-pl-name="Tech Performance" data-pl-color="#ff2e88">← все работы</a>' +
         '<a href="' + lab.repo + '" target="_blank" rel="noopener" class="lab-nav-cta">репозиторий ↗</a>' +
       '</div>' +
     '</nav>' +
@@ -483,11 +547,11 @@ function renderLabPage(key) {
     '</section>' +
 
     '<section class="lab-pager"><div class="lab-pager-grid">' +
-      '<a href="' + prev.key + '.html" class="lab-pager-link" style="--pager-accent:' + prev.accent + '">' +
+      '<a href="' + prev.key + '.html" class="lab-pager-link" data-pl-name="' + escapeHtml(prev.title) + '" data-pl-color="' + prev.accent + '" style="--pager-accent:' + prev.accent + '">' +
         '<span class="lab-pager-kicker mono">← предыдущая</span>' +
         '<span class="lab-pager-title display">' + escapeHtml(prev.title) + '</span>' +
       '</a>' +
-      '<a href="' + next.key + '.html" class="lab-pager-link next" style="--pager-accent:' + next.accent + '">' +
+      '<a href="' + next.key + '.html" class="lab-pager-link next" data-pl-name="' + escapeHtml(next.title) + '" data-pl-color="' + next.accent + '" style="--pager-accent:' + next.accent + '">' +
         '<span class="lab-pager-kicker mono">следующая →</span>' +
         '<span class="lab-pager-title display">' + escapeHtml(next.title) + '</span>' +
       '</a>' +
@@ -499,4 +563,7 @@ function renderLabPage(key) {
     '</footer>';
 
   initNavAutoHide();
+  if (window.FlipGallery) FlipGallery.init('.lab-hero-image img');
+
+  if (window.PageLoader) PageLoader.enter(lab.title, lab.accent);
 }

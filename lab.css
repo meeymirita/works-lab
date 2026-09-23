@@ -130,9 +130,10 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 30px 80px rgba(0,0,0,.55);
   animation: tocPop .25s ease;
 }
-/* JS adds this right before driving the open transition with GSAP Flip,
-   so the CSS pop-in keyframe and the Flip tween don't fight over transform/opacity */
-.lab-toc-modal-box.js-flip { animation: none; }
+/* JS adds .js-tl once the GSAP enter/exit timeline owns the modal,
+   so the CSS pop-in keyframes don't fight it over transform/opacity */
+.lab-toc-modal.js-tl .lab-toc-modal-backdrop,
+.lab-toc-modal.js-tl .lab-toc-modal-box { animation: none; }
 .lab-toc-modal-head {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 20px 24px; border-bottom: 1px solid var(--line); flex: 0 0 auto;
@@ -164,9 +165,6 @@ img { max-width: 100%; display: block; }
 .lab-toc-item:hover { color: var(--accent); }
 .lab-toc-body { max-height: 0; overflow: hidden; padding-left: 30px; transition: max-height .3s ease; }
 .lab-toc-node.is-open .lab-toc-body { max-height: 900px; }
-/* JS adds this while GSAP Flip is animating the accordion reflow itself,
-   so this transition doesn't race Flip's own before/after measurement */
-.lab-toc-body.js-flip { transition: none; }
 .lab-toc-sub { list-style: none; margin: 0; padding: 0 4px 16px; display: grid; gap: 6px; }
 .lab-toc-sub li { font-size: 13px; color: var(--text-dimmer); }
 
