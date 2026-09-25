@@ -168,6 +168,19 @@ var LABS = [
     repo: 'https://github.com/meeymirita/graphql-lab',
     accent: '#E535AB',
   },
+  {
+    key: 'postgresql',
+    titleMain: 'postgresql',
+    title: 'PostgreSQL Lab',
+    subtitle: 'Coffee Shop изнутри — база без ORM',
+    desc: 'Что происходит под ORM на миллионе заказов кофейни: JOIN с нуля, EXPLAIN и индексы B-tree/GIN/BRIN под конкретный запрос, статистика, N+1 глазами базы, уровни изоляции и аномалии, блокировки и дедлоки, SKIP LOCKED, MVCC и VACUUM, партиционирование.',
+    stack: ['PostgreSQL 17', 'psql', 'pgbench', 'Docker'],
+    difficulty: 'Средняя–высокая',
+    image: '../postgresql/postgresql.png',
+    open: '../postgresql/PostgreSQL_Lab_CoffeeShop.html',
+    repo: 'https://github.com/meeymirita/postgresql-lab',
+    accent: '#4A90D9',
+  },
 ];
 
 function escapeHtml(str) {
