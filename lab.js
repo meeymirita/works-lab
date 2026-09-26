@@ -122,7 +122,7 @@ var LABS = [
     title: 'Чистый JS Lab',
     subtitle: 'Vanilla Helpdesk — фундамент без фреймворка',
     desc: 'Чистый JavaScript с нуля — общий фундамент для Vue и TypeScript: var/let/const и hoisting, this и замыкания, прототипы и class, event loop и async/await, DOM без фреймворка, ESM-модули, своя реактивность на Proxy, финальное мини-SPA с явным сравнением с Vue.',
-    stack: ['JavaScript ES2022', 'Node 22+', 'json-server', 'node:test'],
+    stack: ['JavaScript ES2022', 'Node.js 22+', 'json-server', 'node:test', 'Docker'],
     difficulty: 'Средняя',
     image: '../js/JavaScript.png',
     open: '../js/JS_Lab_VanillaHelpdesk.html',

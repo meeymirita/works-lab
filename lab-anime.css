@@ -9,6 +9,8 @@
 
 /* шрифты с кириллицей: у Anton и Space Mono её нет */
 body { font-family: 'Onest', system-ui, sans-serif; }
+/* наклонная лента и лучи шире экрана: обрезаем по горизонтали, не ломая sticky */
+html, body { overflow-x: clip; }
 .display { font-family: 'Dela Gothic One', sans-serif; letter-spacing: .01em; }
 .mono, .lab-topic-num, .lab-chip, .lab-material { font-family: 'JetBrains Mono', monospace; }
 .mono { letter-spacing: .08em; }

@@ -18,15 +18,17 @@
   function esc(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
   // Заголовок — одно слово без переносов: от «JS» до «KUBERNETES». Размер подбираем по ширине
-  // колонки: замеряем слово на 100px и масштабируем, но не крупнее 170px и 11vw.
+  // колонки: замеряем слово на 100px и масштабируем, но не крупнее 170px и потолка по ширине экрана.
   function fitTitle() {
     var el = document.querySelector('.ep-title');
     if (!el || !el.parentElement) return;
-    var avail = el.parentElement.clientWidth - 16;          // запас на цветную тень справа
+    var avail = el.parentElement.clientWidth - 20;          // запас на цветную тень справа
     el.style.fontSize = '100px';
-    var at100 = el.scrollWidth || 1;
-    var size = Math.min(170, window.innerWidth * .11, avail * 100 / at100);
-    el.style.fontSize = Math.max(40, Math.floor(size)) + 'px';
+    var at100 = el.getBoundingClientRect().width || 1;
+    // потолок по ширине экрана: на компьютере 11vw (рядом обложка), на телефоне колонка во всю ширину
+    var cap = window.innerWidth < 760 ? window.innerWidth * .3 : window.innerWidth * .11;
+    var size = Math.min(170, cap, avail * 100 / at100);
+    el.style.fontSize = Math.max(24, Math.floor(size)) + 'px';
   }
 
   window.animeEnhance = function (key) {
@@ -60,7 +62,12 @@
       title.setAttribute('aria-label', lab.title);
       fitTitle();
       window.addEventListener('resize', fitTitle);
-      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+      // шрифт заголовка грузится не сразу: пересчитать, когда он действительно подгрузится
+      if (document.fonts) {
+        if (document.fonts.load) document.fonts.load('100px "Dela Gothic One"').then(fitTitle, function () {});
+        document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', fitTitle);
+      }
+      window.addEventListener('load', fitTitle);
     }
 
     // обложка: наклейка с номером лабы
