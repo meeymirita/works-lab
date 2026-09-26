@@ -468,10 +468,10 @@ function renderLabPage(key) {
   document.getElementById('lab-root').innerHTML =
     '<nav class="lab-nav">' +
       '<div class="lab-nav-brand">' +
-        '<a href="../index.html" class="display lab-nav-title" data-pl-name="Tech Performance" data-pl-color="#ff2e88">' + escapeHtml(lab.title) + '</a>' +
+        '<a href="../index.html" class="display lab-nav-title" data-pl-name="ANITECH" data-pl-color="#ff2e88">' + escapeHtml(lab.title) + '</a>' +
       '</div>' +
       '<div class="lab-nav-links mono">' +
-        '<a href="../index.html#works" data-pl-name="Tech Performance" data-pl-color="#ff2e88">← все работы</a>' +
+        '<a href="../index.html#works" data-pl-name="ANITECH" data-pl-color="#ff2e88">← все работы</a>' +
         '<a href="' + lab.repo + '" target="_blank" rel="noopener" class="lab-nav-cta">репозиторий ↗</a>' +
       '</div>' +
     '</nav>' +
