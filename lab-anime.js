@@ -68,20 +68,21 @@
     var next = labByKey(ORDER[(idx + 1) % ORDER.length]);
     var pager = document.querySelector('.lab-pager-grid');
     if (pager && prev && next) {
-      pager.innerHTML =
-        '<a href="' + prev.key + '.html" class="lab-pager-link ep-prev" data-pl-name="' + esc(prev.title) + '" data-pl-color="' + prev.accent + '" style="--pager-accent:' + prev.accent + '">' +
-          '<span class="lab-pager-kicker mono">← предыдущая лаба · ' + pad(ORDER.indexOf(prev.key) + 1) + '</span>' +
-          '<span class="lab-pager-title display">' + esc(prev.title) + '</span>' +
-        '</a>' +
-        '<a href="' + next.key + '.html" class="lab-pager-link ep-next" data-pl-name="' + esc(next.title) + '" data-pl-color="' + next.accent + '" style="--pager-accent:' + next.accent + '">' +
-          '<span class="ep-next-img"><img src="images/thumbs/' + next.key + '.webp" alt="" loading="lazy" width="1200" height="1200"></span>' +
-          '<span class="ep-next-text">' +
-            '<span class="lab-pager-kicker mono">Следующая лаба · ' + pad(ORDER.indexOf(next.key) + 1) + '</span>' +
-            '<span class="lab-pager-title display">' + esc(next.title) + '</span>' +
-            '<span class="ep-next-sub">' + esc(next.subtitle) + '</span>' +
-            '<span class="ep-next-go mono">перейти →</span>' +
-          '</span>' +
-        '</a>';
+      // обе соседние лабы — карточками с обложкой: предыдущая слева, следующая справа
+      var neighbour = function (l, dir) {
+        var isNext = dir === 'next';
+        var img = '<span class="ep-nb-img"><img src="images/thumbs/' + l.key + '.webp" alt="" loading="lazy" width="1200" height="1200"></span>';
+        var text =
+          '<span class="ep-nb-text">' +
+            '<span class="lab-pager-kicker mono">' + (isNext ? 'Следующая лаба · ' : '← Предыдущая лаба · ') + pad(ORDER.indexOf(l.key) + 1) + '</span>' +
+            '<span class="lab-pager-title display">' + esc(l.title) + '</span>' +
+            '<span class="ep-nb-sub">' + esc(l.subtitle) + '</span>' +
+            '<span class="ep-nb-go mono">' + (isNext ? 'перейти →' : '← вернуться') + '</span>' +
+          '</span>';
+        return '<a href="' + l.key + '.html" class="lab-pager-link ep-nb ep-' + dir + '" data-pl-name="' + esc(l.title) + '" data-pl-color="' + l.accent + '" style="--pager-accent:' + l.accent + '">' +
+          (isNext ? text + img : img + text) + '</a>';
+      };
+      pager.innerHTML = neighbour(prev, 'prev') + neighbour(next, 'next');
     }
 
     // подвал
