@@ -190,7 +190,7 @@ var LABS = [
     stack: ['Nuxt 4', 'TypeScript', 'Nitro', 'Drizzle', 'Nuxt Content'],
     difficulty: 'Высокая',
     image: '../nuxt/Nuxt.png',
-    open: null, // TODO: '../nuxt/Nuxt_Lab_HelpCenter.html' когда методичка будет готова
+    open: '../nuxt/Nuxt_Lab_HelpCenter.html',
     repo: 'https://github.com/meeymirita/nuxt-lab',
     accent: '#00DC82',
   },
