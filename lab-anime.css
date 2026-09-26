@@ -1,0 +1,174 @@
+/* Прототип редизайна «аниме-опенинг» для страницы серии.
+   Подключается после lab.css и переопределяет его — пока только в nuxt.html. */
+:root {
+  --paper: #f4efe6;
+  --sun: #ffd23f;
+  --ink: #050407;
+  --halftone: radial-gradient(rgba(247,242,245,.16) 1.1px, transparent 1.6px) 0 0 / 9px 9px;
+}
+
+/* шрифты с кириллицей: у Anton и Space Mono её нет */
+body { font-family: 'Onest', system-ui, sans-serif; }
+.display { font-family: 'Dela Gothic One', sans-serif; letter-spacing: .01em; }
+.mono, .lab-topic-num, .lab-chip, .lab-material { font-family: 'JetBrains Mono', monospace; }
+.mono { letter-spacing: .08em; }
+
+/* шапка */
+.lab-nav { background: rgba(5,4,7,.88); border-bottom: 2px solid var(--accent); }
+.lab-nav-title { font-size: clamp(18px,2vw,26px); }
+.lab-nav-cta { border-radius: 4px; box-shadow: 3px 3px 0 var(--paper); }
+
+/* ---------- первый экран ---------- */
+.lab-hero { overflow: hidden; isolation: isolate; background: var(--ink); padding-bottom: clamp(40px,6vw,80px); }
+.lab-hero-glow { z-index: -2; background: var(--halftone); opacity: .6; mask-image: linear-gradient(110deg, transparent 30%, #000 80%); }
+.ep-lines {
+  position: absolute; inset: -40%; z-index: -3; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg at 70% 45%, rgba(247,242,245,.07) 0deg 1.2deg, transparent 1.2deg 7deg);
+  mask-image: radial-gradient(closest-side at 70% 45%, transparent 10%, #000 60%);
+  animation: ep-spin 90s linear infinite;
+}
+@keyframes ep-spin { to { rotate: 360deg; } }
+.ep-flash { position: absolute; inset: 0; z-index: 5; background: #fff; opacity: 0; visibility: hidden; pointer-events: none; }
+.lab-hero::after {
+  content: ""; position: absolute; z-index: -1; left: -10%; right: 45%; bottom: 8%; height: 22%;
+  background: linear-gradient(90deg, var(--accent), transparent); opacity: .55; transform: skewY(-8deg); pointer-events: none;
+}
+
+.lab-eyebrow { gap: 12px; letter-spacing: normal; margin-bottom: 22px; }
+.ep-tag {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  padding: 6px 14px 7px; background: var(--paper); color: var(--ink);
+  transform: rotate(-3deg); box-shadow: 4px 4px 0 var(--accent);
+}
+.ep-tag span { font: 700 11px 'JetBrains Mono', monospace; letter-spacing: .14em; text-transform: uppercase; }
+.ep-tag b { font: 400 28px/1 'Dela Gothic One', sans-serif; }
+.ep-of { font: 700 12px 'JetBrains Mono', monospace; letter-spacing: .12em; color: var(--text-dimmer); text-transform: uppercase; }
+.ep-arc {
+  padding: 6px 12px; background: var(--accent); color: var(--ink);
+  font: 700 11px 'JetBrains Mono', monospace; letter-spacing: .12em; text-transform: uppercase;
+  transform: skewX(-12deg);
+}
+
+.lab-title { line-height: .9; }
+.ep-title {
+  position: relative; display: inline-block; white-space: nowrap;
+  font-size: clamp(64px,11vw,170px); color: var(--paper);
+  text-shadow: 6px 6px 0 var(--accent), 12px 12px 0 rgba(247,242,245,.18);
+}
+.ep-ch { display: inline-block; }
+.ep-title::before, .ep-title::after { content: attr(data-text); position: absolute; inset: 0; opacity: 0; text-shadow: none; pointer-events: none; }
+.ep-title::before { color: #7df9ff; }
+.ep-title::after { color: #ff2e88; }
+.ep-played .ep-title::before { animation: ep-glitch-a 5s steps(1) infinite 1s; }
+.ep-played .ep-title::after { animation: ep-glitch-b 5s steps(1) infinite 1s; }
+@keyframes ep-glitch-a {
+  0%, 88%, 100% { opacity: 0; }
+  89% { opacity: .9; transform: translate(-6px, 2px); clip-path: inset(10% 0 55% 0); }
+  91% { opacity: .9; transform: translate(5px, -2px); clip-path: inset(60% 0 8% 0); }
+}
+@keyframes ep-glitch-b {
+  0%, 88%, 100% { opacity: 0; }
+  90% { opacity: .9; transform: translate(6px, -3px); clip-path: inset(45% 0 30% 0); }
+  92% { opacity: .9; transform: translate(-5px, 3px); clip-path: inset(5% 0 75% 0); }
+}
+.lab-subtitle { color: var(--paper); font-weight: 700; margin-top: 26px; }
+.lab-desc { border-left: 3px solid var(--accent); padding-left: 16px; }
+
+/* кнопки — жёсткая «комиксная» тень */
+.lab-btn {
+  display: inline-flex; align-items: center; border-radius: 0; border: 2px solid var(--paper);
+  font-family: 'Onest', sans-serif; font-size: 14px; letter-spacing: .02em; text-transform: none;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+.lab-btn:hover { opacity: 1; transform: translate(-3px,-3px); }
+.lab-btn-primary { border-color: var(--accent); color: var(--ink); box-shadow: 5px 5px 0 var(--paper); }
+.lab-btn-primary:hover { box-shadow: 8px 8px 0 var(--paper); }
+.lab-btn-outline { background: var(--ink); color: var(--paper); box-shadow: 5px 5px 0 rgba(247,242,245,.35); }
+.lab-btn-outline:hover { color: var(--paper); border-color: var(--paper); box-shadow: 8px 8px 0 rgba(247,242,245,.35); }
+.ep-watch { background: transparent; color: var(--text-dim); border-color: rgba(247,242,245,.3); cursor: pointer; }
+.ep-watch:hover { border-color: var(--sun); color: var(--sun); box-shadow: 5px 5px 0 var(--sun); }
+.ep-watch[aria-pressed="true"] { background: var(--sun); border-color: var(--sun); color: var(--ink); box-shadow: 5px 5px 0 var(--paper); }
+
+/* обложка — панель манги */
+.lab-hero-image { overflow: visible; border: 3px solid var(--paper); box-shadow: 14px 14px 0 var(--accent); }
+.lab-hero-image img { filter: contrast(1.05); }
+.lab-hero-image::after { content: ""; position: absolute; inset: 0; background: var(--halftone); opacity: .35; mix-blend-mode: overlay; pointer-events: none; }
+.ep-img-tag {
+  position: absolute; z-index: 3; top: -16px; left: -12px; padding: 7px 12px;
+  background: var(--sun); color: var(--ink); font: 700 12px 'JetBrains Mono', monospace; letter-spacing: .12em; text-transform: uppercase;
+  transform: rotate(-4deg); box-shadow: 3px 3px 0 var(--ink);
+}
+.ep-stamp {
+  position: absolute; z-index: 3; top: 28px; right: 22px; padding: 8px 16px;
+  border: 4px solid #ff2e88; color: #ff2e88; background: rgba(5,4,7,.6);
+  font: 400 26px 'Dela Gothic One', sans-serif; text-transform: uppercase; letter-spacing: .05em;
+  transform: rotate(12deg) scale(2.2); opacity: 0; pointer-events: none;
+  transition: transform .3s cubic-bezier(.3,1.6,.5,1), opacity .2s ease;
+}
+.ep-is-watched .ep-stamp { transform: rotate(12deg) scale(1); opacity: 1; }
+
+/* лента */
+.lab-marquee { position: relative; z-index: 2; transform: rotate(-1.6deg); width: 104%; margin: 18px 0 18px -2%; box-shadow: 0 6px 0 var(--ink); }
+.lab-marquee-track span { font-size: clamp(16px,2.2vw,26px); color: var(--ink); }
+
+/* полоса цифр */
+.lab-stats { border-bottom: 2px solid var(--line); }
+.lab-stat-label { letter-spacing: .14em; }
+.lab-stat-value { font-size: clamp(18px,1.8vw,24px); }
+
+/* части страницы */
+.lab-kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 12px 6px 10px; background: var(--paper); color: var(--ink);
+  font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  transform: skewX(-12deg); box-shadow: 4px 4px 0 var(--accent);
+}
+.lab-kicker::before { content: ""; width: 8px; height: 8px; background: var(--accent); }
+.lab-h2 { font-size: clamp(32px,4.6vw,60px); margin-top: 6px; }
+
+.lab-topics { gap: 14px; }
+.lab-topic {
+  position: relative; border: 2px solid rgba(247,242,245,.22); background: var(--bg-alt);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.lab-topic:hover { transform: translate(-3px,-3px); border-color: var(--accent); box-shadow: 6px 6px 0 var(--accent); }
+.lab-topic-num {
+  flex: 0 0 auto; padding: 3px 6px; background: var(--accent); color: var(--ink); font-weight: 700;
+}
+#lab-toc-btn { color: var(--paper); }
+
+.lab-section-alt { background: var(--bg-alt) var(--halftone); border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+.lab-chip { border-radius: 0; border-width: 2px; color: var(--paper); background: var(--ink); }
+.lab-chip:nth-child(3n+1) { box-shadow: 3px 3px 0 var(--accent); }
+
+.lab-material { border-width: 2px; background: var(--ink); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, color .15s ease; }
+.lab-material:hover { transform: translate(-3px,-3px); box-shadow: 6px 6px 0 var(--accent); }
+
+/* оглавление — та же рамка */
+.lab-toc-modal-box { border: 2px solid var(--paper); box-shadow: 12px 12px 0 var(--accent); }
+.lab-toc-modal-close { border-radius: 0; }
+
+/* соседние серии: «следующая» — превью, как в конце эпизода */
+.lab-pager { border-top: 2px solid var(--line); }
+.lab-pager-grid { grid-template-columns: minmax(0,1fr) minmax(0,2fr); align-items: stretch; gap: 22px; }
+.lab-pager-link { border: 2px solid rgba(247,242,245,.25); background: var(--bg-alt); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.lab-pager-link:hover { transform: translate(-3px,-3px); border-color: var(--pager-accent); box-shadow: 7px 7px 0 var(--pager-accent); }
+.ep-prev { justify-content: flex-end; }
+.ep-next { flex-direction: row; align-items: stretch; text-align: left; padding: 0; border-color: var(--paper); box-shadow: 7px 7px 0 var(--pager-accent); }
+.ep-next:hover { box-shadow: 11px 11px 0 var(--pager-accent); border-color: var(--paper); }
+.ep-next-img { position: relative; flex: 0 0 38%; overflow: hidden; border-right: 2px solid var(--paper); }
+.ep-next-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.ep-next:hover .ep-next-img img { transform: scale(1.06); }
+.ep-next-text { display: flex; flex-direction: column; gap: 8px; padding: 24px; }
+.ep-next-sub { color: var(--text-dim); font-size: 14px; line-height: 1.5; }
+.ep-next-go { margin-top: auto; padding-top: 10px; font-size: 12px; color: var(--pager-accent); }
+
+.lab-footer { border-top: 2px solid var(--accent); }
+
+@media (max-width: 760px) {
+  .ep-title { text-shadow: 3px 3px 0 var(--accent), 6px 6px 0 rgba(247,242,245,.18); }
+  .lab-pager-grid { grid-template-columns: 1fr; }
+  .ep-next { flex-direction: column; }
+  .ep-next-img { flex-basis: auto; aspect-ratio: 16/9; border-right: none; border-bottom: 2px solid var(--paper); }
+  .lab-hero-image { box-shadow: 8px 8px 0 var(--accent); }
+}

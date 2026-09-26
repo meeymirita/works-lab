@@ -251,7 +251,8 @@ function parseTopics(desc, accent) {
   var idx = desc.indexOf(':');
   if (idx === -1) return [];
   var rest = desc.slice(idx + 1).trim().replace(/\.$/, '');
-  return rest.split(/,\s+/).map(function (text, i) {
+  // запятые внутри скобок не делят тему: «routeRules (SSG, SWR, SPA)» — одна плитка
+  return rest.split(/,\s+(?![^()]*\))/).map(function (text, i) {
     return { num: String(i + 1).padStart(2, '0'), text: text, accent: accent };
   });
 }
