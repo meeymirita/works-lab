@@ -1,4 +1,4 @@
-/* Прототип редизайна «аниме-опенинг» для страницы серии.
+/* Прототип редизайна «аниме-опенинг» для страницы лабы.
    Подключается после lab.css и переопределяет его — пока только в nuxt.html. */
 :root {
   --paper: #f4efe6;
@@ -85,9 +85,6 @@ body { font-family: 'Onest', system-ui, sans-serif; }
 .lab-btn-primary:hover { box-shadow: 8px 8px 0 var(--paper); }
 .lab-btn-outline { background: var(--ink); color: var(--paper); box-shadow: 5px 5px 0 rgba(247,242,245,.35); }
 .lab-btn-outline:hover { color: var(--paper); border-color: var(--paper); box-shadow: 8px 8px 0 rgba(247,242,245,.35); }
-.ep-watch { background: transparent; color: var(--text-dim); border-color: rgba(247,242,245,.3); cursor: pointer; }
-.ep-watch:hover { border-color: var(--sun); color: var(--sun); box-shadow: 5px 5px 0 var(--sun); }
-.ep-watch[aria-pressed="true"] { background: var(--sun); border-color: var(--sun); color: var(--ink); box-shadow: 5px 5px 0 var(--paper); }
 
 /* обложка — панель манги */
 .lab-hero-image { overflow: visible; border: 3px solid var(--paper); box-shadow: 14px 14px 0 var(--accent); }
@@ -98,14 +95,6 @@ body { font-family: 'Onest', system-ui, sans-serif; }
   background: var(--sun); color: var(--ink); font: 700 12px 'JetBrains Mono', monospace; letter-spacing: .12em; text-transform: uppercase;
   transform: rotate(-4deg); box-shadow: 3px 3px 0 var(--ink);
 }
-.ep-stamp {
-  position: absolute; z-index: 3; top: 28px; right: 22px; padding: 8px 16px;
-  border: 4px solid #ff2e88; color: #ff2e88; background: rgba(5,4,7,.6);
-  font: 400 26px 'Dela Gothic One', sans-serif; text-transform: uppercase; letter-spacing: .05em;
-  transform: rotate(12deg) scale(2.2); opacity: 0; pointer-events: none;
-  transition: transform .3s cubic-bezier(.3,1.6,.5,1), opacity .2s ease;
-}
-.ep-is-watched .ep-stamp { transform: rotate(12deg) scale(1); opacity: 1; }
 
 /* лента */
 .lab-marquee { position: relative; z-index: 2; transform: rotate(-1.6deg); width: 104%; margin: 18px 0 18px -2%; box-shadow: 0 6px 0 var(--ink); }
@@ -148,7 +137,7 @@ body { font-family: 'Onest', system-ui, sans-serif; }
 .lab-toc-modal-box { border: 2px solid var(--paper); box-shadow: 12px 12px 0 var(--accent); }
 .lab-toc-modal-close { border-radius: 0; }
 
-/* соседние серии: «следующая» — превью, как в конце эпизода */
+/* соседние лабы: «следующая» — превью с обложкой */
 .lab-pager { border-top: 2px solid var(--line); }
 .lab-pager-grid { grid-template-columns: minmax(0,1fr) minmax(0,2fr); align-items: stretch; gap: 22px; }
 .lab-pager-link { border: 2px solid rgba(247,242,245,.25); background: var(--bg-alt); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
