@@ -1,7 +1,7 @@
 // Прототип редизайна «аниме-опенинг» для страницы лабы.
 // Работает поверх renderLabPage() из lab.js: переписывает подписи и добавляет
 // номер лабы, направление и превью следующей лабы.
-// Подключается пока только к nuxt.html — остальные страницы не затронуты.
+// Подключается ко всем страницам works/*.html после lab.js.
 (function () {
   // тот же порядок и те же направления, что на главной: номер лабы совпадает с карточкой
   var ORDER = ['js', 'typescript', 'vue', 'nuxt', 'php', 'php-coffee', 'nestjs', 'graphql', 'laravel', 'redis', 'rabbitmq', 'postgresql', 'docker', 'traefik', 'kubernetes'];
@@ -16,6 +16,18 @@
   }
   function pad(n) { return String(n).padStart(2, '0'); }
   function esc(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+  // Заголовок — одно слово без переносов: от «JS» до «KUBERNETES». Размер подбираем по ширине
+  // колонки: замеряем слово на 100px и масштабируем, но не крупнее 170px и 11vw.
+  function fitTitle() {
+    var el = document.querySelector('.ep-title');
+    if (!el || !el.parentElement) return;
+    var avail = el.parentElement.clientWidth - 16;          // запас на цветную тень справа
+    el.style.fontSize = '100px';
+    var at100 = el.scrollWidth || 1;
+    var size = Math.min(170, window.innerWidth * .11, avail * 100 / at100);
+    el.style.fontSize = Math.max(40, Math.floor(size)) + 'px';
+  }
 
   window.animeEnhance = function (key) {
     var lab = labByKey(key);
@@ -46,6 +58,9 @@
         word.split('').map(function (ch) { return '<span class="ep-ch">' + esc(ch) + '</span>'; }).join('') +
         '</span>';
       title.setAttribute('aria-label', lab.title);
+      fitTitle();
+      window.addEventListener('resize', fitTitle);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
     }
 
     // обложка: наклейка с номером лабы

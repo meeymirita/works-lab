@@ -460,7 +460,7 @@ function renderLabPage(key) {
   var accentSoft = mixWithWhite(lab.accent, .55);
   var accentBorder = 'rgba(' + rgb + ',.55)';
 
-  document.title = lab.title + ' — Group Lab';
+  document.title = lab.title + ' — ANITECH';
 
   var root = document.documentElement;
   root.style.setProperty('--accent', lab.accent);
@@ -585,7 +585,7 @@ function renderLabPage(key) {
     '</div></section>' +
 
     '<footer class="lab-footer mono">' +
-      '<span>Group Lab · собрано с ❤</span>' +
+      '<span>ANITECH · обучающая платформа</span>' +
       '<span class="lab-footer-git"><span class="lab-spinner"></span>git submodules</span>' +
     '</footer>';
 
