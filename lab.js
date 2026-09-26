@@ -181,6 +181,19 @@ var LABS = [
     repo: 'https://github.com/meeymirita/postgresql-lab',
     accent: '#4A90D9',
   },
+  {
+    key: 'nuxt',
+    titleMain: 'nuxt',
+    title: 'Nuxt Lab',
+    subtitle: 'Help Center — SSR, SSG и SPA в одном приложении',
+    desc: 'Публичный центр поддержки на Nuxt 4 и TypeScript: файловый роутинг, useFetch и гидрация, Nitro server routes, Drizzle + SQLite, общие Zod-схемы в shared/, сессии и защита страниц, Nuxt Content, routeRules (SSG, SWR, SPA), SEO, тесты и сборка в Docker.',
+    stack: ['Nuxt 4', 'TypeScript', 'Nitro', 'Drizzle', 'Nuxt Content'],
+    difficulty: 'Высокая',
+    image: '../nuxt/Nuxt.png',
+    open: null, // TODO: '../nuxt/Nuxt_Lab_HelpCenter.html' когда методичка будет готова
+    repo: 'https://github.com/meeymirita/nuxt-lab',
+    accent: '#00DC82',
+  },
 ];
 
 function escapeHtml(str) {
