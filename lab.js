@@ -194,6 +194,19 @@ var LABS = [
     repo: 'https://github.com/meeymirita/nuxt-lab',
     accent: '#00DC82',
   },
+  {
+    key: 'angular',
+    titleMain: 'angular',
+    title: 'Angular Lab',
+    subtitle: 'Фреймворк целиком на TypeScript',
+    desc: 'Заглушка — методичка ещё не написана. Angular с нуля: standalone-компоненты, сигналы, DI, RxJS, роутинг, формы и тесты. Тема и план по сессиям появятся вместе с методичкой.',
+    stack: ['Angular', 'TypeScript', 'RxJS', 'Signals'],
+    difficulty: 'Высокая',
+    image: '../angular/Angular.png',
+    open: null, // TODO: '../angular/<методичка>.html' когда будет готова
+    repo: 'https://github.com/meeymirita/angular-lab',
+    accent: '#CC26D5',
+  },
 ];
 
 function escapeHtml(str) {

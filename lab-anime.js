@@ -4,9 +4,9 @@
 // Подключается ко всем страницам works/*.html после lab.js.
 (function () {
   // тот же порядок и те же направления, что на главной: номер лабы совпадает с карточкой
-  var ORDER = ['js', 'typescript', 'vue', 'nuxt', 'php', 'php-coffee', 'nestjs', 'graphql', 'laravel', 'redis', 'rabbitmq', 'postgresql', 'docker', 'traefik', 'kubernetes'];
+  var ORDER = ['js', 'typescript', 'vue', 'nuxt', 'angular', 'php', 'php-coffee', 'nestjs', 'graphql', 'laravel', 'redis', 'rabbitmq', 'postgresql', 'docker', 'traefik', 'kubernetes'];
   var TRACKS = [
-    { n: 1, title: 'Фронтенд', keys: ['js', 'typescript', 'vue', 'nuxt'] },
+    { n: 1, title: 'Фронтенд', keys: ['js', 'typescript', 'vue', 'nuxt', 'angular'] },
     { n: 2, title: 'Бэкенд', keys: ['php', 'php-coffee', 'nestjs', 'graphql', 'laravel', 'redis', 'rabbitmq', 'postgresql'] },
     { n: 3, title: 'Инфраструктура', keys: ['docker', 'traefik', 'kubernetes'] }
   ];
