@@ -1668,6 +1668,96 @@ var LABS = [
     image: '../tailwind/tailwind.png',
     open: '../tailwind/Tailwind_Lab_Pulse.html',
     repo: 'https://github.com/meeymirita/tailwind-lab',
+    stackInfo: [
+      {
+        "tag": "фреймворк",
+        "back": "Утилитарные классы и тема на CSS-переменных в четвёртой версии."
+      },
+      {
+        "tag": "токены",
+        "back": "@theme превращает переменные в утилиты."
+      },
+      {
+        "tag": "сборка",
+        "back": "Dev-сервер и production-сборка с горячей перезагрузкой."
+      },
+      {
+        "tag": "адаптив",
+        "back": "Карточки метрик подстраиваются под ширину контейнера."
+      },
+      {
+        "tag": "тёмная тема",
+        "back": "Переключение по атрибуту и семантические цвета."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Тема через @theme",
+        "title": "Токены порождают утилиты",
+        "text": "Переменная в @theme становится и CSS-переменной, и набором утилит: --color-brand-600 даёт bg-brand-600 и text-brand-600. Так фирменная система собирается без tailwind.config.",
+        "points": [
+          "Шкала бренда в oklch",
+          "Радиус и тень как токены карточки",
+          "Значение из темы лучше произвольного [#0b5f7a]"
+        ],
+        "code": "@import \"tailwindcss\";\n\n@theme {\n  --color-brand-600: oklch(54% 0.13 215);\n  --color-brand-700: oklch(46% 0.11 215);\n  --font-display: \"SF Pro Display\", system-ui, sans-serif;\n  --radius-card: 1.25rem;\n  --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.05), 0 8px 24px -8px oklch(0% 0 0 / 0.12);\n}"
+      },
+      {
+        "tab": "Сканер классов",
+        "title": "Почему динамические классы не работают",
+        "text": "Tailwind ищет полные имена классов в исходниках как текст. Шаблонная строка bg-${color}-100 сканер не найдёт, и стиль не сгенерируется.",
+        "points": [
+          "Хранить полные строки классов в карте",
+          "Лишние папки раздувают сборку: @source not",
+          "В сборку попадают только использованные классы"
+        ],
+        "code": "const STATUS = {\n  ok:   { label: 'Успех',    classes: 'bg-emerald-100 text-emerald-800' },\n  warn: { label: 'Медленно', classes: 'bg-amber-100 text-amber-800' },\n  fail: { label: 'Ошибка',   classes: 'bg-rose-100 text-rose-800' },\n};"
+      },
+      {
+        "tab": "Варианты без JS",
+        "title": "group, has и sr-only",
+        "text": "Переключатель «месяц/год» построен на двух настоящих радио, спрятанных через sr-only. Состояние читают has-checked и group-has-[...], поэтому JavaScript не нужен.",
+        "points": [
+          "has-checked: на label",
+          "group-has-[#yearly:checked] на цене",
+          "Фокус с клавиатуры остаётся доступным"
+        ],
+        "code": "<label class=\"cursor-pointer rounded-full px-4 py-2 has-checked:bg-white has-checked:shadow-xs\n              has-focus-visible:ring-2 has-focus-visible:ring-brand-600\">\n  <input type=\"radio\" name=\"period\" value=\"year\" id=\"yearly\" class=\"sr-only\"> За год\n</label>\n<span class=\"group-has-[#yearly:checked]:hidden\">2 900 ₽</span>\n<span class=\"hidden group-has-[#yearly:checked]:inline\">2 320 ₽</span>"
+      },
+      {
+        "tab": "Container queries",
+        "title": "@container и @sm:",
+        "text": "Карточка метрики в четырёх узких колонках и на всю ширину над таблицей получает разную раскладку при одном и том же окне. Ловушка: без @container на предке варианты @sm: просто не сработают.",
+        "points": [
+          "@container на обёртке",
+          "@sm:, @md: от ширины контейнера",
+          "Именованные контейнеры @container/metric"
+        ],
+        "code": "<li class=\"@container\">\n  <article class=\"flex h-full flex-col gap-3 rounded-card border border-slate-200 bg-white p-5\n                  @sm:flex-row @sm:items-end @sm:justify-between\">\n    <p class=\"mt-1 text-3xl font-bold tracking-tight @sm:text-4xl\">12 480</p>\n  </article>\n</li>"
+      },
+      {
+        "tab": "Тёмная тема",
+        "title": "@custom-variant и роли",
+        "text": "По умолчанию dark: слушает систему и не реагирует на атрибут. @custom-variant привязывает его к data-theme, а семантические токены в @theme inline избавляют от пар dark: на каждом элементе.",
+        "points": [
+          "Тема по атрибуту вместо media",
+          "Роли surface, fg, line меняются в одном месте",
+          "color-scheme: dark для нативных полей"
+        ],
+        "code": "@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));\n\n[data-theme=dark] { color-scheme: dark; --surface: var(--color-slate-900); --fg: var(--color-slate-100); }\n@theme inline {\n  --color-surface: var(--surface);\n  --color-fg: var(--fg);\n}"
+      },
+      {
+        "tab": "Свои классы и слои",
+        "title": "@layer components",
+        "text": "Собственный класс вне слоёв побеждает утилиты и ломает модификаторы вроде p-3. В @layer components он остаётся переопределяемым.",
+        "points": [
+          "Слои: theme, base, components, utilities",
+          "@apply как последнее средство",
+          "@utility для новых утилит, работающих с вариантами"
+        ],
+        "code": "@layer components {\n  .card {\n    padding: 2rem;\n    border-radius: var(--radius-card);\n    background: var(--surface);\n    border: 1px solid var(--line);\n  }\n}"
+      }
+    ],
     accent: '#38BDF8',
   },
 ];
