@@ -1906,6 +1906,286 @@ var LABS = [
         "code": "const MovementSchema = z.discriminatedUnion('kind', [\n  z.object({ kind: z.literal('in'),  itemId: z.string(), to: z.string(),   qty: z.number().positive(), unitCost: z.number().nonnegative() }),\n  z.object({ kind: z.literal('out'), itemId: z.string(), from: z.string(), qty: z.number().positive(), reason: z.enum(['sale', 'writeoff', 'sample']) }),\n])\ntype MovementInput = z.infer<typeof MovementSchema>\n\nconst parsed = MovementSchema.safeParse(JSON.parse(line))\nif (parsed.success) apply(parsed.data)"
       }
     ],
+    sessions: [
+      {
+        "h": "~2,5 ч",
+        "t": "Стенд и песочница: от JS к типам",
+        "r": "Пять скриптов, которые компилируются без ошибок, и первый тест"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Домен склада",
+        "r": "applyMovement с тестами: невозможные состояния невыразимы"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Generics и типизированные абстракции",
+        "r": "Сервис Warehouse из типизированных кубиков"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "CLI",
+        "r": "Рабочий wh: item:add, stock:in/out/transfer/list/low, import:csv"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Сквозная типизация",
+        "r": "Тот же домен в API и в браузере с одним источником типов"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса от формы до склада",
+      "rows": [
+        {
+          "label": "web · Vue 3 + TS",
+          "boxes": [
+            "MovementForm",
+            "StockTable",
+            "request<R>"
+          ]
+        },
+        {
+          "label": "core · общие типы",
+          "boxes": [
+            "ApiContract",
+            "MovementInputSchema (Zod)"
+          ]
+        },
+        {
+          "label": "api · Express",
+          "boxes": [
+            "POST /movements",
+            "Zod на req.body"
+          ]
+        },
+        {
+          "label": "core · домен",
+          "boxes": [
+            "Warehouse",
+            "applyMovement → Result"
+          ]
+        },
+        {
+          "label": "Хранилище",
+          "boxes": [
+            "JsonRepository<T>",
+            "JSON-файлы"
+          ]
+        }
+      ],
+      "note": "Обратный путь: ошибка домена приходит как Result с ok: false (код 422), клиент возвращает её типизированной, а explainApplyError превращает в текст, как в CLI.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "web · Vue",
+            "x": 14,
+            "w": 200
+          },
+          {
+            "t": "core · типы и домен",
+            "x": 230,
+            "w": 200
+          },
+          {
+            "t": "api · Express",
+            "x": 450,
+            "w": 240
+          },
+          {
+            "t": "данные",
+            "x": 720,
+            "w": 266
+          }
+        ],
+        "nodes": [
+          {
+            "id": "ui",
+            "t": "MovementForm",
+            "s": "computed<MovementInput>",
+            "x": 110,
+            "y": 130,
+            "d": "Vue-форма с переключаемым kind. computed собирает из плоской формы размеченное объединение MovementInput, а компилятор проверяет каждую ветку."
+          },
+          {
+            "id": "cl",
+            "t": "request<R>",
+            "s": "generic-клиент",
+            "x": 110,
+            "y": 330,
+            "d": "Клиент по ApiContract: тип ответа берётся через indexed access, а обязательность второго аргумента решает conditional type."
+          },
+          {
+            "id": "con",
+            "t": "ApiContract",
+            "s": "маршрут → запрос/ответ",
+            "x": 330,
+            "y": 130,
+            "d": "Тип в core: карта маршрутов с формой запроса и ответа. Сервер и клиент зависят от одного контракта, изменение ответа ломает компиляцию обеих сторон."
+          },
+          {
+            "id": "sch",
+            "t": "MovementInput",
+            "s": "Zod · z.infer",
+            "x": 330,
+            "y": 290,
+            "d": "Схема проверяет данные в рантайме и порождает тип MovementInput. Его используют CLI, API, клиент и Vue-форма."
+          },
+          {
+            "id": "wh",
+            "t": "Warehouse",
+            "s": "applyMovement → Result",
+            "x": 330,
+            "y": 450,
+            "d": "Сервис домена: репозитории, TypedEmitter и applyMovement, возвращающий Result<Stock, StockError> вместо исключения."
+          },
+          {
+            "id": "ex",
+            "t": "Express",
+            "s": "POST /movements",
+            "x": 550,
+            "y": 210,
+            "d": "Обработчик типизирован как Response<ApiContract[R]['response']>: если тело ответа не совпадает с контрактом, typecheck падает."
+          },
+          {
+            "id": "zd",
+            "t": "Zod на req.body",
+            "s": "unknown → MovementInput",
+            "x": 550,
+            "y": 390,
+            "d": "В типах Express req.body — any, поэтому на границе тело сразу проходит Zod. На выходе доверенный тип без as."
+          },
+          {
+            "id": "repo",
+            "t": "JsonRepository",
+            "s": "Repository · guard",
+            "x": 880,
+            "y": 210,
+            "d": "Реализация Repository<T extends Entity>: читает и пишет JSON-файл, а filter с type predicate закрывает границу файла без as."
+          },
+          {
+            "id": "json",
+            "t": "JSON-файлы",
+            "s": "общие с CLI",
+            "x": 880,
+            "y": 400,
+            "d": "Те же файлы использует CLI wh: экземпляр домена один и тот же, поэтому API и командная строка видят одинаковый склад."
+          }
+        ],
+        "edges": [
+          {
+            "a": "ui",
+            "b": "cl"
+          },
+          {
+            "a": "cl",
+            "b": "ex"
+          },
+          {
+            "a": "ex",
+            "b": "zd"
+          },
+          {
+            "a": "zd",
+            "b": "wh"
+          },
+          {
+            "a": "wh",
+            "b": "repo"
+          },
+          {
+            "a": "repo",
+            "b": "json"
+          },
+          {
+            "a": "con",
+            "b": "cl"
+          },
+          {
+            "a": "con",
+            "b": "ex"
+          },
+          {
+            "a": "sch",
+            "b": "zd"
+          },
+          {
+            "a": "ex",
+            "b": "cl",
+            "back": true
+          },
+          {
+            "a": "cl",
+            "b": "ui",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "ui",
+            "txt": "Форма собирает MovementInput из плоских полей."
+          },
+          {
+            "n": "cl",
+            "txt": "request('POST /movements', { body }): типы запроса берутся из ApiContract."
+          },
+          {
+            "n": "ex",
+            "txt": "Express принимает POST /movements."
+          },
+          {
+            "n": "zd",
+            "txt": "Zod проверяет req.body: unknown превращается в MovementInput."
+          },
+          {
+            "n": "wh",
+            "txt": "Warehouse вызывает applyMovement и получает Result<Stock, StockError>."
+          },
+          {
+            "n": "repo",
+            "txt": "JsonRepository сохраняет новый снимок склада в JSON-файл."
+          },
+          {
+            "n": "ex",
+            "txt": "res.json(Result): при нехватке остатка тело с ok: false уходит с кодом 422.",
+            "back": true
+          },
+          {
+            "n": "cl",
+            "txt": "Клиент возвращает типизированный Result, а не бросает исключение.",
+            "back": true
+          },
+          {
+            "n": "ui",
+            "txt": "explainApplyError превращает код ошибки в текст под формой.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Куда деваются типы после компиляции и что из этого следует для JSON, argv и HTTP?",
+        "a": "Компилятор tsc проверяет типы и выбрасывает их, в рантайме работает обычный JS без проверок. Поэтому всё, что приходит извне (JSON, argv, файл, HTTP), имеет тип unknown, и проверять это нужно кодом, например Zod, а не объявлять."
+      },
+      {
+        "q": "Как assertNever превращает пропущенный вариант в ошибку компиляции?",
+        "a": "В default-ветке switch переменная должна иметь тип never. Если в размеченное объединение добавили новый вариант, а ветку не написали, в default попадёт непустой тип, и компилятор укажет точное место. Так добавление пятого варианта Movement сразу подсвечивает оба switch, где его забыли."
+      },
+      {
+        "q": "Почему Result лучше исключений для ожидаемых отказов и хуже для неожиданных?",
+        "a": "Исключение не видно в сигнатуре, а Result<Stock, StockError> — часть типа, и компилятор заставляет проверить ok. Поэтому ожидаемые отказы бизнес-логики возвращают Result, а неожиданное (баг, сбой I/O) остаётся исключением. Цена Result — многословность: if (!r.ok) return r на каждом шаге."
+      },
+      {
+        "q": "Почему обычный Omit ломает union, а DistributiveOmit нет?",
+        "a": "Omit<A | B, K> сначала объединяет A и B в общую форму, теряя различия вариантов, и только потом убирает ключи. Распределительная версия применяется к каждому варианту отдельно, поэтому размеченное объединение остаётся размеченным."
+      },
+      {
+        "q": "Как один тип MovementInput используется в CLI, API, клиенте и Vue, и что упадёт при изменении схемы?",
+        "a": "Тип выведен из Zod-схемы в core: CLI берёт его для CSV, API для тела запроса, клиент для аргумента request, Vue-форма для emit и computed. При изменении схемы упадёт компиляция во всех четырёх местах сразу, а не в проде."
+      }
+    ],
     accent: '#3178C6',
   },
   {
