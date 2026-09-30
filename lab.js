@@ -1552,6 +1552,206 @@ var LABS = [
         code: "const results = toSignal(\n  toObservable(query).pipe(debounceTime(300), switchMap(q => api.search(q))),\n  { initialValue: [] },\n);   // сигнал → поток с операторами → снова сигнал",
       },
     ],
+    sessions: [
+      { h: '~3 ч', t: 'Стенд, компоненты, сигналы', r: 'Каталог комнат на моковых данных с фильтрами' },
+      { h: '~3,5 ч', t: 'DI и HTTP', r: 'Каталог с сервера, поиск без гонок, лог и ошибки запросов' },
+      { h: '~3 ч', t: 'Роутер', r: 'Страницы комнаты и расписания дня' },
+      { h: '~4 ч', t: 'Формы', r: 'Форма брони с клиентской и серверной проверкой слота' },
+      { h: '~3,5 ч', t: 'Авторизация, состояние, потоки', r: 'Вход, роли, стор броней и живое расписание по SSE' },
+      { h: '~3,5 ч', t: 'Качество и продакшн', r: 'Тесты, runtime-конфиг, сборка под nginx' },
+    ],
+    arch: {
+      title: 'Путь одного запроса',
+      rows: [
+        { label: 'Браузер · Angular 22', boxes: ['Компоненты (OnPush)', 'Signals · Signal Forms'] },
+        { label: 'Состояние', boxes: ['AuthStore', 'BookingsStore'] },
+        { label: 'HTTP-слой', boxes: ['authInterceptor', 'apiLogInterceptor', 'errorInterceptor', 'HttpClient · httpResource'] },
+        { label: 'nginx :8080', boxes: ['SPA-fallback', 'прокси /api'] },
+        { label: 'API на Node :3000', boxes: ['REST /api/*', 'SSE /api/events'] },
+      ],
+      live: {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "браузер · Angular",
+            "x": 14,
+            "w": 340
+          },
+          {
+            "t": "HTTP-слой",
+            "x": 450,
+            "w": 200
+          },
+          {
+            "t": "сервер",
+            "x": 680,
+            "w": 306
+          }
+        ],
+        "nodes": [
+          {
+            "id": "ui",
+            "t": "Компоненты",
+            "s": "OnPush",
+            "x": 110,
+            "y": 150,
+            "d": "BookingPage читает сигналы прямо в шаблоне. Перерисовка происходит только там, где сигнал реально изменился."
+          },
+          {
+            "id": "sig",
+            "t": "Signals · Forms",
+            "s": "состояние формы",
+            "x": 110,
+            "y": 330,
+            "d": "Модель формы на сигналах: правила валидации, pending() на время проверки слота, ошибки у полей."
+          },
+          {
+            "id": "bks",
+            "t": "BookingsStore",
+            "s": "create() · «мои брони»",
+            "x": 330,
+            "y": 150,
+            "d": "Стор на сигналах: create() отправляет бронь, список «Мои брони» и счётчик в шапке обновляются автоматически."
+          },
+          {
+            "id": "auth",
+            "t": "AuthStore",
+            "s": "токен и роль",
+            "x": 330,
+            "y": 400,
+            "d": "Хранит токен и роль пользователя. isAdmin() читает guard, токен подставляет интерцептор."
+          },
+          {
+            "id": "http",
+            "t": "HttpClient",
+            "s": "httpResource",
+            "x": 550,
+            "y": 150,
+            "d": "Отправляет запросы. httpResource сам перезапускается, когда меняется сигнал-параметр (например, дата в расписании)."
+          },
+          {
+            "id": "int",
+            "t": "Интерцепторы",
+            "s": "auth → log → error",
+            "x": 550,
+            "y": 330,
+            "d": "authInterceptor добавляет Bearer, apiLogInterceptor логирует запрос, errorInterceptor превращает 401 и 500 в понятные ошибки."
+          },
+          {
+            "id": "ngx",
+            "t": "nginx :8080",
+            "s": "SPA-fallback · /api",
+            "x": 770,
+            "y": 240,
+            "d": "Отдаёт статику Angular с SPA-fallback на index.html и проксирует /api на Node."
+          },
+          {
+            "id": "rest",
+            "t": "REST /api/*",
+            "s": "Node :3000",
+            "x": 900,
+            "y": 110,
+            "d": "Сервер бронирований: 201 при успехе, 409 при пересечении брони, 403 при попытке отменить чужую."
+          },
+          {
+            "id": "sse",
+            "t": "SSE /api/events",
+            "s": "поток событий",
+            "x": 900,
+            "y": 390,
+            "d": "Поток server-sent events: событие booking.created приходит всем открытым клиентам без перезагрузки страницы."
+          }
+        ],
+        "edges": [
+          {
+            "a": "ui",
+            "b": "bks"
+          },
+          {
+            "a": "ui",
+            "b": "sig"
+          },
+          {
+            "a": "sig",
+            "b": "bks"
+          },
+          {
+            "a": "bks",
+            "b": "http"
+          },
+          {
+            "a": "auth",
+            "b": "int"
+          },
+          {
+            "a": "http",
+            "b": "int"
+          },
+          {
+            "a": "int",
+            "b": "ngx"
+          },
+          {
+            "a": "ngx",
+            "b": "rest"
+          },
+          {
+            "a": "ngx",
+            "b": "sse"
+          },
+          {
+            "a": "sse",
+            "b": "bks",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "ui",
+            "txt": "Пользователь нажимает «Забронировать»: форма прошла проверку."
+          },
+          {
+            "n": "bks",
+            "txt": "BookingsStore.create() готовит запрос POST /api/bookings."
+          },
+          {
+            "n": "http",
+            "txt": "HttpClient отправляет запрос."
+          },
+          {
+            "n": "int",
+            "txt": "authInterceptor добавил Bearer, apiLogInterceptor записал лог."
+          },
+          {
+            "n": "ngx",
+            "txt": "nginx проксирует /api на Node."
+          },
+          {
+            "n": "rest",
+            "txt": "Сервер отвечает 201 и рассылает событие."
+          },
+          {
+            "n": "sse",
+            "txt": "SSE: событие booking.created уходит клиентам.",
+            "back": true
+          },
+          {
+            "n": "bks",
+            "txt": "Стор получил событие — «Мои брони» и расписание обновились.",
+            "back": true
+          }
+        ]
+      },
+      note: 'Обратный путь: сервер шлёт по SSE событие booking.created — и слот появляется в расписании у остальных пользователей без перезагрузки.',
+    },
+    faq: [
+      { q: 'Чем canMatch отличается от canActivate для админки?', a: 'canMatch решает, подходит ли маршрут вообще: при false он не совпадает, и ленивый чанк админки даже не загружается. canActivate срабатывает уже после совпадения. При этом оба guard — только UX: код клиента можно обойти, настоящая проверка (403) живёт на сервере.' },
+      { q: 'Почему HttpClient.get ничего не отправляет без подписки?', a: 'Observable холодный: запрос стартует в момент subscribe. Две подписки — два запроса. Поэтому в шаблонах с сигналами используют toSignal или httpResource, а не забытый get().' },
+      { q: 'Что запускает перерисовку в zoneless-приложении с OnPush?', a: 'Изменение сигнала, который читается в шаблоне, событие из шаблона и явный markForCheck. Поэтому мутация массива «на месте» сетку не обновит: сигнал не узнал, что что-то изменилось.' },
+      { q: 'Зачем SPA-fallback в nginx?', a: 'Без него прямая ссылка или F5 на /rooms/2 даст 404: такого файла на диске нет. Fallback отдаёт index.html, а дальше маршрут разбирает роутер Angular.' },
+      { q: 'Почему клиентская проверка слота не отменяет обработку 409?', a: 'Между проверкой и отправкой формы слот мог занять кто-то другой. Клиентская проверка — подсказка, источник истины — сервер, и его 409 нужно показать у полей времени.' },
+    ],
     accent: '#CC26D5',
   },
   {
@@ -2026,6 +2226,229 @@ function materialCard(n, title, desc, href) {
 }
 
 // Вертикальные табы «Чему вы научитесь» — только у лаб с полем learn.
+function sessionHours(h) { return parseFloat(String(h).replace(',', '.').replace(/[^0-9.]/g, '')) || 0; }
+
+function renderSessions(lab) {
+  if (!lab.sessions || !lab.sessions.length) return '';
+  var total = lab.sessions.reduce(function (sum, x) { return sum + sessionHours(x.h); }, 0);
+  return '<section id="sessions" class="lab-section">' +
+    '<div class="lab-kicker mono">@@ / маршрут</div>' +
+    '<h2 class="lab-h2 display">Карта сессий</h2>' +
+    '<div class="lab-route" data-total="' + total + '">' +
+      '<p class="lab-route-hint">Ширина сегмента — длительность сессии. Нажмите на сегмент или пройдите весь маршрут автоматически.</p>' +
+      '<div class="lab-route-bar" role="tablist" aria-label="Сессии лабы">' +
+        lab.sessions.map(function (x, n) {
+          return '<button type="button" role="tab" class="lab-route-seg" data-i="' + n + '" style="flex:' + sessionHours(x.h) + '" aria-selected="' + (n === 0) + '" aria-label="Сессия ' + (n + 1) + ': ' + escapeHtml(x.t) + '">' +
+            '<span class="lab-route-seg-n mono">' + (n + 1) + '</span><span class="lab-route-seg-h mono">' + escapeHtml(x.h) + '</span></button>';
+        }).join('') +
+      '</div>' +
+      '<div class="lab-route-meter"><div class="lab-route-meter-fill"></div></div>' +
+      '<div class="lab-route-card" role="tabpanel" aria-live="polite"></div>' +
+      '<div class="lab-route-ctl">' +
+        '<button type="button" class="lab-route-btn" data-act="prev" aria-label="Предыдущая сессия">←</button>' +
+        '<button type="button" class="lab-route-btn primary" data-act="tour">▶ пройти маршрут</button>' +
+        '<button type="button" class="lab-route-btn" data-act="next" aria-label="Следующая сессия">→</button>' +
+      '</div>' +
+    '</div></section>';
+}
+
+function initRoute(lab) {
+  var root = document.querySelector('.lab-route');
+  if (!root || !lab.sessions) return;
+  var S = lab.sessions, total = parseFloat(root.getAttribute('data-total')) || 1;
+  var segs = Array.prototype.slice.call(root.querySelectorAll('.lab-route-seg'));
+  var card = root.querySelector('.lab-route-card'), fill = root.querySelector('.lab-route-meter-fill');
+  var tourBtn = root.querySelector('[data-act="tour"]'), cur = 0, timer = null;
+  function fmt(v) { return String(Math.round(v * 10) / 10).replace('.', ','); }
+  function show(n) {
+    cur = (n + S.length) % S.length;
+    var done = 0; for (var i = 0; i <= cur; i++) done += sessionHours(S[i].h);
+    segs.forEach(function (b, k) {
+      b.setAttribute('aria-selected', String(k === cur)); b.classList.toggle('is-done', k < cur);
+    });
+    fill.style.width = (done / total * 100) + '%';
+    card.innerHTML =
+      '<div class="lab-route-big display">' + (cur + 1) + '</div>' +
+      '<div class="lab-route-body"><span class="lab-route-tag mono">сессия ' + (cur + 1) + ' из ' + S.length + ' · ' + escapeHtml(S[cur].h) + '</span>' +
+      '<h3 class="lab-route-title display">' + escapeHtml(S[cur].t) + '</h3>' +
+      '<p class="lab-route-res"><span class="mono">результат</span>' + escapeHtml(S[cur].r) + '</p>' +
+      '<p class="lab-route-sum mono">к концу сессии: ' + fmt(done) + ' из ' + fmt(total) + ' ч · ' + Math.round(done / total * 100) + '%</p></div>';
+    card.classList.remove('is-in'); void card.offsetWidth; card.classList.add('is-in');
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } tourBtn.textContent = '▶ пройти маршрут'; }
+  segs.forEach(function (b, n) { b.addEventListener('click', function () { stop(); show(n); }); });
+  root.querySelector('[data-act="prev"]').addEventListener('click', function () { stop(); show(cur - 1); });
+  root.querySelector('[data-act="next"]').addEventListener('click', function () { stop(); show(cur + 1); });
+  tourBtn.addEventListener('click', function () {
+    if (timer) { stop(); return; }
+    tourBtn.textContent = '❚❚ пауза'; show(0);
+    timer = setInterval(function () { if (cur >= S.length - 1) { stop(); return; } show(cur + 1); }, 2400);
+  });
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); stop(); show(cur + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stop(); show(cur - 1); }
+  });
+  show(0);
+}
+
+function renderArch(lab) {
+  if (!lab.arch) return '';
+  var a = lab.arch;
+  var stat = '<div class="lab-arch">' +
+      a.rows.map(function (r, n) {
+        return (n ? '<div class="lab-arch-arrow" aria-hidden="true">↓</div>' : '') +
+          '<div class="lab-arch-row" style="--i:' + n + '"><span class="lab-arch-label mono">' + escapeHtml(r.label) + '</span>' +
+          '<div class="lab-arch-boxes">' + r.boxes.map(function (b) { return '<span class="lab-arch-box">' + escapeHtml(b) + '</span>'; }).join('') + '</div></div>';
+      }).join('') +
+    '</div>';
+  var liveHtml = a.live
+    ? '<div class="lab-arch-live" hidden>' +
+        '<p class="lab-arch-hint">Двигайте блоки — стрелки тянутся следом. Нажмите на блок, чтобы прочитать, что он делает.</p>' +
+        '<div class="lab-arch-bar"><button type="button" class="lab-arch-btn primary" data-act="send">▶ отправить запрос</button>' +
+        '<button type="button" class="lab-arch-btn" data-act="reset">↺ сбросить</button></div>' +
+        '<div class="lab-arch-stage"><svg class="lab-arch-svg" viewBox="0 0 ' + a.live.w + ' ' + a.live.h + '" role="img" aria-label="' + escapeHtml(a.title) + '"></svg></div>' +
+        '<div class="lab-arch-info" aria-live="polite"><b>Подсказка</b><span>Нажмите на любой блок схемы.</span></div>' +
+      '</div>'
+    : '';
+  return '<section id="arch" class="lab-section-alt"><div class="lab-section-inner">' +
+    '<div class="lab-kicker mono">@@ / архитектура</div>' +
+    '<h2 class="lab-h2 display">' + escapeHtml(a.title) + '</h2>' +
+    '<div class="lab-arch-static">' + stat + '</div>' + liveHtml +
+    (a.note ? '<p class="lab-arch-note"><span class="mono">↑ обратно</span>' + escapeHtml(a.note) + '</p>' : '') +
+    '</div></section>';
+}
+
+// Интерактивная схема: блоки двигаются (GSAP Draggable), стрелки следуют, точка «пробегает» запрос.
+function loadScript(src, cb) {
+  var sc = document.createElement('script');
+  sc.src = src; sc.onload = function () { cb(true); }; sc.onerror = function () { cb(false); };
+  document.head.appendChild(sc);
+}
+
+function initArch(lab) {
+  var root = document.querySelector('.lab-arch-live');
+  if (!lab.arch || !lab.arch.live || !root || !window.gsap || prefersReducedMotion()) return;
+  function boot() {
+    if (!window.Draggable) return;
+    gsap.registerPlugin(Draggable);
+    buildArch(lab.arch.live, root);
+    root.hidden = false;
+    var st = document.querySelector('.lab-arch-static'); if (st) st.hidden = true;
+  }
+  if (window.Draggable) boot();
+  else loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Draggable.min.js', function (ok) { if (ok) boot(); });
+}
+
+function buildArch(cfg, root) {
+  var NS = 'http://www.w3.org/2000/svg', W = 176, H = 52;
+  var svg = root.querySelector('svg'), info = root.querySelector('.lab-arch-info');
+  var byId = {}, edgeEls = [], running = null;
+  function mk(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  var defs = mk('defs', {}, svg);
+  [['lab-ah', 'rgba(247,242,245,.7)'], ['lab-ag', '#6fdc7f']].forEach(function (m) {
+    var mm = mk('marker', { id: m[0], viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    mk('path', { d: 'M0 0L10 5L0 10z', fill: m[1] }, mm);
+  });
+  var gl = mk('g', {}, svg), ge = mk('g', {}, svg), gn = mk('g', {}, svg);
+  var dot = mk('circle', { class: 'lab-arch-dot', r: 7, cx: -50, cy: -50, opacity: 0 }, svg);
+
+  cfg.zones.forEach(function (z) {
+    mk('rect', { class: 'lab-arch-zone', x: z.x, y: 34, width: z.w, height: cfg.h - 60, rx: 14 }, gl);
+    mk('text', { class: 'lab-arch-zone-t', x: z.x + 14, y: 56 }, gl).textContent = z.t;
+  });
+  cfg.nodes.forEach(function (n) {
+    byId[n.id] = n;
+    var g = mk('g', { class: 'lab-arch-node', tabindex: 0, role: 'button', 'aria-label': n.t + ': ' + n.s }, gn);
+    mk('rect', { x: n.x - W / 2, y: n.y - H / 2, width: W, height: H, rx: 10 }, g);
+    mk('text', { x: n.x, y: n.y - 3, 'text-anchor': 'middle' }, g).textContent = n.t;
+    mk('text', { x: n.x, y: n.y + 14, 'text-anchor': 'middle', class: 'sub' }, g).textContent = n.s;
+    n.g = g;
+  });
+  cfg.edges.forEach(function (e) {
+    edgeEls.push({ e: e, p: mk('path', { class: 'lab-arch-edge' + (e.back ? ' back' : ''), 'marker-end': 'url(#' + (e.back ? 'lab-ag' : 'lab-ah') + ')' }, ge) });
+  });
+
+  function pos(id) { var n = byId[id]; return { x: n.x + gsap.getProperty(n.g, 'x'), y: n.y + gsap.getProperty(n.g, 'y') }; }
+  function edgePt(c, to) {
+    var dx = to.x - c.x, dy = to.y - c.y; if (!dx && !dy) return c;
+    var s = Math.min((W / 2 + 4) / Math.abs(dx || 1e-9), (H / 2 + 4) / Math.abs(dy || 1e-9));
+    return { x: c.x + dx * s, y: c.y + dy * s };
+  }
+  function draw() {
+    edgeEls.forEach(function (o) {
+      var a = pos(o.e.a), b = pos(o.e.b), p = edgePt(a, b), q = edgePt(b, a);
+      var mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2, dx = q.x - p.x, dy = q.y - p.y, k = o.e.back ? 0.22 : 0.12;
+      o.p.setAttribute('d', 'M' + p.x + ' ' + p.y + ' Q' + (mx - dy * k) + ' ' + (my + dx * k) + ' ' + q.x + ' ' + q.y);
+    });
+  }
+  draw();
+  function clearMarks() { cfg.nodes.forEach(function (n) { n.g.classList.remove('hit', 'back-hit', 'sel'); }); }
+  function say(title, text, cls) {
+    info.innerHTML = '<b></b><span></span>';
+    info.firstChild.textContent = title; info.lastChild.textContent = text;
+    info.className = 'lab-arch-info' + (cls ? ' ' + cls : '');
+  }
+  function show(n) { clearMarks(); n.g.classList.add('sel'); say(n.t + ' · ' + n.s, n.d); }
+
+  cfg.nodes.forEach(function (n) {
+    Draggable.create(n.g, {
+      type: 'x,y', edgeResistance: .75, zIndexBoost: false,
+      bounds: { minX: -(n.x - W / 2 - 8), maxX: cfg.w - (n.x + W / 2) - 8, minY: -(n.y - H / 2 - 8), maxY: cfg.h - (n.y + H / 2) - 8 },
+      onPress: function () { gn.appendChild(n.g); },
+      onDrag: draw, onClick: function () { show(n); }
+    });
+    n.g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(n); } });
+  });
+
+  var sendBtn = root.querySelector('[data-act="send"]'), resetBtn = root.querySelector('[data-act="reset"]');
+  sendBtn.addEventListener('click', function () {
+    if (running) return;
+    sendBtn.disabled = true; clearMarks();
+    var tl = running = gsap.timeline({ onComplete: function () { running = null; sendBtn.disabled = false; gsap.to(dot, { opacity: 0, duration: .3 }); } });
+    var f = pos(cfg.flow[0].n);
+    tl.set(dot, { attr: { cx: f.x, cy: f.y }, opacity: 1 });
+    cfg.flow.forEach(function (s, i) {
+      tl.call(function () {
+        dot.setAttribute('class', 'lab-arch-dot' + (s.back ? ' back' : ''));
+        byId[s.n].g.classList.add(s.back ? 'back-hit' : 'hit');
+        say((s.back ? '↩ ответ · ' : '→ запрос · ') + 'шаг ' + (i + 1) + '/' + cfg.flow.length, s.txt, 'flow');
+      });
+      var to = cfg.flow[i + 1];
+      if (to) {
+        tl.call(function () {
+          var a = pos(s.n), b = pos(to.n);
+          gsap.fromTo(dot, { attr: { cx: a.x, cy: a.y } }, { attr: { cx: b.x, cy: b.y }, duration: .75, ease: 'power2.inOut' });
+        });
+        tl.to({}, { duration: .85 });
+      } else { tl.to({}, { duration: .9 }); }
+    });
+  });
+  resetBtn.addEventListener('click', function () {
+    if (running) { running.kill(); running = null; sendBtn.disabled = false; }
+    gsap.to(dot, { opacity: 0, duration: .2 }); clearMarks();
+    gsap.to(cfg.nodes.map(function (n) { return n.g; }), { x: 0, y: 0, duration: .6, ease: 'power3.inOut', onUpdate: draw, onComplete: draw });
+    say('Подсказка', 'Нажмите на любой блок схемы.');
+  });
+}
+
+function renderFaq(lab) {
+  if (!lab.faq || !lab.faq.length) return '';
+  return '<section id="faq" class="lab-section">' +
+    '<div class="lab-kicker mono">@@ / вопросы</div>' +
+    '<h2 class="lab-h2 display">Проверьте себя</h2>' +
+    '<div class="lab-faq">' +
+      lab.faq.map(function (f) {
+        return '<details class="lab-faq-item"><summary>' + escapeHtml(f.q) + '</summary><p>' + escapeHtml(f.a) + '</p></details>';
+      }).join('') +
+    '</div></section>';
+}
+
+// Сквозная нумерация блоков: «@@» заменяется на 01, 02, … в порядке появления.
+function numberKickers(html) {
+  var n = 0;
+  return html.replace(/@@/g, function () { n += 1; return String(n).padStart(2, '0'); });
+}
+
 function renderLearn(lab) {
   if (!lab.learn || !lab.learn.length) return '';
   var tabs = lab.learn.map(function (t, n) {
@@ -2034,7 +2457,7 @@ function renderLearn(lab) {
       '<span class="lab-learn-tab-name">' + escapeHtml(t.tab) + '</span></button>';
   }).join('');
   return '<section id="learn" class="lab-section">' +
-    '<div class="lab-kicker mono">02 / навыки</div>' +
+    '<div class="lab-kicker mono">@@ / навыки</div>' +
     '<h2 class="lab-h2 display">Чему вы научитесь</h2>' +
     '<div class="lab-learn">' +
       '<div class="lab-learn-tabs" role="tablist" aria-orientation="vertical" aria-label="Темы лабы">' + tabs + '</div>' +
@@ -2115,7 +2538,7 @@ function renderLabPage(key) {
     ? '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-btn lab-btn-primary mono">Открыть методичку</a>'
     : '<span class="lab-btn lab-btn-primary mono" style="opacity:.5;cursor:not-allowed">Методичка скоро</span>';
 
-  document.getElementById('lab-root').innerHTML =
+  var pageHtml =
     '<nav class="lab-nav">' +
       '<div class="lab-nav-brand">' +
         '<a href="../index.html" class="display lab-nav-title" data-pl-name="ANITECH" data-pl-color="#ff2e88">' + escapeHtml(lab.title) + '</a>' +
@@ -2162,7 +2585,7 @@ function renderLabPage(key) {
     '<section id="inside" class="lab-section">' +
       '<div class="lab-inside-grid">' +
         '<div>' +
-          '<div class="lab-kicker mono">01 / программа</div>' +
+          '<div class="lab-kicker mono">@@ / программа</div>' +
           '<h2 class="lab-h2 display">Что внутри</h2>' +
           (lab.open
             ? '<button type="button" id="lab-toc-btn" class="lab-btn lab-btn-outline mono" onclick="openToc()">Показать оглавление</button>'
@@ -2190,9 +2613,12 @@ function renderLabPage(key) {
       : '') +
 
     renderLearn(lab) +
+    renderSessions(lab) +
+    renderArch(lab) +
+    renderFaq(lab) +
 
     '<section class="lab-section-alt"><div class="lab-section-inner">' +
-      '<div class="lab-kicker mono">' + (lab.learn ? '03' : '02') + ' / стек</div>' +
+      '<div class="lab-kicker mono">@@ / стек</div>' +
       '<h2 class="lab-h2 display">Технологии в этой работе</h2>' +
       '<div class="lab-bento">' +
         lab.stack.map(function (name, n) {
@@ -2210,7 +2636,7 @@ function renderLabPage(key) {
     '</div></section>' +
 
     '<section id="materials" class="lab-section">' +
-      '<div class="lab-kicker mono">' + (lab.learn ? '04' : '03') + ' / материалы</div>' +
+      '<div class="lab-kicker mono">@@ / материалы</div>' +
       '<h2 class="lab-h2 display">С чего начать</h2>' +
       '<div class="lab-materials">' +
         (lab.open
@@ -2236,10 +2662,13 @@ function renderLabPage(key) {
       '<span>ANITECH · обучающая платформа</span>' +
       '<span class="lab-footer-git"><span class="lab-spinner"></span>git submodules</span>' +
     '</footer>';
+  document.getElementById('lab-root').innerHTML = numberKickers(pageHtml);
 
   initNavAutoHide();
   initLearn(lab);
   initTiles();
+  initArch(lab);
+  initRoute(lab);
   if (window.FlipGallery) FlipGallery.init('.lab-hero-image img');
 
   if (window.PageLoader) PageLoader.enter(lab.title, lab.accent);
