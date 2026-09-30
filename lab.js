@@ -526,6 +526,92 @@ var LABS = [
     image: '../php/php.png',
     open: '../php/PHP_Lab_VanillaCoffee.html',
     repo: 'https://github.com/meeymirita/php-lab',
+    stackInfo: [
+      {
+        "tag": "язык",
+        "back": "Весь код написан на чистом PHP 8.4 без фреймворка: типы, замыкания, генераторы, Reflection."
+      },
+      {
+        "tag": "доступ к БД",
+        "back": "Слой над базой: prepared statements, транзакции и защита от SQL-инъекций."
+      },
+      {
+        "tag": "база",
+        "back": "Хранилище кофейни, на котором отрабатываются запросы, схема и rollback."
+      },
+      {
+        "tag": "автозагрузка",
+        "back": "composer.json и PSR-4 заменяют ручные require и лежат в основе роутера и контейнера."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Типы и ==",
+        "title": "strict_types и сравнения PHP 8",
+        "text": "Один declare меняет поведение вызовов функций в файле, а нестрогое сравнение в PHP 8 изменилось. Ловушка: null == 0 в PHP истинно, в JavaScript нет.",
+        "points": [
+          "declare(strict_types=1) действует на весь файл",
+          "таблица == до и после PHP 8",
+          "union и nullable типы"
+        ],
+        "code": "0 == 'abc'   // PHP 7: true   |  PHP 8: false\n0 == ''      // PHP 7: true   |  PHP 8: false\n'10' == '1e1' // true: обе строки числовые\nnull == 0    // true (в JavaScript: false)\n[] == false  // true"
+      },
+      {
+        "tab": "Массивы",
+        "title": "Значения с copy-on-write",
+        "text": "Массив в PHP передаётся по значению, а физическое копирование откладывается до первой записи. Вывод: функция не изменит исходный массив, пока вы не попросите ссылку явно.",
+        "points": [
+          "присваивание копирует логически, а не сразу",
+          "by-value против by-reference",
+          "array_filter сохраняет ключи, usort их сбрасывает"
+        ],
+        "code": "$a = [1, 2, 3];\n$b = $a;\n$b[] = 4;             // копия происходит здесь\nvar_dump($a);         // [1, 2, 3]\n\nfunction addItemByRef(array &$items): void { $items[] = 'new'; }"
+      },
+      {
+        "tab": "Замыкания и генераторы",
+        "title": "use, callable и yield",
+        "text": "Замыкание захватывает переменные только явно и по значению на момент создания. Генератор читает данные порциями, поэтому файл в десять гигабайт не занимает память.",
+        "points": [
+          "use по значению и по ссылке",
+          "fn как автозахват",
+          "yield, yield from, свой Iterator"
+        ],
+        "code": "function readLargeFile(string $path): Generator {\n    $handle = fopen($path, 'r');\n    while (($line = fgets($handle)) !== false) {\n        yield trim($line);\n    }\n    fclose($handle);\n}"
+      },
+      {
+        "tab": "Магические методы",
+        "title": "На чём стоят фасады и Eloquent",
+        "text": "__get и __set прячут атрибуты модели в массив, а __callStatic перенаправляет статический вызов на объект из контейнера. Фасад — не синтаксис, а несколько строк кода.",
+        "points": [
+          "__get, __set, __isset",
+          "__call для динамических where*",
+          "__callStatic как механизм фасадов"
+        ],
+        "code": "public static function __callStatic(string $name, array $args): mixed\n{\n    self::$resolvedInstance ??= app('cache');\n    return self::$resolvedInstance->$name(...$args);\n}\n\nCache::get('key'); // → $resolvedInstance->get('key')"
+      },
+      {
+        "tab": "DI-контейнер",
+        "title": "Autowiring через Reflection",
+        "text": "Контейнер сам читает конструктор класса, разрешает зависимости по типам и рекурсивно строит граф. Единственное, что нужно указать явно, — реализацию интерфейса.",
+        "points": [
+          "bind и singleton",
+          "ReflectionClass и getParameters()",
+          "интерфейс без биндинга: понятная ошибка"
+        ],
+        "code": "$reflection = new \\ReflectionClass($concrete);\n$constructor = $reflection->getConstructor();\nforeach ($constructor->getParameters() as $param) {\n    $type = $param->getType();\n    $dependencies[] = $this->make($type->getName());   // рекурсия\n}\nreturn $reflection->newInstanceArgs($dependencies);"
+      },
+      {
+        "tab": "PDO и middleware",
+        "title": "SQL-инъекции и цепочка обработчиков",
+        "text": "Конкатенация ввода в SQL открывает инъекцию, prepared statement передаёт значение отдельно от кода. Middleware собираются в «матрёшку» вложенных замыканий через array_reduce.",
+        "points": [
+          "prepare и именованные плейсхолдеры",
+          "транзакция, CSRF-токен и hash_equals",
+          "порядок «до» и «после» у middleware"
+        ],
+        "code": "$stmt = $pdo->prepare('SELECT * FROM drinks WHERE name = :name');\n$stmt->execute(['name' => $name]);\n\n$pipeline = array_reduce(\n    array_reverse($this->globalMiddleware),\n    fn($next, $mw) => fn($params) => $mw($params, $next),\n    $route['handler'],\n);"
+      }
+    ],
     accent: '#C9A876',
   },
   {
