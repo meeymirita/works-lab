@@ -297,6 +297,92 @@ var LABS = [
     image: '../kubernetes/kubernetes.png',
     open: '../kubernetes/Kubernetes_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/kubernetes-lab',
+    stackInfo: [
+      {
+        "tag": "оркестратор",
+        "back": "Pod, Deployment, Service, пробы и автомасштабирование вместо Compose."
+      },
+      {
+        "tag": "кластер",
+        "back": "Локальный кластер в контейнерах Docker для экспериментов."
+      },
+      {
+        "tag": "CLI",
+        "back": "Основной инструмент: apply, get, describe, exec, logs."
+      },
+      {
+        "tag": "ingress",
+        "back": "Тот же роутинг, что в Traefik-лабе, но как Ingress-контроллер."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Deployment",
+        "title": "Желаемое состояние вместо команд",
+        "text": "Deployment создаёт ReplicaSet, а тот следит, чтобы Pod'ов с нужными label'ами было ровно replicas. При смене образа поднимается новый ReplicaSet — так работает rolling-обновление без остановки сервиса.",
+        "points": [
+          "replicas: 3 — утверждение, а не разовая команда",
+          "selector.matchLabels связывает Deployment и Pod'ы",
+          "Самолечение через reconciliation loop"
+        ],
+        "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: api"
+      },
+      {
+        "tab": "Service и DNS",
+        "title": "Стабильный адрес для меняющихся Pod'ов",
+        "text": "У Pod'ов нет постоянного IP, поэтому перед ними ставится Service. Он находит Pod'ы по selector, а имя резолвит CoreDNS. ClusterIP по умолчанию виден только внутри кластера.",
+        "points": [
+          "selector совпадает с label'ами Deployment",
+          "api-service.default.svc.cluster.local",
+          "kube-proxy распределяет трафик между Pod'ами"
+        ],
+        "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: api-service\nspec:\n  selector:\n    app: api\n  ports:\n    - port: 3000\n      targetPort: 3000"
+      },
+      {
+        "tab": "ConfigMap и Secret",
+        "title": "Конфигурация отдельно от образа",
+        "text": "Не секретные значения живут в ConfigMap, пароли — в Secret. Ловушка: base64 в Secret — это кодирование, а не шифрование; защищает только ограничение доступа через RBAC.",
+        "points": [
+          "envFrom подключает все переменные разом",
+          "stringData удобнее ручного base64",
+          "Секреты в git — плохая практика"
+        ],
+        "code": "containers:\n  - name: api\n    image: traefik-lab-api:v1\n    envFrom:\n      - configMapRef:\n          name: api-config\n      - secretRef:\n          name: api-secret"
+      },
+      {
+        "tab": "Тома и PVC",
+        "title": "Данные, переживающие Pod",
+        "text": "Pod может пересоздаться на другом узле, поэтому данные БД выносят в PersistentVolumeClaim — «заявку» на место нужного размера. В kind StorageClass создаёт PV автоматически.",
+        "points": [
+          "emptyDir, PV и PVC — три уровня",
+          "accessModes и storage в заявке",
+          "Подключение через volumes и volumeMounts"
+        ],
+        "code": "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: postgres-pvc\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 1Gi"
+      },
+      {
+        "tab": "Пробы",
+        "title": "Готов и жив — разные вопросы",
+        "text": "readinessProbe убирает Pod из Service, но не перезапускает его; livenessProbe убивает и пересоздаёт контейнер. Занятый, но живой процесс не должен погибать из-за медленного ответа.",
+        "points": [
+          "httpGet для API, exec для PostgreSQL",
+          "initialDelaySeconds и periodSeconds",
+          "Аналог healthcheck из Compose, разделённый надвое"
+        ],
+        "code": "readinessProbe:\n  httpGet:\n    path: /health\n    port: 3000\n  initialDelaySeconds: 3\n  periodSeconds: 5\nlivenessProbe:\n  httpGet:\n    path: /health\n    port: 3000\n  failureThreshold: 3"
+      },
+      {
+        "tab": "Ingress и HPA",
+        "title": "Вход снаружи и автомасштабирование",
+        "text": "Traefik работает как Ingress-контроллер: те же роутеры, но описанные через IngressRoute на Service. HPA сам считает число реплик по CPU, но без resources.requests он работать не может.",
+        "points": [
+          "IngressRoute вместо labels",
+          "HPA опирается на metrics-server",
+          "requests и limits обязательны для автоскейлинга"
+        ],
+        "code": "spec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: api\n  minReplicas: 1\n  maxReplicas: 5\n  metrics:\n    - type: Resource\n      resource:\n        name: cpu\n        target:\n          type: Utilization\n          averageUtilization: 50"
+      }
+    ],
     accent: '#326CE5',
   },
   {
