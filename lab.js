@@ -1585,6 +1585,279 @@ var LABS = [
         "code": "spec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: api\n  minReplicas: 1\n  maxReplicas: 5\n  metrics:\n    - type: Resource\n      resource:\n        name: cpu\n        target:\n          type: Utilization\n          averageUtilization: 50"
       }
     ],
+    sessions: [
+      {
+        "h": "",
+        "t": "Кластер и первые объекты",
+        "r": "kind-кластер, Deployment с самолечением и Service со стабильным адресом для API"
+      },
+      {
+        "h": "",
+        "t": "Полный стек: конфиги, данные, пробы",
+        "r": "API с ConfigMap и Secret, PostgreSQL на PVC, пробы готовности и requests/limits"
+      },
+      {
+        "h": "",
+        "t": "Ingress и автоскейлинг",
+        "r": "Traefik в кластере с IngressRoute, HPA вместо ручных реплик и финальный Production Hell"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса в кластер kind",
+      "rows": [
+        {
+          "label": "Хост",
+          "boxes": [
+            "браузер api.localhost",
+            "kind extraPortMappings 80/443"
+          ]
+        },
+        {
+          "label": "Вход в кластер",
+          "boxes": [
+            "Traefik Pod (hostPort)",
+            "IngressRoute api-route"
+          ]
+        },
+        {
+          "label": "Сеть",
+          "boxes": [
+            "Service api-service :3000",
+            "CoreDNS + kube-proxy"
+          ]
+        },
+        {
+          "label": "Приложение",
+          "boxes": [
+            "Deployment api → ReplicaSet → Pod ×3",
+            "HPA api-hpa",
+            "ConfigMap + Secret"
+          ]
+        },
+        {
+          "label": "Данные",
+          "boxes": [
+            "PostgreSQL Pod",
+            "PVC postgres-pvc"
+          ]
+        }
+      ],
+      "note": "Ловушка: HPA не работает без resources.requests, а Service типа LoadBalancer в kind не получает внешний IP, поэтому порты хоста пробрасывают в узел.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "хост · kind",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "кластер: вход и приложение",
+            "x": 250,
+            "w": 430
+          },
+          {
+            "t": "данные",
+            "x": 710,
+            "w": 276
+          }
+        ],
+        "nodes": [
+          {
+            "id": "browser",
+            "t": "Браузер",
+            "s": "api.localhost",
+            "x": 110,
+            "y": 150,
+            "d": "Запрос на api.localhost попадает на порт 80 хоста."
+          },
+          {
+            "id": "kind",
+            "t": "kind-порты",
+            "s": "extraPortMappings 80/443",
+            "x": 110,
+            "y": 350,
+            "d": "Задаётся в kind-config.yaml при создании кластера: порты хоста пробрасываются в узел, потому что без облака LoadBalancer не получит внешний IP."
+          },
+          {
+            "id": "traefik",
+            "t": "Traefik Pod",
+            "s": "Ingress-контроллер",
+            "x": 350,
+            "y": 110,
+            "d": "Тот же Traefik, но развёрнутый Pod'ом в кластере; берёт порты узла через hostPort и читает маршруты из CRD."
+          },
+          {
+            "id": "ir",
+            "t": "IngressRoute",
+            "s": "Host(`api.localhost`)",
+            "x": 570,
+            "y": 110,
+            "d": "Аналог Docker-labels из Traefik-лабы: правило match и ссылка на имя Kubernetes Service."
+          },
+          {
+            "id": "svc",
+            "t": "api-service",
+            "s": "ClusterIP :3000",
+            "x": 350,
+            "y": 270,
+            "d": "Стабильный адрес поверх Pod'ов: находит их через selector app: api, имя резолвит CoreDNS, трафик распределяет kube-proxy."
+          },
+          {
+            "id": "dep",
+            "t": "Deployment api",
+            "s": "ReplicaSet · 3 Pod",
+            "x": 570,
+            "y": 270,
+            "d": "Deployment создаёт ReplicaSet, тот держит три Pod'а и пересоздаёт упавшие; readiness и liveness-пробы бьют в /health."
+          },
+          {
+            "id": "hpa",
+            "t": "HPA api-hpa",
+            "s": "CPU 50% · 1–5 реплик",
+            "x": 350,
+            "y": 430,
+            "d": "Раз в 15 секунд спрашивает metrics-server о загрузке и сам меняет replicas у Deployment."
+          },
+          {
+            "id": "cfg",
+            "t": "ConfigMap/Secret",
+            "s": "envFrom",
+            "x": 570,
+            "y": 430,
+            "d": "Несекретные значения в ConfigMap api-config, пароль в Secret api-secret; подключаются в Pod через envFrom."
+          },
+          {
+            "id": "pg",
+            "t": "PostgreSQL",
+            "s": "Pod · pg_isready",
+            "x": 800,
+            "y": 170,
+            "d": "База с readiness-пробой командой pg_isready, доступна внутри кластера через ClusterIP Service."
+          },
+          {
+            "id": "pvc",
+            "t": "postgres-pvc",
+            "s": "1Gi · StorageClass",
+            "x": 800,
+            "y": 380,
+            "d": "Заявка на хранилище: StorageClass standard в kind сам создаёт PV, данные переживают пересоздание Pod'а."
+          }
+        ],
+        "edges": [
+          {
+            "a": "browser",
+            "b": "kind"
+          },
+          {
+            "a": "kind",
+            "b": "traefik"
+          },
+          {
+            "a": "traefik",
+            "b": "ir"
+          },
+          {
+            "a": "ir",
+            "b": "svc"
+          },
+          {
+            "a": "svc",
+            "b": "dep"
+          },
+          {
+            "a": "hpa",
+            "b": "dep"
+          },
+          {
+            "a": "cfg",
+            "b": "dep"
+          },
+          {
+            "a": "dep",
+            "b": "pg"
+          },
+          {
+            "a": "pg",
+            "b": "pvc"
+          },
+          {
+            "a": "svc",
+            "b": "traefik",
+            "back": true
+          },
+          {
+            "a": "traefik",
+            "b": "browser",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "browser",
+            "txt": "GET http://api.localhost/users/1."
+          },
+          {
+            "n": "kind",
+            "txt": "Порт 80 хоста проброшен в узел kind."
+          },
+          {
+            "n": "traefik",
+            "txt": "Traefik Pod принимает запрос на hostPort."
+          },
+          {
+            "n": "ir",
+            "txt": "IngressRoute api-route: Host(`api.localhost`) совпал."
+          },
+          {
+            "n": "svc",
+            "txt": "api-service выбирает Pod по selector (kube-proxy)."
+          },
+          {
+            "n": "dep",
+            "txt": "Pod из Deployment api отвечает; HPA следит за его CPU."
+          },
+          {
+            "n": "svc",
+            "txt": "Ответ возвращается в Service.",
+            "back": true
+          },
+          {
+            "n": "traefik",
+            "txt": "Traefik отдаёт ответ обратно.",
+            "back": true
+          },
+          {
+            "n": "browser",
+            "txt": "Браузер получает JSON с servedBy.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Deployment создаёт Pod'ы напрямую или через промежуточный объект?",
+        "a": "Через ReplicaSet: он следит за числом Pod'ов с нужными label'ами по selector.matchLabels. Deployment поверх него нужен для rolling-обновлений: при смене image создаётся новый ReplicaSet и трафик переключается постепенно. Удалённый вручную Pod пересоздаётся, а голый Pod без Deployment никто не вернёт."
+      },
+      {
+        "q": "В чём разница между readinessProbe и livenessProbe?",
+        "a": "При провале readinessProbe Pod убирается из Service и перестаёт получать трафик, но не перезапускается. При провале livenessProbe контейнер убивается и пересоздаётся. Разделение нужно, чтобы занятый, но живой процесс не убивали."
+      },
+      {
+        "q": "Почему Secret в Kubernetes не является средством шифрования?",
+        "a": "Kubernetes хранит значения в base64, а это кодирование, разворачивается одной командой. Защита держится на RBAC: кто может выполнить kubectl get secret -o yaml, тот прочитает пароль. Для настоящей секретности нужны внешние инструменты вроде Vault, Sealed Secrets или SOPS."
+      },
+      {
+        "q": "Почему HorizontalPodAutoscaler не работает без resources.requests?",
+        "a": "HPA сам ничего не измеряет: раз в 15 секунд он спрашивает metrics-server, какой процент от requests.cpu потребляет каждый Pod. Без requests не от чего считать проценты. Сам metrics-server в kind по умолчанию нет, его ставят вручную."
+      },
+      {
+        "q": "Почему в kind Service типа LoadBalancer не даёт внешний IP и как это обходится?",
+        "a": "В облаке внешний IP выдаёт провайдер, а в kind провайдера нет. Поэтому при создании кластера в kind-config.yaml задают extraPortMappings, которые пробрасывают порты 80 и 443 хоста в узел, а Pod с Traefik запрашивает эти порты через hostPort."
+      }
+    ],
     accent: '#326CE5',
   },
   {
