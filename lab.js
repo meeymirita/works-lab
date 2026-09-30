@@ -418,6 +418,96 @@ var LABS = [
     image: 'images/laravel.png',
     open: '../laravel/Laravel_Lab_TaskFlow.html',
     repo: 'https://github.com/meeymirita/laravel-lab',
+    stackInfo: [
+      {
+        "tag": "фреймворк",
+        "back": "Основа TaskFlow: разбираются контейнер, Eloquent, очереди и тесты на Laravel 13."
+      },
+      {
+        "tag": "база",
+        "back": "Хранит воркспейсы, проекты и задачи со связями и pivot-таблицами."
+      },
+      {
+        "tag": "кэш и локи",
+        "back": "Backend для Cache::lock, кэша статистики и rate limiting."
+      },
+      {
+        "tag": "брокер",
+        "back": "Драйвер очередей: jobs, уведомления и письма выполняются воркером."
+      },
+      {
+        "tag": "realtime",
+        "back": "Broadcasting: доска задач получает изменения по WebSocket без опроса."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Container",
+        "title": "Что делает контейнер",
+        "text": "Контейнер собирает объекты через Reflection, а интерфейс без биндинга падает с понятной ошибкой. Вывод: bind создаёт новый объект каждый раз, singleton — один общий.",
+        "points": [
+          "bind против singleton на живом примере",
+          "app()->call() и разрешение параметров",
+          "путь запроса от public/index.php до ответа"
+        ],
+        "code": "app()->bind('temp.uuid', fn () => Str::uuid()->toString());\ndump(app('temp.uuid') === app('temp.uuid'));   // false\n\napp()->singleton('temp.uuid2', fn () => Str::uuid()->toString());\ndump(app('temp.uuid2') === app('temp.uuid2'));  // true"
+      },
+      {
+        "tab": "Eloquent и N+1",
+        "title": "Связи, pivot и запросы",
+        "text": "Обращение к связи в цикле даёт лавину запросов, и Laravel умеет ронять такой код исключением. Eager loading превращает 15 запросов в 3, независимо от числа задач.",
+        "points": [
+          "preventLazyLoading с первого дня",
+          "with, withCount, whereHas",
+          "belongsToMany, свой Pivot, полиморфные связи"
+        ],
+        "code": "Model::preventLazyLoading(true);\n\n// 1 + 2 запроса на каждую задачу\nforeach (Task::all() as $task) { $task->project->workspace->name; }\n\n// всегда 3 запроса\nforeach (Task::with('project.workspace')->get() as $task) { $task->project->workspace->name; }"
+      },
+      {
+        "tab": "Auth и Policy",
+        "title": "Кто что может делать",
+        "text": "Роли лежат в pivot-таблице, а политика читает их и решает, можно ли действие над моделью. Проверка в контроллере одной строкой, без ручных if.",
+        "points": [
+          "Sanctum SPA: сессия и CSRF-cookie",
+          "Policy: view, update, delete и своё assign",
+          "authorize() и автообнаружение политик"
+        ],
+        "code": "public function update(User $user, Task $task): bool\n{\n    return $user->isAtLeastIn($task->project->workspace, Role::Member)\n        && ($task->created_by === $user->id\n            || $task->assignees->contains($user)\n            || $user->isAtLeastIn($task->project->workspace, Role::Admin));\n}"
+      },
+      {
+        "tab": "Observer и очереди",
+        "title": "События, listeners и jobs",
+        "text": "Наблюдатель реагирует на изменения модели, а долгую работу выносят в job с повторами и уникальностью. Ловушка: массовый update через Query Builder наблюдатель не вызывает.",
+        "points": [
+          "created, updating, deleted и isDirty",
+          "Event и независимые Listener",
+          "retry, backoff, ShouldBeUnique, failed_jobs"
+        ],
+        "code": "class RecalculateProjectStats implements ShouldQueue, ShouldBeUnique\n{\n    public int $tries = 3;\n    public array $backoff = [5, 15, 30];\n\n    public function uniqueId(): string { return \"project-stats-{$this->project->id}\"; }\n}"
+      },
+      {
+        "tab": "Кэш и блокировки",
+        "title": "Cache::lock и rate limit",
+        "text": "Распределённый мьютекс поверх Redis не даёт двум одновременным запросам выполнить одно действие. Второй запрос ждёт и видит уже готовый результат.",
+        "points": [
+          "Cache::remember и инвалидация в Observer",
+          "lock()->block() против get()",
+          "RateLimiter и свой ответ 429"
+        ],
+        "code": "return Cache::lock(\"invite:{$workspace->id}:{$email}\", seconds: 10)->block(3, function () use ($workspace, $email) {\n    if ($workspace->invitations()->where('email', $email)->whereNull('accepted_at')->exists()) {\n        throw new \\RuntimeException('Приглашение уже отправлено');\n    }\n    // создаём приглашение и ставим письмо в очередь\n});"
+      },
+      {
+        "tab": "Тесты",
+        "title": "Feature-тесты и fakes",
+        "text": "Тесты идут через настоящий HTTP-стек с базой, а побочные эффекты — письма, события, уведомления — подменяются fake-ами. Проверяется и ответ, и состояние в БД.",
+        "points": [
+          "RefreshDatabase, actingAs, фабрики",
+          "Event, Notification, Mail::fake()",
+          "мок интерфейса через $this->mock()"
+        ],
+        "code": "$response = $this->actingAs($member)->postJson(\"/api/v1/projects/{$project->id}/tasks\", [\n    'title' => 'Новая задача', 'priority' => 'high',\n]);\n$response->assertCreated()->assertJsonPath('data.title', 'Новая задача');\n$this->assertDatabaseHas('tasks', ['title' => 'Новая задача']);"
+      }
+    ],
     accent: '#FF2D20',
   },
   {
