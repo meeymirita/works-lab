@@ -292,6 +292,93 @@ var LABS = [
     image: 'images/php.png',
     open: '../php-coffee/docs/OOP_Lab_CoffeeShop.html',
     repo: 'https://github.com/meeymirita/oop-lab',
+    stackInfo: [
+      {
+        "tag": "язык",
+        "back": "Весь домен — на PHP 8.4: readonly, enum, promotion конструктора, first-class callable."
+      },
+      {
+        "tag": "каркас",
+        "back": "Laravel 13 даёт HTTP-слой, контейнер и Eloquent, а домен от него отделён."
+      },
+      {
+        "tag": "хранилище",
+        "back": "PostgreSQL хранит снимки заказов, а доступ к ним закрыт интерфейсом репозитория."
+      },
+      {
+        "tag": "брокер",
+        "back": "RabbitMQ доставляет события order.paid воркерам бариста и уведомлений."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Value Object",
+        "title": "Money: деньги как значение",
+        "text": "Деньги хранятся целыми копейками, объект неизменяем, а равенство считается по содержимому. Ловушка: readonly защищает свойство, но не объект внутри него.",
+        "points": [
+          "private-конструктор и static-фабрики",
+          "readonly и «изменение» через новый объект",
+          "equals() против ===",
+          "минус на входе отсекается сразу"
+        ],
+        "code": "public static function fromCents(int $cents): self\n{\n    if ($cents < 0) {\n        throw new InvalidArgumentException(\"Money cannot be negative: {$cents}\");\n    }\n    return new self($cents);\n}\npublic function add(Money $other): self { return new self($this->cents + $other->cents); }"
+      },
+      {
+        "tab": "Наследование",
+        "title": "От копипасты к abstract Drink",
+        "text": "Два класса «в лоб» дублируют формулу цены. Общий скелет уходит в абстрактного родителя, а дочерним остаются только «дырки»: название и базовая цена.",
+        "points": [
+          "abstract-методы и хуки по желанию",
+          "final-скелет, который нельзя переопределить",
+          "enum Size с match для наценки"
+        ],
+        "code": "abstract class Drink\n{\n    abstract protected function basePrice(): Money;\n    abstract protected function title(): string;\n\n    final public function price(): Money\n    {\n        return $this->basePrice()->add($this->size->surcharge());\n    }\n}"
+      },
+      {
+        "tab": "Инкапсуляция",
+        "title": "Order охраняет свои инварианты",
+        "text": "Единственное изменяемое состояние заказа закрыто, а любое действие проходит через проверки. Вывод: инвариант, который можно обойти снаружи, инвариантом не является.",
+        "points": [
+          "private-состояние и исключения на нарушения",
+          "нельзя оплатить пустой или изменить оплаченный заказ",
+          "lines() отдаёт копию массива"
+        ],
+        "code": "public function add(Drink $drink, int $qty = 1): void\n{\n    if ($this->paid) { throw new DomainException('Заказ уже оплачен, добавлять нельзя'); }\n    if ($qty < 1)    { throw new InvalidArgumentException(\"Количество должно быть ≥ 1, получено {$qty}\"); }\n    $this->lines[] = new OrderLine($drink->name(), $drink->price(), $qty);\n}"
+      },
+      {
+        "tab": "Decorator",
+        "title": "Добавки поверх напитка",
+        "text": "Овсяное молоко, шот и сироп оборачивают напиток и достраивают название и цену. Композиция вместо взрыва подклассов «Латте с сиропом и молоком».",
+        "points": [
+          "общий интерфейс Beverage у напитка и добавки",
+          "абстрактный BeverageDecorator хранит обёрнутый объект",
+          "enum Extra как фабрика добавок"
+        ],
+        "code": "final class OatMilk extends BeverageDecorator\n{\n    public function name(): string { return $this->inner->name() . ' + овсяное молоко'; }\n    public function price(): Money { return $this->inner->price()->add(Money::rub(60)); }\n}"
+      },
+      {
+        "tab": "Strategy",
+        "title": "Скидки как объекты",
+        "text": "Каждая акция — отдельный класс с одним интерфейсом, а «текущее время» тоже интерфейс, поэтому happy hour проверяется в тесте с подменой часов.",
+        "points": [
+          "DiscountPolicy и подмена стратегий без if в кассе",
+          "NoDiscount как Null Object",
+          "композиция: условие плюс любая другая стратегия"
+        ],
+        "code": "interface DiscountPolicy\n{\n    public function discountFor(Order $order): Money;\n}\n\nfinal class BulkDiscount implements DiscountPolicy\n{\n    public function __construct(private readonly int $minItems, private readonly DiscountPolicy $inner) {}\n}"
+      },
+      {
+        "tab": "Repository и события",
+        "title": "Домен не знает про инфраструктуру",
+        "text": "Домен говорит только интерфейсами: «сохранить заказ», «опубликовать событие». Eloquent и RabbitMQ подключаются снаружи и заменяются в тестах на in-memory версии.",
+        "points": [
+          "OrderRepository: интерфейс в домене, Eloquent в Infrastructure",
+          "EventPublisher и AMQP-реализация",
+          "сквозной тест без БД и брокера"
+        ],
+        "code": "interface OrderRepository\n{\n    public function save(Order $order): void;\n    /** @throws OrderNotFound */\n    public function get(string $id): Order;\n}\n\ninterface EventPublisher\n{\n    public function publish(string $event, array $payload): void;\n}"
+      }
+    ],
     accent: '#777BB4',
   },
   {
