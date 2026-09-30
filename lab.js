@@ -279,6 +279,261 @@ var LABS = [
         "code": "certificatesResolvers:\n  letsencrypt:\n    acme:\n      email: you@example.com\n      storage: /etc/traefik/acme/acme.json\n      caServer: \"https://acme-staging-v02.api.letsencrypt.org/directory\"\n      httpChallenge:\n        entryPoint: web"
       }
     ],
+    sessions: [
+      {
+        "h": "",
+        "t": "Базовая инфраструктура и первый маршрут",
+        "r": "Traefik с Docker provider, роутер на whoami через labels и дашборд под basicauth"
+      },
+      {
+        "h": "",
+        "t": "API, frontend и БД за прокси",
+        "r": "Три реплики API с healthcheck и балансировкой, frontend по /app со StripPrefix, PostgreSQL и Adminer, цепочка middlewares"
+      },
+      {
+        "h": "",
+        "t": "TLS и Production Hell",
+        "r": "HTTPS через mkcert и Let's Encrypt staging, canary-деплой 90/10 и починенные сломанные сценарии"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса через Traefik",
+      "rows": [
+        {
+          "label": "Клиент",
+          "boxes": [
+            "браузер https://api.localhost",
+            "TLS: mkcert / Let's Encrypt"
+          ]
+        },
+        {
+          "label": "Traefik v3.1",
+          "boxes": [
+            "EntryPoints web :80 / websecure :443",
+            "Providers: docker labels + file"
+          ]
+        },
+        {
+          "label": "Маршрутизация",
+          "boxes": [
+            "Router Host(`api.localhost`)",
+            "Middlewares: secure-headers → api-ratelimit"
+          ]
+        },
+        {
+          "label": "Сервис",
+          "boxes": [
+            "Service api: round robin + /health",
+            "api ×3 (Node :3000)"
+          ]
+        },
+        {
+          "label": "Сеть backend",
+          "boxes": [
+            "PostgreSQL",
+            "Adminer"
+          ]
+        }
+      ],
+      "note": "Обратный путь: ответ идёт теми же ступенями назад, Traefik добавляет X-Forwarded-For; типичная ловушка — неверный port в loadbalancer.server.port даёт 502.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "снаружи",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "Traefik v3.1",
+            "x": 250,
+            "w": 430
+          },
+          {
+            "t": "сеть backend",
+            "x": 710,
+            "w": 276
+          }
+        ],
+        "nodes": [
+          {
+            "id": "browser",
+            "t": "Браузер",
+            "s": "https://api.localhost",
+            "x": 110,
+            "y": 150,
+            "d": "Отправляет GET /users/42 на домен, который резолвится на Traefik."
+          },
+          {
+            "id": "tls",
+            "t": "mkcert / ACME",
+            "s": "tls.yml · acme.json",
+            "x": 110,
+            "y": 350,
+            "d": "Сертификаты для websecure: mkcert локально, Let's Encrypt (сначала staging) для реального домена."
+          },
+          {
+            "id": "ep",
+            "t": "EntryPoints",
+            "s": "web :80, websecure :443",
+            "x": 350,
+            "y": 110,
+            "d": "Слушающие порты. На websecure TLS завершается, контейнеры про HTTPS не знают."
+          },
+          {
+            "id": "prov",
+            "t": "Providers",
+            "s": "docker labels · file",
+            "x": 350,
+            "y": 270,
+            "d": "Docker provider читает labels контейнеров (exposedByDefault: false), file provider даёт общие middlewares и TLS из traefik/dynamic."
+          },
+          {
+            "id": "rt",
+            "t": "Router",
+            "s": "Host(`api.localhost`)",
+            "x": 570,
+            "y": 110,
+            "d": "Правило Host/PathPrefix; при нескольких совпадениях побеждает более специфичное или с явным priority."
+          },
+          {
+            "id": "mw",
+            "t": "Middlewares",
+            "s": "headers → ratelimit",
+            "x": 570,
+            "y": 270,
+            "d": "Цепочка выполняется по порядку: secure-headers, затем api-ratelimit (average 10, burst 20)."
+          },
+          {
+            "id": "svc",
+            "t": "Service api",
+            "s": "round robin + /health",
+            "x": 350,
+            "y": 430,
+            "d": "Балансировщик выбирает здоровую реплику; healthcheck исключает зависшую. Для canary сюда ставят weighted service."
+          },
+          {
+            "id": "api",
+            "t": "api × 3",
+            "s": "Node :3000",
+            "x": 800,
+            "y": 170,
+            "d": "Реплики, поднятые через docker compose up -d --scale api=3; отвечают servedBy с hostname контейнера."
+          },
+          {
+            "id": "db",
+            "t": "PostgreSQL",
+            "s": "сеть backend",
+            "x": 800,
+            "y": 380,
+            "d": "База в сети backend, недоступной из traefik-public: Traefik физически не может маршрутизировать в неё напрямую."
+          }
+        ],
+        "edges": [
+          {
+            "a": "browser",
+            "b": "ep"
+          },
+          {
+            "a": "tls",
+            "b": "ep"
+          },
+          {
+            "a": "ep",
+            "b": "rt"
+          },
+          {
+            "a": "prov",
+            "b": "rt"
+          },
+          {
+            "a": "rt",
+            "b": "mw"
+          },
+          {
+            "a": "mw",
+            "b": "svc"
+          },
+          {
+            "a": "svc",
+            "b": "api"
+          },
+          {
+            "a": "api",
+            "b": "db"
+          },
+          {
+            "a": "svc",
+            "b": "ep",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "browser",
+            "txt": "GET https://api.localhost/users/42."
+          },
+          {
+            "n": "ep",
+            "txt": "EntryPoint websecure :443, TLS завершается здесь."
+          },
+          {
+            "n": "rt",
+            "txt": "Router находит правило Host(`api.localhost`)."
+          },
+          {
+            "n": "mw",
+            "txt": "Цепочка secure-headers → api-ratelimit."
+          },
+          {
+            "n": "svc",
+            "txt": "Round robin выбирает здоровую реплику по /health."
+          },
+          {
+            "n": "api",
+            "txt": "Реплика api обрабатывает запрос, при необходимости ходит в PostgreSQL."
+          },
+          {
+            "n": "svc",
+            "txt": "Ответ возвращается в Service.",
+            "back": true
+          },
+          {
+            "n": "ep",
+            "txt": "Traefik добавляет X-Forwarded-For и шифрует ответ.",
+            "back": true
+          },
+          {
+            "n": "browser",
+            "txt": "Браузер получает ответ по HTTPS.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Зачем нужен exposedByDefault=false и что будет, если его не выставить?",
+        "a": "По умолчанию Traefik готов создать маршрут для любого контейнера в сети даже без единого label, по первому открытому порту. В проекте с десятком контейнеров это даёт случайные незапланированные роуты, поэтому каждый сервис включают явно через traefik.enable=true."
+      },
+      {
+        "q": "Почему порядок middlewares в цепочке важен?",
+        "a": "Они выполняются строго в порядке перечисления в router.middlewares. Если headers с CORS стоит после ratelimit, запрос, отсечённый лимитом, получит 429 без CORS-заголовков, и браузер покажет CORS-ошибку вместо настоящей причины. Middlewares, которые должны сработать и на отказных ответах, ставят первыми."
+      },
+      {
+        "q": "Что такое HTTP-01 challenge и какое условие должно выполняться при выпуске сертификата?",
+        "a": "Центр сертификации стучится на http://домен/.well-known/acme-challenge/... и сверяет ответ. Поэтому порт 80 реального публичного домена должен быть доступен из интернета в момент выпуска; на локальной машине без домена этот шаг можно только прочитать."
+      },
+      {
+        "q": "Как устроен canary-деплой через weighted service?",
+        "a": "Две версии объявляются отдельными сервисами (api и api-v2) и оборачиваются в weighted service с весами 9 и 1, то есть 90% трафика на стабильную версию и 10% на новую. Если что-то не так, api-v2 просто убирают из списка, и остальные 90% не замечают даунтайма."
+      },
+      {
+        "q": "Почему монтирование docker.sock в контейнер Traefik — риск безопасности?",
+        "a": "Доступ к Docker API фактически эквивалентен root на хосте, а флаг :ro лишь запрещает писать в файл сокета и не изолирует API. В проде используют docker-socket-proxy, которое отдаёт Traefik только минимум нужных вызовов."
+      }
+    ],
     accent: '#14B8A6',
   },
   {
