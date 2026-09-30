@@ -1166,6 +1166,271 @@ var LABS = [
         "code": "interface OrderRepository\n{\n    public function save(Order $order): void;\n    /** @throws OrderNotFound */\n    public function get(string $id): Order;\n}\n\ninterface EventPublisher\n{\n    public function publish(string $event, array $payload): void;\n}"
       }
     ],
+    sessions: [
+      {
+        "h": "~2,5 ч",
+        "t": "Стенд и чистый PHP: от массива к объекту",
+        "r": "Четыре скрипта в lab0/ и поднятый Docker-стенд"
+      },
+      {
+        "h": "~2 ч",
+        "t": "Домен напитков: Money, Size, Drink, фабрика",
+        "r": "Меню отдаётся по GET /api/menu, первые unit-тесты"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Добавки-декораторы, Order, репозиторий",
+        "r": "Заказ создаётся, считается и сохраняется в Postgres через POST /api/orders"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Strategy: скидки и оплаты, DI через контейнер",
+        "r": "POST /api/orders/{id}/pay с настраиваемыми скидками и способами оплаты"
+      },
+      {
+        "h": "~3 ч",
+        "t": "RabbitMQ: события и воркеры бариста и уведомлений",
+        "r": "Полный цикл заказ → оплата → готов → письмо, около 15 тестов за 0,1 с"
+      }
+    ],
+    arch: {
+      "title": "Путь оплаченного заказа",
+      "rows": [
+        {
+          "label": "HTTP · Laravel",
+          "boxes": [
+            "POST /api/orders/{id}/pay",
+            "PaymentController"
+          ]
+        },
+        {
+          "label": "Domain · без Illuminate",
+          "boxes": [
+            "Checkout + DiscountPolicy",
+            "PaymentMethod",
+            "Order::markPaid()"
+          ]
+        },
+        {
+          "label": "Infrastructure",
+          "boxes": [
+            "OrderRepository (Eloquent / InMemory)",
+            "EventPublisher (AMQP)"
+          ]
+        },
+        {
+          "label": "RabbitMQ",
+          "boxes": [
+            "cafe.events",
+            "barista.queue",
+            "notify.queue"
+          ]
+        },
+        {
+          "label": "Воркеры",
+          "boxes": [
+            "worker:barista",
+            "worker:notify → Notifier"
+          ]
+        }
+      ],
+      "note": "Обратный путь: воркер бариста помечает заказ готовым и публикует order.ready, а worker:notify отправляет клиенту письмо; домен при этом ничего не знает о брокере.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "HTTP",
+            "x": 14,
+            "w": 300
+          },
+          {
+            "t": "Domain",
+            "x": 400,
+            "w": 320
+          },
+          {
+            "t": "Infrastructure",
+            "x": 760,
+            "w": 226
+          }
+        ],
+        "nodes": [
+          {
+            "id": "cli",
+            "t": "Клиент",
+            "s": "POST /pay",
+            "x": 110,
+            "y": 150,
+            "d": "Отправляет способ оплаты для созданного заказа: {\"method\":\"card\"}."
+          },
+          {
+            "id": "ctl",
+            "t": "PayController",
+            "s": "только HTTP",
+            "x": 110,
+            "y": 330,
+            "d": "Достаёт заказ из репозитория и передаёт Checkout. Не знает ни одной конкретной скидки или способа оплаты."
+          },
+          {
+            "id": "chk",
+            "t": "Checkout",
+            "s": "DiscountPolicy → Bill",
+            "x": 560,
+            "y": 110,
+            "d": "Собирает счёт: сумма, скидка, итог. Скидку выбирает биндинг DiscountPolicy из config('cafe.discount')."
+          },
+          {
+            "id": "pay",
+            "t": "PaymentMethod",
+            "s": "Cash · Card",
+            "x": 560,
+            "y": 230,
+            "d": "Стратегия оплаты. CardPayment ходит во внешний шлюз через интерфейс CardGateway."
+          },
+          {
+            "id": "ord",
+            "t": "Order",
+            "s": "markPaid()",
+            "x": 560,
+            "y": 350,
+            "d": "Сущность с инвариантами: статус меняется только методами с бизнес-именами, переход draft → paid проверяет OrderStatus."
+          },
+          {
+            "id": "repo",
+            "t": "OrderRepository",
+            "s": "Eloquent · InMemory",
+            "x": 880,
+            "y": 110,
+            "d": "Интерфейс save/find. В проде Eloquent и Postgres, в тестах InMemoryOrderRepository."
+          },
+          {
+            "id": "pub",
+            "t": "EventPublisher",
+            "s": "order.paid",
+            "x": 880,
+            "y": 230,
+            "d": "Публикует событие в topic-exchange cafe.events. В тестах его заменяет RecordingEventPublisher."
+          },
+          {
+            "id": "rmq",
+            "t": "RabbitMQ",
+            "s": "barista · notify",
+            "x": 880,
+            "y": 350,
+            "d": "Одна topic-exchange и две очереди: order.paid идёт в barista.queue, order.ready в notify.queue."
+          },
+          {
+            "id": "wrk",
+            "t": "Воркеры",
+            "s": "barista · notify",
+            "x": 880,
+            "y": 470,
+            "d": "Artisan-команды worker:barista и worker:notify. Бариста вызывает markReady() и публикует order.ready, notify отправляет письмо через Notifier."
+          }
+        ],
+        "edges": [
+          {
+            "a": "cli",
+            "b": "ctl"
+          },
+          {
+            "a": "ctl",
+            "b": "chk"
+          },
+          {
+            "a": "chk",
+            "b": "pay"
+          },
+          {
+            "a": "pay",
+            "b": "ord"
+          },
+          {
+            "a": "ord",
+            "b": "repo"
+          },
+          {
+            "a": "ord",
+            "b": "pub"
+          },
+          {
+            "a": "pub",
+            "b": "rmq"
+          },
+          {
+            "a": "rmq",
+            "b": "wrk"
+          },
+          {
+            "a": "wrk",
+            "b": "cli",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "cli",
+            "txt": "Клиент вызывает POST /api/orders/{id}/pay со способом оплаты."
+          },
+          {
+            "n": "ctl",
+            "txt": "PaymentController находит заказ через OrderRepository."
+          },
+          {
+            "n": "chk",
+            "txt": "Checkout применяет DiscountPolicy и собирает Bill."
+          },
+          {
+            "n": "pay",
+            "txt": "PaymentMethod списывает итог через CardGateway."
+          },
+          {
+            "n": "ord",
+            "txt": "Только после успешной оплаты Order::markPaid(), затем save()."
+          },
+          {
+            "n": "pub",
+            "txt": "EventPublisher публикует order.paid."
+          },
+          {
+            "n": "rmq",
+            "txt": "RabbitMQ направляет событие в barista.queue."
+          },
+          {
+            "n": "wrk",
+            "txt": "worker:barista отмечает заказ готовым и публикует order.ready."
+          },
+          {
+            "n": "cli",
+            "txt": "worker:notify через Notifier отправляет клиенту письмо.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Почему у Money конструктор private?",
+        "a": "Объект нельзя создать в обход проверки на отрицательную сумму: снаружи доступны только статические фабрики вроде rub(). Копейки хранятся целым числом, и это решение скрыто внутри класса."
+      },
+      {
+        "q": "Почему два Money::rub(5) дают === false, а equals() true?",
+        "a": "=== для объектов сравнивает идентичность, а это два разных экземпляра. equals() сравнивает содержимое, то есть копейки: Money — Value Object, у него нет идентичности, только значение."
+      },
+      {
+        "q": "Что делает readonly и чего он не делает?",
+        "a": "Свойство можно записать один раз, в конструкторе, поэтому «изменение» значения создаёт новый объект. При этом защищена только ссылка: объект внутри свойства (например, Carbon) всё равно можно мутировать."
+      },
+      {
+        "q": "Почему Checkout резолвится контейнером без биндинга, а DiscountPolicy нужен биндинг?",
+        "a": "Checkout — конкретный класс, и контейнер собирает его граф рекурсивно (autowiring). DiscountPolicy — интерфейс, контейнер не знает, какую реализацию выбрать, поэтому провайдер связывает его с политикой из config('cafe.discount')."
+      },
+      {
+        "q": "Как feature-тест прошёл HTTP, контроллер и домен без Postgres и RabbitMQ?",
+        "a": "Через $this->app->instance() подменены два объекта: OrderRepository на InMemoryOrderRepository и EventPublisher на RecordingEventPublisher. Контроллеры с самого начала зависят от интерфейсов, поэтому их менять не пришлось."
+      }
+    ],
     accent: '#777BB4',
   },
   {
