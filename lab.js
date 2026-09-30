@@ -109,6 +109,88 @@ var LABS = [
     image: 'images/redis.png',
     open: '../redis/Redis_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/redis-lab',
+    stackInfo: [
+      {
+        "tag": "приложение",
+        "back": "Контекст, в котором Redis работает как кэш, сессии и очередь."
+      },
+      {
+        "tag": "источник правды",
+        "back": "Хранит заказы и товары; Redis лишь ускоряет доступ и координирует воркеры."
+      },
+      {
+        "tag": "in-memory",
+        "back": "Кэш, локи, ZSet-лимитер, Streams и Pub/Sub в одном сервисе."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Cache-aside",
+        "title": "Кэш карточки и cache stampede",
+        "text": "Читаем из Redis, при промахе идём в PostgreSQL и кладём результат с TTL; при записи ключ инвалидируется. Ловушка: истёкший ключ популярного товара обрушивает сотни запросов на базу, поэтому перестройку кэша защищает короткий лок.",
+        "points": [
+          "Промах, TTL и инвалидация DEL",
+          "volatile-lru вытесняет только ключи с TTL",
+          "Лок на перестройку против stampede"
+        ],
+        "code": "$cached = Redis::get(\"product:{$id}\");\nif ($cached !== null) {\n    return json_decode($cached, true);\n}\n$lockKey = \"lock:product-rebuild:{$id}\";\n$token = uniqid('', true);\n$gotLock = Redis::set($lockKey, $token, 'PX', 3000, 'NX');"
+      },
+      {
+        "tab": "Distributed lock",
+        "title": "Лок с токеном и TTL",
+        "text": "SET NX PX создаёт ключ только если его нет и снимает лок по таймауту даже при падении процесса. Освобождать нужно Lua-скриптом с проверкой токена, иначе можно удалить чужой лок.",
+        "points": [
+          "NX — только если ключа нет, PX — TTL",
+          "Уникальный токен владельца",
+          "Проверка и DEL атомарны в Lua"
+        ],
+        "code": "-- release_lock.lua\nif redis.call(\"GET\", KEYS[1]) == ARGV[1] then\n    return redis.call(\"DEL\", KEYS[1])\nelse\n    return 0\nend"
+      },
+      {
+        "tab": "Rate limit",
+        "title": "Скользящее окно на ZSet",
+        "text": "Лимит «не больше 5 заказов в минуту» держится в отсортированном множестве, где score — время запроса. Все три шага собраны в один Lua-скрипт, иначе между ZCARD и ZADD проскочит гонка.",
+        "points": [
+          "ZREMRANGEBYSCORE чистит старые записи",
+          "ZCARD считает остаток окна",
+          "PEXPIRE удаляет ключ неактивных пользователей"
+        ],
+        "code": "redis.call('ZREMRANGEBYSCORE', key, 0, now - window)\nlocal count = redis.call('ZCARD', key)\nif count >= limit then return 0 end\nredis.call('ZADD', key, now, now .. '-' .. math.random())\nredis.call('PEXPIRE', key, window)\nreturn 1"
+      },
+      {
+        "tab": "Атомарность и Lua",
+        "title": "Одна команда и целая операция",
+        "text": "Каждая команда Redis атомарна, но цепочка «прочитать, проверить, списать» — нет. Lua-скрипт выполняется как одна неделимая операция, поэтому резервирование стока не уходит в минус.",
+        "points": [
+          "Redis однопоточен: скрипт не прерывается",
+          "EVAL с KEYS и ARGV",
+          "Альтернативы: MULTI/EXEC и SET NX"
+        ],
+        "code": "SET stock:99 3\n\nEVAL \"local s = redis.call('GET', KEYS[1]) \\\nif tonumber(s) < tonumber(ARGV[1]) then return 0 end \\\nredis.call('DECRBY', KEYS[1], ARGV[1]) \\\nreturn 1\" 1 stock:99 2"
+      },
+      {
+        "tab": "Streams",
+        "title": "Consumer group и PEL",
+        "text": "Stream — журнал, из которого запись не пропадает при чтении. Группа делит записи между воркерами, а выданное, но не подтверждённое лежит в PEL до XACK; повторную обработку гасит идемпотентность.",
+        "points": [
+          "XADD, XREADGROUP, XACK",
+          "PEL — аналог unacked в RabbitMQ",
+          "Запись висит в PEL, пока её не заберут явно"
+        ],
+        "code": "Redis::xGroup('CREATE', $stream, $group, '0', true);\n\nwhile (true) {\n    $messages = Redis::xReadGroup($group, $consumer, [$stream => '>'], 5, 5000);\n    if (empty($messages[$stream])) { continue; }\n    // process() и XACK для каждой записи\n}"
+      },
+      {
+        "tab": "Retry и DLQ",
+        "title": "XAUTOCLAIM вместо DLX",
+        "text": "У Streams нет автоматической повторной доставки и dead-letter: зависшие записи забирает воркер-«надзиратель». Счётчик попыток хранится в Hash, потому что сама запись неизменяема.",
+        "points": [
+          "XAUTOCLAIM по min-idle-time",
+          "Счётчик попыток отдельным ключом",
+          "После лимита запись уходит в orders:dlq:stream"
+        ],
+        "code": "$claimed = $redis->xautoclaim('orders:stream', 'email-cg', 'reaper', 30000, '0');\n\nforeach ($claimed['entries'] as $id => $entry) {\n    $attempts = $redis->hIncrBy(\"retry:attempts:{$id}\", 'count', 1);\n    if ($attempts > 3) {\n        $redis->xAdd('orders:dlq:stream', '*', $entry);\n        $redis->xAck('orders:stream', 'email-cg', $id);\n    }\n}"
+      }
+    ],
     accent: '#DC382D',
   },
   {
