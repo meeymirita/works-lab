@@ -2226,7 +2226,13 @@ function materialCard(n, title, desc, href) {
 }
 
 // Вертикальные табы «Чему вы научитесь» — только у лаб с полем learn.
-function sessionHours(h) { return parseFloat(String(h).replace(',', '.').replace(/[^0-9.]/g, '')) || 0; }
+// «~3 ч» → 3, «~2,5–3 ч» → 2.75 (среднее диапазона), пусто → 0
+function sessionHours(h) {
+  var m = String(h || '').replace(/,/g, '.').match(/(\d+(?:\.\d+)?)(?:\s*[–-]\s*(\d+(?:\.\d+)?))?/);
+  if (!m) return 0;
+  var a = parseFloat(m[1]), b = m[2] ? parseFloat(m[2]) : a;
+  return (a + b) / 2;
+}
 
 function renderSessions(lab) {
   if (!lab.sessions || !lab.sessions.length) return '';
@@ -2235,11 +2241,11 @@ function renderSessions(lab) {
     '<div class="lab-kicker mono">@@ / маршрут</div>' +
     '<h2 class="lab-h2 display">Карта сессий</h2>' +
     '<div class="lab-route" data-total="' + total + '">' +
-      '<p class="lab-route-hint">Ширина сегмента — длительность сессии. Нажмите на сегмент или пройдите весь маршрут автоматически.</p>' +
+      '<p class="lab-route-hint">' + (total ? 'Ширина сегмента — длительность сессии. ' : '') + 'Нажмите на сегмент или пройдите весь маршрут автоматически.</p>' +
       '<div class="lab-route-bar" role="tablist" aria-label="Сессии лабы">' +
         lab.sessions.map(function (x, n) {
-          return '<button type="button" role="tab" class="lab-route-seg" data-i="' + n + '" style="flex:' + sessionHours(x.h) + '" aria-selected="' + (n === 0) + '" aria-label="Сессия ' + (n + 1) + ': ' + escapeHtml(x.t) + '">' +
-            '<span class="lab-route-seg-n mono">' + (n + 1) + '</span><span class="lab-route-seg-h mono">' + escapeHtml(x.h) + '</span></button>';
+          return '<button type="button" role="tab" class="lab-route-seg" data-i="' + n + '" style="flex:' + (sessionHours(x.h) || 1) + '" aria-selected="' + (n === 0) + '" aria-label="Сессия ' + (n + 1) + ': ' + escapeHtml(x.t) + '">' +
+            '<span class="lab-route-seg-n mono">' + (n + 1) + '</span>' + (x.h ? '<span class="lab-route-seg-h mono">' + escapeHtml(x.h) + '</span>' : '') + '</button>';
         }).join('') +
       '</div>' +
       '<div class="lab-route-meter"><div class="lab-route-meter-fill"></div></div>' +
@@ -2255,24 +2261,24 @@ function renderSessions(lab) {
 function initRoute(lab) {
   var root = document.querySelector('.lab-route');
   if (!root || !lab.sessions) return;
-  var S = lab.sessions, total = parseFloat(root.getAttribute('data-total')) || 1;
+  var S = lab.sessions, timed = parseFloat(root.getAttribute('data-total')) > 0, total = timed ? parseFloat(root.getAttribute('data-total')) : S.length;
   var segs = Array.prototype.slice.call(root.querySelectorAll('.lab-route-seg'));
   var card = root.querySelector('.lab-route-card'), fill = root.querySelector('.lab-route-meter-fill');
   var tourBtn = root.querySelector('[data-act="tour"]'), cur = 0, timer = null;
   function fmt(v) { return String(Math.round(v * 10) / 10).replace('.', ','); }
   function show(n) {
     cur = (n + S.length) % S.length;
-    var done = 0; for (var i = 0; i <= cur; i++) done += sessionHours(S[i].h);
+    var done = 0; for (var i = 0; i <= cur; i++) done += timed ? sessionHours(S[i].h) : 1;
     segs.forEach(function (b, k) {
       b.setAttribute('aria-selected', String(k === cur)); b.classList.toggle('is-done', k < cur);
     });
     fill.style.width = (done / total * 100) + '%';
     card.innerHTML =
       '<div class="lab-route-big display">' + (cur + 1) + '</div>' +
-      '<div class="lab-route-body"><span class="lab-route-tag mono">сессия ' + (cur + 1) + ' из ' + S.length + ' · ' + escapeHtml(S[cur].h) + '</span>' +
+      '<div class="lab-route-body"><span class="lab-route-tag mono">сессия ' + (cur + 1) + ' из ' + S.length + (S[cur].h ? ' · ' + escapeHtml(S[cur].h) : '') + '</span>' +
       '<h3 class="lab-route-title display">' + escapeHtml(S[cur].t) + '</h3>' +
       '<p class="lab-route-res"><span class="mono">результат</span>' + escapeHtml(S[cur].r) + '</p>' +
-      '<p class="lab-route-sum mono">к концу сессии: ' + fmt(done) + ' из ' + fmt(total) + ' ч · ' + Math.round(done / total * 100) + '%</p></div>';
+      '<p class="lab-route-sum mono">' + (timed ? 'к концу сессии: ' + fmt(done) + ' из ' + fmt(total) + ' ч · ' : 'пройдено сессий: ' + done + ' из ' + total + ' · ') + Math.round(done / total * 100) + '%</p></div>';
     card.classList.remove('is-in'); void card.offsetWidth; card.classList.add('is-in');
   }
   function stop() { if (timer) { clearInterval(timer); timer = null; } tourBtn.textContent = '▶ пройти маршрут'; }
