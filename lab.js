@@ -1093,6 +1093,96 @@ var LABS = [
     image: '../nestjs/nest.png',
     open: '../nestjs/NestJS_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/nestjs-lab',
+    stackInfo: [
+      {
+        "tag": "фреймворк",
+        "back": "Каркас API: модули, DI, guards, pipes и interceptors."
+      },
+      {
+        "tag": "ORM",
+        "back": "Типизированный доступ к БД, миграции и транзакции."
+      },
+      {
+        "tag": "база данных",
+        "back": "Хранилище тикетов, пользователей и refresh-токенов."
+      },
+      {
+        "tag": "безопасность",
+        "back": "Access/refresh-токены и хэширование паролей."
+      },
+      {
+        "tag": "real-time",
+        "back": "WebSocket-шлюз с комнатами для живых обновлений тикетов."
+      }
+    ],
+    learn: [
+      {
+        "tab": "DI руками",
+        "title": "Что на самом деле делает контейнер Nest",
+        "text": "Мини-DI-контейнер на 25 строк собирает граф зависимостей по метаданным конструктора. После этого @Injectable и токены перестают быть магией; ловушка — забытый декоратор, из-за которого класс не резолвится.",
+        "points": [
+          "reflect-metadata и design:paramtypes",
+          "Синглтон по умолчанию: один экземпляр на всех",
+          "Понятная ошибка с путём зависимостей"
+        ],
+        "code": "resolve<T>(token: Ctor<T>, path: Ctor[] = []): T {\n  if (this.instances.has(token)) return this.instances.get(token) as T;\n  const deps: Ctor[] = Reflect.getMetadata('design:paramtypes', token) ?? [];\n  const instance = new token(...deps.map((d) => this.resolve(d, [...path, token])));\n  this.instances.set(token, instance);\n  return instance;\n}"
+      },
+      {
+        "tab": "Транзакции",
+        "title": "Prisma: обновление и история атомарно",
+        "text": "Обновление тикета и запись истории изменений выполняются в одной транзакции. Если запись истории упадёт, изменения тикета тоже откатятся.",
+        "points": [
+          "$transaction с интерактивным tx",
+          "diff до/после по отслеживаемым полям",
+          "Счётчик version для оптимистичных проверок"
+        ],
+        "code": "return this.prisma.$transaction(async (tx) => {\n  const before = await tx.ticket.findUnique({ where: { id } });\n  const after = await tx.ticket.update({\n    where: { id },\n    data: { ...dto, version: { increment: 1 } },\n  });\n  const changes = diffTicket(before, after);\n  await tx.ticketHistory.createMany({ data: changes.map((c) => ({ ...c, ticketId: id, actorId })) });\n  return after;\n});"
+      },
+      {
+        "tab": "JWT-ротация",
+        "title": "Refresh-токены и reuse-detection",
+        "text": "Каждый refresh-токен одноразовый: при обновлении старый отзывается и выдаётся новый в той же «семье». Повторное предъявление отозванного токена считается кражей и гасит всю семью.",
+        "points": [
+          "В БД хранится хэш, а не сам токен",
+          "compare-and-set против гонки двух запросов",
+          "revokeFamily при обнаружении повтора"
+        ],
+        "code": "if (row.revokedAt) {\n  await this.revokeFamily(row.familyId);\n  throw new UnauthorizedException('Refresh token reuse detected');\n}\n// ...\nconst { count } = await tx.refreshToken.updateMany({\n  where: { id: row.id, revokedAt: null },\n  data: { revokedAt: new Date() },\n});\nif (count !== 1) throw new UnauthorizedException('Refresh token already used');"
+      },
+      {
+        "tab": "Роли и политики",
+        "title": "RBAC и TicketPolicy",
+        "text": "Роль проверяется guard'ом через метаданные, а права на конкретный тикет — отдельным классом-политикой. Guard не видит тело запроса, поэтому проверки по DTO живут в сервисном слое.",
+        "points": [
+          "SetMetadata и Reflector.getAllAndOverride",
+          "scopeFor: условие видимости в каждом запросе",
+          "Разрешённые переходы статусов"
+        ],
+        "code": "scopeFor(user: AuthUser): Prisma.TicketWhereInput {\n  return this.isStaff(user) ? {} : { authorId: user.id };\n}\n\nif (STAFF_ONLY_FIELDS.some((f) => dto[f] !== undefined)) {\n  throw new ForbiddenException('Only staff can change status, priority or assignee');\n}"
+      },
+      {
+        "tab": "Доменные события",
+        "title": "Сервис не знает про сокеты",
+        "text": "Сервис тикетов публикует типизированные события, а слушатели решают, что с ними делать: слать в WebSocket, писать аудит. Связность падает, добавить реакцию можно без правки сервиса.",
+        "points": [
+          "@nestjs/event-emitter и wildcard-имена",
+          "Классы событий вместо строк с данными",
+          "EventEmitter в процессе против брокера"
+        ],
+        "code": "export const TicketEvents = {\n  Created: 'ticket.created',\n  Updated: 'ticket.updated',\n  Deleted: 'ticket.deleted',\n} as const;\n\nexport class TicketCreatedEvent {\n  readonly type = TicketEvents.Created;\n  constructor(public readonly ticket: Ticket, public readonly actorId: number) {}\n}"
+      },
+      {
+        "tab": "WebSocket-шлюз",
+        "title": "Real-time с проверкой прав",
+        "text": "Шлюз проверяет JWT один раз при подключении, раскладывает сокеты по комнатам и повторно проверяет доступ при подписке на тикет. Комнаты не переживают перезапуск сервера, поэтому клиент подписывается заново.",
+        "points": [
+          "Токен в handshake.auth, а не в query",
+          "Комнаты user:, ticket:, agents",
+          "Подписка через ту же TicketPolicy"
+        ],
+        "code": "@SubscribeMessage('ticket:subscribe')\nasync subscribe(@ConnectedSocket() client: Socket, @MessageBody() body: { ticketId?: unknown }) {\n  const user = client.data.user as AuthUser;\n  const ticket = await this.prisma.ticket.findFirst({\n    where: { id: Number(body?.ticketId), ...this.policy.scopeFor(user) },\n  });\n  if (!ticket) throw new WsException('Ticket not found');\n  await client.join(ticketRoom(ticket.id));\n}"
+      }
+    ],
     accent: '#E0234E',
   },
   {
