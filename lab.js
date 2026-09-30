@@ -715,6 +715,96 @@ var LABS = [
     image: '../js/JavaScript.png',
     open: '../js/JS_Lab_VanillaHelpdesk.html',
     repo: 'https://github.com/meeymirita/js-lab',
+    stackInfo: [
+      {
+        "tag": "Язык",
+        "back": "Основной предмет лабы: весь код пишется на чистом современном JavaScript без фреймворка."
+      },
+      {
+        "tag": "Среда",
+        "back": "Запускает скрипты и тесты вне браузера и даёт единое окружение для ESM-модулей."
+      },
+      {
+        "tag": "Мок-API",
+        "back": "Отдаёт REST по JSON-файлу, чтобы практиковать fetch и ошибки без своего бэкенда."
+      },
+      {
+        "tag": "Тесты",
+        "back": "Встроенный тест-раннер Node проверяет логику без сторонних зависимостей."
+      },
+      {
+        "tag": "Окружение",
+        "back": "Контейнер даёт воспроизводимый запуск приложения и API."
+      }
+    ],
+    learn: [
+      {
+        "tab": "var, let и замыкания",
+        "title": "Область видимости и замыкание в цикле",
+        "text": "Разберётесь, почему var делает одну переменную на весь цикл, а let создаёт новую на каждой итерации. Ловушка: асинхронные колбэки видят финальное значение счётчика.",
+        "points": [
+          "var — функциональная область, let/const — блочная",
+          "Hoisting и Temporal Dead Zone",
+          "let в for создаёт новое связывание на итерацию"
+        ],
+        "code": "for (var i = 0; i < 3; i++) { setTimeout(() => console.log('var:', i), 0); }\nfor (let j = 0; j < 3; j++) { setTimeout(() => console.log('let:', j), 0); }\n// var: 3 3 3      let: 0 1 2"
+      },
+      {
+        "tab": "this и стрелки",
+        "title": "this определяет вызов, а не объявление",
+        "text": "Четыре способа вызова функции дают четыре разных this. Стрелочная функция берёт this из окружающего контекста и не переопределяется.",
+        "points": [
+          "fn(), obj.method(), call/apply/bind, new",
+          "bind фиксирует this навсегда",
+          "Стрелка внутри метода решает потерю this в колбэке"
+        ],
+        "code": "const cart = {\n  items: ['bolt', 'nut'],\n  prefix: '→',\n  printItems() {\n    this.items.forEach((item) => {\n      console.log(this.prefix, item);   // this === cart\n    });\n  },\n};"
+      },
+      {
+        "tab": "Прототипы и class",
+        "title": "class — синтаксис над прототипами",
+        "text": "Цепочку прототипов можно собрать вручную через Object.create, а class даёт тот же механизм в удобной форме. Вывод: методы класса лежат в prototype, а не в каждом экземпляре.",
+        "points": [
+          "Поиск свойства идёт вверх по цепочке прототипов",
+          "extends и super явно связывают родителя",
+          "typeof класса — \"function\""
+        ],
+        "code": "class Animal {\n  constructor(name) { this.name = name; }\n  speak() { return `${this.name} издаёт звук`; }\n}\nclass Dog extends Animal {\n  speak() { return `${super.speak()} (гав!)`; }\n}\nconsole.log(typeof Animal);   // \"function\""
+      },
+      {
+        "tab": "Event loop",
+        "title": "Microtask раньше macrotask",
+        "text": "JavaScript однопоточный, а асинхронность — это порядок очередей. Ловушка: setTimeout(fn, 0) всегда выполняется после промисов.",
+        "points": [
+          "Сначала синхронный код до пустого стека",
+          "Очередь microtask опустошается целиком",
+          "Затем одна macrotask и снова microtask"
+        ],
+        "code": "console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => {\n  console.log('C');\n  Promise.resolve().then(() => console.log('D'));\n});\nPromise.resolve().then(() => console.log('E'));\nconsole.log('F');\n// A, F, C, E, D, B"
+      },
+      {
+        "tab": "fetch и отмена",
+        "title": "Ошибки fetch и AbortController",
+        "text": "fetch не бросает исключение на 404 и 500, только на сетевой сбой, поэтому response.ok надо проверять вручную. Устаревший запрос при быстром вводе отменяется через AbortController.",
+        "points": [
+          "Проверка response.ok обязательна",
+          "AbortError — ожидаемая отмена, а не сбой",
+          "Promise.all, allSettled, race и any для нескольких запросов"
+        ],
+        "code": "let currentController = null;\nasync function search(query) {\n  currentController?.abort();\n  currentController = new AbortController();\n  try {\n    const res = await fetch(`/api/search?q=${query}`, { signal: currentController.signal });\n    return res.json();\n  } catch (error) {\n    if (error.name === 'AbortError') return null;\n    throw error;\n  }\n}"
+      },
+      {
+        "tab": "Делегирование DOM",
+        "title": "Один обработчик на родителе",
+        "text": "Вместо обработчика на каждом элементе списка вешается один на контейнер и использует всплытие событий. Он работает и для элементов, которых ещё нет.",
+        "points": [
+          "event.target.closest находит нужный элемент",
+          "Ранний return для кликов мимо",
+          "Не нужно перевешивать обработчики после рендера"
+        ],
+        "code": "document.querySelector('#ticket-list').addEventListener('click', (event) => {\n  const item = event.target.closest('.ticket-item');\n  if (!item) return;\n  console.log('клик по', item.dataset.id);\n});"
+      }
+    ],
     accent: '#F4D35E',
   },
   {
