@@ -36,6 +36,81 @@ var LABS = [
     image: '../traefik/traefik.png',
     open: '../traefik/Docker_and_Traefik_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/traefik-lab',
+    stackInfo: [
+      {
+        "tag": "прокси",
+        "back": "Единая точка входа: роутинг, middlewares, TLS и балансировка."
+      },
+      {
+        "tag": "окружение",
+        "back": "Стек из нескольких сервисов, которые Traefik находит по labels."
+      },
+      {
+        "tag": "бэкенд",
+        "back": "Сервис-цель для маршрутизации, rate limit и canary."
+      },
+      {
+        "tag": "база данных",
+        "back": "Хранилище за API и Adminer в составе стека."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Модель Traefik",
+        "title": "Пять сущностей на пути запроса",
+        "text": "Запрос проходит EntryPoint, затем Router, цепочку Middleware и Service. Providers — источник этих правил; их можно комбинировать: часть в labels, общие middlewares в файле.",
+        "points": [
+          "EntryPoint — порт, Provider — источник конфигурации",
+          "Router сопоставляет Host и Path",
+          "Статическая и динамическая конфигурация"
+        ],
+        "code": "Клиент → EntryPoint (:80/:443) → Router (matches Host/Path)\n       → [Middleware chain] → Service → контейнер(ы)"
+      },
+      {
+        "tab": "Service Discovery",
+        "title": "Маршруты в labels контейнера",
+        "text": "Traefik читает Docker-сокет и создаёт роуты по labels на лету. Ловушка: без exposedByDefault=false маршрут получит любой контейнер, а неверный порт сервиса даёт 502 Bad Gateway.",
+        "points": [
+          "Формат traefik.http.routers.<имя>.<свойство>",
+          "Явное включение через traefik.enable=true",
+          "loadbalancer.server.port — порт внутри контейнера"
+        ],
+        "code": "labels:\n  - \"traefik.enable=true\"\n  - \"traefik.http.routers.whoami.rule=Host(`whoami.localhost`)\"\n  - \"traefik.http.routers.whoami.entrypoints=web\"\n  - \"traefik.http.services.whoami.loadbalancer.server.port=80\""
+      },
+      {
+        "tab": "Middlewares",
+        "title": "Цепочка обработки запроса",
+        "text": "Rate limit, заголовки, basicAuth и stripPrefix подключаются к роутеру списком. Порядок важен: middleware, который должен сработать и на отказных ответах, ставят первым.",
+        "points": [
+          "Общие middlewares в dynamic/middlewares.yml",
+          "rateLimit: average и burst",
+          "Порядок в router.middlewares"
+        ],
+        "code": "http:\n  middlewares:\n    api-ratelimit:\n      rateLimit:\n        average: 10\n        burst: 20\n\n# label:\n\"traefik.http.routers.api.middlewares=secure-headers,api-ratelimit\""
+      },
+      {
+        "tab": "Балансировка",
+        "title": "Load balancing и canary",
+        "text": "По умолчанию реплики получают трафик по round robin, нездоровые исключаются health check-ом. Для canary-релиза два сервиса оборачиваются в weighted service с долей трафика.",
+        "points": [
+          "Round robin и health check",
+          "Weighted service: 90% на 10%",
+          "Суффикс @docker для сервисов из labels"
+        ],
+        "code": "http:\n  services:\n    api-canary:\n      weighted:\n        services:\n          - name: api@docker\n            weight: 9\n          - name: api-v2@docker\n            weight: 1"
+      },
+      {
+        "tab": "TLS",
+        "title": "mkcert и Let's Encrypt",
+        "text": "mkcert подходит для локальной разработки, Let's Encrypt — для реального домена. Сначала всегда staging-резолвер: он не тратит лимиты боевого CA, а переключение на продакшен — одна строка.",
+        "points": [
+          "HTTP-01 challenge через entrypoint web",
+          "Staging против production",
+          "acme.json как хранилище сертификатов"
+        ],
+        "code": "certificatesResolvers:\n  letsencrypt:\n    acme:\n      email: you@example.com\n      storage: /etc/traefik/acme/acme.json\n      caServer: \"https://acme-staging-v02.api.letsencrypt.org/directory\"\n      httpChallenge:\n        entryPoint: web"
+      }
+    ],
     accent: '#14B8A6',
   },
   {
