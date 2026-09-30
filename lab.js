@@ -101,6 +101,88 @@ var LABS = [
     image: 'images/docker.png',
     open: '../docker/Docker_Bash_Lab.html',
     repo: 'https://github.com/meeymirita/docker-lab',
+    stackInfo: [
+      {
+        "tag": "контейнеры",
+        "back": "Образы, слои, тома и сети: основа всей лабы."
+      },
+      {
+        "tag": "оркестрация",
+        "back": "Описание многосервисного стека одним файлом с healthcheck и depends_on."
+      },
+      {
+        "tag": "скрипты",
+        "back": "Entrypoint-скрипты с set -euo pipefail и exec \"$@\"."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Слои и кэш",
+        "title": "Порядок инструкций решает скорость сборки",
+        "text": "Каждая инструкция Dockerfile — отдельный слой, а изменённый слой сбрасывает кэш всех слоёв ниже. Ловушка: COPY . . перед установкой зависимостей заставляет переустанавливать их при каждом коммите.",
+        "points": [
+          "Слои, overlay2 и хэш кэша",
+          "Манифесты зависимостей копируются раньше исходников",
+          "Тот же приём для Composer"
+        ],
+        "code": "FROM node:20-slim\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . ."
+      },
+      {
+        "tab": "Bash strict mode",
+        "title": "Три строки для каждого entrypoint",
+        "text": "Без строгого режима скрипт молча идёт дальше после ошибки, а опечатка в имени переменной превращается в пустую строку. Три флага делают падение громким и ранним.",
+        "points": [
+          "-e: остановка на первой ошибке",
+          "-u: необъявленная переменная — ошибка",
+          "-o pipefail: упавшая команда в конвейере валит весь конвейер"
+        ],
+        "code": "#!/usr/bin/env bash\nset -euo pipefail\n\n# значение по умолчанию, не нарушающее set -u\necho \"Имя приложения: ${APP_NAME:-контейнер}\""
+      },
+      {
+        "tab": "ENTRYPOINT и CMD",
+        "title": "Где встречаются Docker и Bash",
+        "text": "ENTRYPOINT задаёт скрипт-обёртку с проверками, CMD — команду по умолчанию, которую можно переопределить. Ловушка: без exec приложение не станет PID 1 и не получит сигнал остановки.",
+        "points": [
+          "Exec form против shell form",
+          "CMD приходит в скрипт как $1 $2 …",
+          "exec \"$@\" заменяет bash процессом приложения"
+        ],
+        "code": "ENTRYPOINT [\"/usr/local/bin/entrypoint.sh\"]\nCMD [\"node\", \"server.js\"]\n\n# entrypoint.sh, последняя строка:\nexec \"$@\""
+      },
+      {
+        "tab": "Тома и данные",
+        "title": "Данные переживают контейнер",
+        "text": "Файловая система контейнера исчезает вместе с ним. Named volume, bind mount и tmpfs решают разные задачи, а запуск от root оставляет на хосте файлы, принадлежащие root.",
+        "points": [
+          "Named volume для данных БД",
+          "Bind mount для исходников при разработке",
+          "Режим :ro и USER вместо root"
+        ],
+        "code": "docker run -v pgdata:/var/lib/postgresql/data postgres:17\n\ndocker run -v /home/user/project/src:/app/src myapp\n\n-v ./config:/etc/app/config:ro"
+      },
+      {
+        "tab": "Сети и DNS",
+        "title": "Имена вместо IP",
+        "text": "В пользовательской сети Docker поднимает встроенный DNS, и контейнеры обращаются друг к другу по имени. Сеть по умолчанию такого DNS не имеет, а EXPOSE — лишь документация, порт наружу открывает -p.",
+        "points": [
+          "Своя bridge-сеть под проект",
+          "EXPOSE и -p — не одно и то же",
+          "Compose создаёт такую сеть сам"
+        ],
+        "code": "docker network create lab-net\n\ndocker run -d --name postgres --network lab-net postgres:17-alpine\ndocker run -d --name app --network lab-net myapp\n\ndocker run -p 8080:3000 myapp"
+      },
+      {
+        "tab": "Compose и healthcheck",
+        "title": "«Запущен» не значит «готов»",
+        "text": "Обычный depends_on гарантирует лишь порядок старта, а база ещё инициализируется — отсюда «connection refused» при первом запуске. Healthcheck с condition: service_healthy ждёт реальной готовности.",
+        "points": [
+          "Анатомия docker-compose.yml",
+          "healthcheck через pg_isready",
+          "Ожидание БД в entrypoint как второй рубеж"
+        ],
+        "code": "postgres:\n  healthcheck:\n    test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n    interval: 5s\n    retries: 5\napp:\n  depends_on:\n    postgres:\n      condition: service_healthy"
+      }
+    ],
     accent: '#2496ED',
   },
   {
