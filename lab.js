@@ -96,6 +96,270 @@ var LABS = [
         "code": "$ch->confirm_select();\n// ... basic_publish для пачки pending-строк\n$ch->wait_for_pending_acks(timeout: 5);\n// confirm получен → status='sent'"
       }
     ],
+    sessions: [
+      {
+        "h": "~3 ч",
+        "t": "Инфраструктура, топология, happy path",
+        "r": "Заказ проходит путь API, outbox, relay, orders.topic и три воркера"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Надёжность: ack, prefetch, retry, идемпотентность",
+        "r": "Три competing consumers, crash-тест без двойного списания и retry-цепочка до DLQ"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Priority, Fanout, Production Hell",
+        "r": "Приоритетные заказы, fanout-рассылка и починенные сломанные сценарии"
+      }
+    ],
+    arch: {
+      "title": "Жизненный цикл заказа",
+      "rows": [
+        {
+          "label": "Laravel 13 API",
+          "boxes": [
+            "POST /api/orders",
+            "OrderController"
+          ]
+        },
+        {
+          "label": "PostgreSQL 16 (одна транзакция)",
+          "boxes": [
+            "orders",
+            "outbox_messages"
+          ]
+        },
+        {
+          "label": "worker:outbox-relay",
+          "boxes": [
+            "publish + publisher confirm"
+          ]
+        },
+        {
+          "label": "RabbitMQ 4",
+          "boxes": [
+            "orders.topic",
+            "order.queue",
+            "email.queue",
+            "analytics.queue"
+          ]
+        },
+        {
+          "label": "Воркеры (Artisan)",
+          "boxes": [
+            "worker:order ×3",
+            "worker:email + retry → DLQ",
+            "worker:analytics"
+          ]
+        }
+      ],
+      "note": "Обратный путь: при сбое SMTP воркер кладёт копию в email.retry.N, по истечении TTL DLX возвращает её в email.queue, а после третьей попытки сообщение уходит в email.dlq.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "Laravel · PostgreSQL",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "RabbitMQ 4",
+            "x": 250,
+            "w": 430
+          },
+          {
+            "t": "воркеры (Artisan)",
+            "x": 710,
+            "w": 276
+          }
+        ],
+        "nodes": [
+          {
+            "id": "api",
+            "t": "POST /api/orders",
+            "s": "OrderController",
+            "x": 110,
+            "y": 110,
+            "d": "API принимает заказ и в одной транзакции пишет Order и запись в outbox."
+          },
+          {
+            "id": "pg",
+            "t": "PostgreSQL",
+            "s": "orders + outbox_messages",
+            "x": 110,
+            "y": 270,
+            "d": "Заказ и событие коммитятся атомарно: так закрыта проблема dual write между БД и брокером."
+          },
+          {
+            "id": "relay",
+            "t": "outbox-relay",
+            "s": "publish + confirm",
+            "x": 110,
+            "y": 430,
+            "d": "Отдельный контейнер раз в секунду берёт pending-строки, публикует в orders.topic и после publisher confirm ставит sent."
+          },
+          {
+            "id": "topic",
+            "t": "orders.topic",
+            "s": "topic exchange",
+            "x": 350,
+            "y": 270,
+            "d": "Маршрутизирует по routing key order.created / order.*: тело хранится один раз, очереди получают копии."
+          },
+          {
+            "id": "oq",
+            "t": "order.queue",
+            "s": "order.created · prio 10",
+            "x": 570,
+            "y": 130,
+            "d": "Очередь с x-max-priority=10, на неё подписаны три воркера-конкурента."
+          },
+          {
+            "id": "eq",
+            "t": "email.queue",
+            "s": "order.created",
+            "x": 570,
+            "y": 270,
+            "d": "Очередь для письма «заказ оформлен»; при сбое воркер уводит сообщение в retry-цепочку."
+          },
+          {
+            "id": "aq",
+            "t": "analytics.queue",
+            "s": "order.* → order_events",
+            "x": 570,
+            "y": 410,
+            "d": "Ловит все статусы жизненного цикла; воркер пишет строку в order_events."
+          },
+          {
+            "id": "wo",
+            "t": "worker:order ×3",
+            "s": "резерв стока",
+            "x": 800,
+            "y": 130,
+            "d": "Проверяет идемпотентность по processed_messages, резервирует товар и подтверждает ack; prefetch задаёт баланс между воркерами."
+          },
+          {
+            "id": "we",
+            "t": "worker:email",
+            "s": "Mailpit · retry",
+            "x": 800,
+            "y": 270,
+            "d": "Шлёт письмо в Mailpit; при исключении публикует копию в email.retry.N с x-retry-count и подтверждает оригинал."
+          },
+          {
+            "id": "retry",
+            "t": "retry.1–3 → DLQ",
+            "s": "TTL 10 с / 30 с / 5 мин",
+            "x": 350,
+            "y": 430,
+            "d": "Три очереди с TTL и DLX email.dlx: по истечении TTL сообщение возвращается в email.queue, после третьей попытки идёт в email.dlq."
+          }
+        ],
+        "edges": [
+          {
+            "a": "api",
+            "b": "pg"
+          },
+          {
+            "a": "pg",
+            "b": "relay"
+          },
+          {
+            "a": "relay",
+            "b": "topic"
+          },
+          {
+            "a": "topic",
+            "b": "oq"
+          },
+          {
+            "a": "topic",
+            "b": "eq"
+          },
+          {
+            "a": "topic",
+            "b": "aq"
+          },
+          {
+            "a": "oq",
+            "b": "wo"
+          },
+          {
+            "a": "eq",
+            "b": "we"
+          },
+          {
+            "a": "we",
+            "b": "retry"
+          },
+          {
+            "a": "retry",
+            "b": "eq",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "api",
+            "txt": "POST /api/orders с товарами."
+          },
+          {
+            "n": "pg",
+            "txt": "В одной транзакции orders и outbox_messages со статусом pending."
+          },
+          {
+            "n": "relay",
+            "txt": "Релей публикует в orders.topic и ждёт publisher confirm."
+          },
+          {
+            "n": "topic",
+            "txt": "Routing key order.created копируется в очереди."
+          },
+          {
+            "n": "eq",
+            "txt": "Сообщение попадает в email.queue."
+          },
+          {
+            "n": "we",
+            "txt": "SMTP недоступен: воркер публикует копию в email.retry.N и делает ack."
+          },
+          {
+            "n": "retry",
+            "txt": "TTL истёк, RabbitMQ сам dead-letter'ит сообщение в email.dlx.",
+            "back": true
+          },
+          {
+            "n": "eq",
+            "txt": "Сообщение вернулось в email.queue: следующая попытка.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Что произойдёт, если consumer умер после обработки, но до ACK?",
+        "a": "Брокер узнаёт о смерти из закрытого TCP-соединения и возвращает сообщение в очередь с флагом redelivered. Новый воркер видит маркер в processed_messages, который записан в одной транзакции с эффектом, и подтверждает сообщение без повторного списания."
+      },
+      {
+        "q": "Что такое prefetch и когда prefetch=100 вредит?",
+        "a": "Prefetch ограничивает число неподтверждённых сообщений на consumer'а. При 100 быстрый воркер нахватает сотню, а медленный держит сообщения «заложниками», пока остальные простаивают; при крахе все 100 обрабатываются заново. Чем дольше обработка, тем меньше prefetch."
+      },
+      {
+        "q": "Как сделать retry с задержкой без плагина и почему одной retry-очереди с per-message TTL мало?",
+        "a": "Воркер по x-retry-count публикует копию в email.retry.1/2/3 с TTL 10 с, 30 с и 5 мин, а возврат в email.queue делают TTL и DLX. В одной очереди просроченное сообщение удаляется, только когда дойдёт до головы FIFO, и короткий TTL ждёт длинный (head-of-line blocking)."
+      },
+      {
+        "q": "Может ли RabbitMQ гарантировать exactly-once?",
+        "a": "Нет: через ненадёжную сеть подтверждение может потеряться (проблема двух генералов), поэтому доставка at-least-once. Ровно один раз можно получить только эффект: за это отвечает идемпотентный consumer с таблицей processed_messages и уникальным индексом."
+      },
+      {
+        "q": "Какую проблему решает Outbox Pattern, которую не решает сам RabbitMQ?",
+        "a": "Проблему dual write: БД и брокер не умеют коммитить атомарно, и падение между commit и publish теряет событие. Заказ и outbox-запись пишутся одной транзакцией, а релей публикует с publisher confirm. Гарантия «хотя бы раз», поэтому нужен идемпотентный consumer."
+      }
+    ],
     accent: '#FF6600',
   },
   {
