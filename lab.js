@@ -455,6 +455,274 @@ var LABS = [
         "code": "$claimed = $redis->xautoclaim('orders:stream', 'email-cg', 'reaper', 30000, '0');\n\nforeach ($claimed['entries'] as $id => $entry) {\n    $attempts = $redis->hIncrBy(\"retry:attempts:{$id}\", 'count', 1);\n    if ($attempts > 3) {\n        $redis->xAdd('orders:dlq:stream', '*', $entry);\n        $redis->xAck('orders:stream', 'email-cg', $id);\n    }\n}"
       }
     ],
+    sessions: [
+      {
+        "h": "~3 ч",
+        "t": "Инфраструктура, кэш, сессии, happy path",
+        "r": "Cache-Aside для карточки товара, сессии в Redis и первый consumer на Streams"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Локи, rate limit, конкурентные consumers",
+        "r": "Атомарный резерв стока в Lua, скользящий лимит, три воркера и crash-тест с PEL"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Retry, DLQ, приоритет, Pub/Sub",
+        "r": "Retry через XAUTOCLAIM, DLQ-поток, приоритетный ZSet, live-дашборд и Production Hell"
+      }
+    ],
+    arch: {
+      "title": "Путь заказа через Redis",
+      "rows": [
+        {
+          "label": "Laravel 13 API",
+          "boxes": [
+            "POST /api/orders",
+            "rate limit (ZSet)",
+            "Lua-резерв stock:{id}"
+          ]
+        },
+        {
+          "label": "PostgreSQL 17",
+          "boxes": [
+            "orders + order_items (транзакция)"
+          ]
+        },
+        {
+          "label": "Redis Stream",
+          "boxes": [
+            "XADD orders:stream",
+            "группы email-cg, analytics-cg"
+          ]
+        },
+        {
+          "label": "Воркеры",
+          "boxes": [
+            "worker:email ×3",
+            "worker:analytics",
+            "XACK + processed_messages"
+          ]
+        },
+        {
+          "label": "Сбои и события",
+          "boxes": [
+            "PEL → XAUTOCLAIM (reaper)",
+            "orders:dlq:stream",
+            "PUBLISH dashboard:orders"
+          ]
+        }
+      ],
+      "note": "Ловушка: запись, которую воркер не подтвердил, не возвращается сама, как в RabbitMQ, а навсегда остаётся в PEL, пока её не заберёт XAUTOCLAIM.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "Laravel · PostgreSQL",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "Redis 7",
+            "x": 250,
+            "w": 430
+          },
+          {
+            "t": "потребители",
+            "x": 710,
+            "w": 276
+          }
+        ],
+        "nodes": [
+          {
+            "id": "api",
+            "t": "POST /api/orders",
+            "s": "OrderController",
+            "x": 110,
+            "y": 90,
+            "d": "Точка входа: принимает заказ и последовательно проходит лимит, резерв стока и запись в БД."
+          },
+          {
+            "id": "rl",
+            "t": "Rate limit",
+            "s": "ZSet, скользящее окно",
+            "x": 110,
+            "y": 210,
+            "d": "ZSet ratelimit:orders:{user_id}: не больше 5 заказов в минуту. Три команды в одном Lua-скрипте, иначе лимит становится мягким."
+          },
+          {
+            "id": "stock",
+            "t": "Lua-резерв",
+            "s": "stock:{id}",
+            "x": 110,
+            "y": 330,
+            "d": "Проверка остатка и DECRBY одной атомарной операцией. Нет товара: 409 и откат уже зарезервированного."
+          },
+          {
+            "id": "pg",
+            "t": "PostgreSQL",
+            "s": "orders + order_items",
+            "x": 110,
+            "y": 450,
+            "d": "Источник истины: заказ создаётся в транзакции, после неё в поток уходит событие."
+          },
+          {
+            "id": "stream",
+            "t": "orders:stream",
+            "s": "XADD · consumer groups",
+            "x": 350,
+            "y": 130,
+            "d": "Append-only лог: запись не удаляется при чтении. Группы email-cg и analytics-cg читают его независимо."
+          },
+          {
+            "id": "pel",
+            "t": "PEL",
+            "s": "записи без XACK",
+            "x": 350,
+            "y": 290,
+            "d": "Выдано, но не подтверждено. Если воркер умер, запись остаётся в PEL под его именем и сама не возвращается."
+          },
+          {
+            "id": "reaper",
+            "t": "worker:reaper",
+            "s": "XAUTOCLAIM · 3 попытки",
+            "x": 570,
+            "y": 290,
+            "d": "Забирает записи, провисевшие дольше 30 с, и считает попытки в hash retry:attempts:{id}."
+          },
+          {
+            "id": "dlq",
+            "t": "DLQ-поток",
+            "s": "orders:dlq:stream",
+            "x": 350,
+            "y": 450,
+            "d": "Ручной dead-letter: после трёх попыток запись копируется сюда и подтверждается в основной группе."
+          },
+          {
+            "id": "we",
+            "t": "worker:email ×3",
+            "s": "email-cg · XACK",
+            "x": 800,
+            "y": 130,
+            "d": "Competing consumers одной группы: шлют письмо в Mailpit, пишут маркер в processed_messages и подтверждают запись."
+          },
+          {
+            "id": "pubsub",
+            "t": "Pub/Sub",
+            "s": "dashboard:orders",
+            "x": 800,
+            "y": 330,
+            "d": "PUBLISH для live-дашборда: доставка только текущим подписчикам, без хранения. Для заказов используется Stream."
+          }
+        ],
+        "edges": [
+          {
+            "a": "api",
+            "b": "rl"
+          },
+          {
+            "a": "rl",
+            "b": "stock"
+          },
+          {
+            "a": "stock",
+            "b": "pg"
+          },
+          {
+            "a": "pg",
+            "b": "stream"
+          },
+          {
+            "a": "stream",
+            "b": "we"
+          },
+          {
+            "a": "we",
+            "b": "pel"
+          },
+          {
+            "a": "pel",
+            "b": "reaper"
+          },
+          {
+            "a": "reaper",
+            "b": "dlq"
+          },
+          {
+            "a": "reaper",
+            "b": "stream",
+            "back": true
+          },
+          {
+            "a": "stream",
+            "b": "pubsub"
+          }
+        ],
+        "flow": [
+          {
+            "n": "api",
+            "txt": "POST /api/orders {user_id, items}."
+          },
+          {
+            "n": "rl",
+            "txt": "Лимит по user_id: превышен, ответ 429."
+          },
+          {
+            "n": "stock",
+            "txt": "Lua атомарно проверяет и списывает stock, иначе 409."
+          },
+          {
+            "n": "pg",
+            "txt": "Транзакция: orders + order_items, статус reserved."
+          },
+          {
+            "n": "stream",
+            "txt": "XADD orders:stream, событие видят обе группы."
+          },
+          {
+            "n": "we",
+            "txt": "XREADGROUP: письмо, маркер в processed_messages, XACK."
+          },
+          {
+            "n": "pel",
+            "txt": "Воркер упал до XACK: запись висит в PEL."
+          },
+          {
+            "n": "reaper",
+            "txt": "XAUTOCLAIM после 30 с возвращает запись в обработку.",
+            "back": true
+          },
+          {
+            "n": "dlq",
+            "txt": "После трёх попыток запись уходит в orders:dlq:stream.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Как устроен distributed lock на SET NX PX и почему освобождать его нужно Lua-скриптом?",
+        "a": "SET key value NX PX 5000 создаёт ключ, только если его не было, и он исчезает через 5 секунд, даже если процесс упал. Голый DEL опасен: процесс A мог зависнуть дольше TTL, лок взял B, и DEL от A удалит чужой лок. Lua-скрипт сравнивает уникальный токен и удаляет ключ только при совпадении."
+      },
+      {
+        "q": "Что такое cache stampede и как лок на перестройку кэша его предотвращает?",
+        "a": "Когда TTL популярного ключа истекает, сотни одновременных запросов промахиваются мимо кэша и бьют в PostgreSQL. Короткий distributed lock даёт перестроить кэш первому запросу, а остальные ждут и читают готовое или чуть устаревшее значение."
+      },
+      {
+        "q": "Почему проверку остатка и списание нельзя делать отдельными командами GET, сравнение и DECRBY?",
+        "a": "Между отдельными вызовами Redis успевает обслужить другого клиента, и два заказа оба увидят достаточный остаток. Поэтому проверка и списание выполняются одним Lua-скриптом атомарно: он возвращает -1 (нет ключа), 0 (мало) или 1 (списано)."
+      },
+      {
+        "q": "Что такое PEL и почему зависшая запись не возвращается другому consumer'у автоматически?",
+        "a": "PEL — список записей, выданных через XREADGROUP, но не подтверждённых XACK. В отличие от RabbitMQ, обрыв соединения воркера ничего не возвращает: запись висит под именем мёртвого consumer'а, пока кто-то не вызовет XCLAIM или XAUTOCLAIM с min-idle-time."
+      },
+      {
+        "q": "Чем Pub/Sub отличается от Stream с точки зрения гарантий доставки?",
+        "a": "Pub/Sub рассылает сообщение только подписчикам, которые есть в момент публикации, и нигде его не хранит. Stream персистентен и даёт PEL с подтверждениями. Поэтому Pub/Sub годится для live-дашборда, а заказы идут через Stream."
+      }
+    ],
     accent: '#DC382D',
   },
   {
