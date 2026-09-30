@@ -80,10 +80,10 @@
 
     // части страницы вместо «01 / программа»
     var kickers = document.querySelectorAll('.lab-kicker');
-    var parts = ['Часть 1 · программа', 'Часть 2 · стек', 'Часть 3 · материалы'];
-    kickers.forEach(function (k, i) { if (parts[i]) k.textContent = parts[i]; });
-    var firstMaterial = document.querySelector('.lab-material span');
-    if (firstMaterial && lab.open) firstMaterial.textContent = 'методичка';
+    kickers.forEach(function (k, i) {
+      var label = k.textContent.split('/')[1];
+      if (label) k.textContent = 'Часть ' + (i + 1) + ' · ' + label.trim();
+    });
 
     // соседние лабы — по порядку главной, «следующая» оформлена как превью
     var prev = labByKey(ORDER[(idx - 1 + ORDER.length) % ORDER.length]);

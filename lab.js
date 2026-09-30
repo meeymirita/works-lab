@@ -201,10 +201,61 @@ var LABS = [
     subtitle: 'RoomBook — бронирование переговорных',
     desc: 'Внутренний сервис бронирования переговорных на Angular 22: сигналы и OnPush без zone.js, DI и провайдеры, HttpClient, интерцепторы и httpResource, роутер с lazy-загрузкой и guards по ролям, Signal Forms с серверной проверкой слота, RxJS для поиска и живого расписания через SSE, тесты на Vitest и сборка под nginx.',
     stack: ['Angular 22', 'TypeScript', 'Signals', 'Signal Forms', 'RxJS'],
+    stackInfo: [
+      { tag: 'фреймворк', back: 'Каркас всего проекта: standalone-компоненты, zoneless и OnPush по умолчанию.' },
+      { tag: 'язык', back: 'Строгие типы для моделей, API и форм.' },
+      { tag: 'состояние', back: 'Реактивность без zone.js: signal, computed, linkedSignal.' },
+      { tag: 'формы', back: 'Форма брони с серверной проверкой занятого слота.' },
+      { tag: 'потоки', back: 'Поиск с debounce и живое расписание через SSE.' },
+    ],
     difficulty: 'Высокая',
     image: '../angular/Angular.png',
     open: '../angular/Angular_Lab_RoomBook.html',
     repo: 'https://github.com/meeymirita/angular-lab',
+    learn: [
+      {
+        tab: 'Сигналы и OnPush',
+        title: 'Реактивность без zone.js',
+        text: 'Состояние живёт в сигналах, а шаблон перерисовывается только там, где сигнал реально изменился. Никакого «магического» обнаружения изменений: сначала разберёте, почему счётчик растёт, а мутированный массив не обновляет сетку.',
+        points: ['signal, computed, effect', 'linkedSignal: значение, которое сбрасывается вслед за источником', 'OnPush и zoneless по умолчанию'],
+        code: "filtered = computed(() =>\n  this.rooms().filter(r => r.capacity >= this.minCapacity()));\n\n// выбор сохраняется, пока комната в списке; иначе — первая\nselectedId = linkedSignal<Room[], number | null>({\n  source: this.filtered,\n  computation: (list, prev) =>\n    prev && list.some(r => r.id === prev.value) ? prev.value : (list[0]?.id ?? null),\n});",
+      },
+      {
+        tab: 'DI и провайдеры',
+        title: 'Кто и где создаёт сервисы',
+        text: 'Внедрение зависимостей — основа всего приложения. Увидите разницу между сервисом на весь корень и на один компонент и почему стор с состоянием формы нельзя делать синглтоном.',
+        points: ['inject() вместо конструкторов', 'providedIn: root и providers компонента', 'InjectionToken для конфигурации (API_BASE_URL)'],
+        code: "export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');\n\n@Injectable({ providedIn: 'root' })\nexport class RoomsApi {\n  private http = inject(HttpClient);\n  private base = inject(API_BASE_URL);\n}",
+      },
+      {
+        tab: 'HTTP и интерцепторы',
+        title: 'Запросы, токены и ошибки в одном месте',
+        text: 'HttpClient, цепочка интерцепторов для токена, логов и ошибок, а ещё httpResource — запрос, который сам перезапускается, когда меняется сигнал-параметр.',
+        points: ['provideHttpClient(withInterceptors([...]))', 'единый обработчик 401 и 500', 'httpResource и состояние loading / error / value'],
+        code: "provideHttpClient(\n  withInterceptors([apiLogInterceptor, errorInterceptor, authInterceptor]),\n),",
+      },
+      {
+        tab: 'Роутер и guards',
+        title: 'Страницы, ленивая загрузка и роли',
+        text: 'Маршруты с параметрами, lazy-загрузка страниц и guard для администратора. Главный вывод раздела: guard — это UX, а не защита, настоящая проверка живёт на сервере.',
+        points: ['loadComponent / loadChildren и разбиение бандла', 'параметры маршрута как input()', 'canMatch-guard и redirect на /not-found'],
+        code: "{ path: 'admin', canMatch: [adminGuard],\n  loadChildren: () => import('./admin/admin.routes') },\n\nexport const adminGuard: CanMatchFn = () =>\n  inject(AuthStore).isAdmin();",
+      },
+      {
+        tab: 'Signal Forms',
+        title: 'Форма брони с проверкой слота',
+        text: 'Форма строится вокруг модели на сигналах. Сначала клиентские правила (обязательность, длина, конец позже начала), потом серверная проверка занятости слота: ответ 409 превращается в понятную ошибку у поля.',
+        points: ['form(model, schema) и директива [formField]', 'валидаторы required, minLength, min, validate', 'ошибки сервера 400 и 409 прямо в поле'],
+        code: "protected readonly f = form(this.model, (p) => {\n  required(p.title);\n  minLength(p.title, 3);\n  min(p.attendees, 1);\n});",
+      },
+      {
+        tab: 'RxJS, SSE и тесты',
+        title: 'Поиск, живое расписание, Vitest',
+        text: 'RxJS остаётся там, где он сильнее сигналов: поиск с debounce и живое обновление расписания через SSE. В конце — тесты сторов и guard-ов на Vitest и сборка под nginx.',
+        points: ['debounceTime, switchMap, toSignal', 'EventSource как Observable', 'Vitest, provideHttpClientTesting, nginx с SPA-fallback'],
+        code: "const results = toSignal(\n  toObservable(query).pipe(debounceTime(300), switchMap(q => api.search(q))),\n  { initialValue: [] },\n);   // сигнал → поток с операторами → снова сигнал",
+      },
+    ],
     accent: '#CC26D5',
   },
   {
@@ -487,6 +538,76 @@ function loadToc(lab, panel) {
     });
 }
 
+function materialCard(n, title, desc, href) {
+  var inner =
+    '<span class="lab-material-num mono">' + n + '</span>' +
+    '<span class="lab-material-body"><span class="lab-material-title">' + escapeHtml(title) + '</span>' +
+    '<span class="lab-material-desc">' + escapeHtml(desc) + '</span></span>' +
+    '<span class="lab-material-arrow">' + (href ? '↗' : '—') + '</span>';
+  return href
+    ? '<a href="' + href + '" target="_blank" rel="noopener" class="lab-material">' + inner + '</a>'
+    : '<span class="lab-material" style="opacity:.5;cursor:not-allowed">' + inner + '</span>';
+}
+
+// Вертикальные табы «Чему вы научитесь» — только у лаб с полем learn.
+function renderLearn(lab) {
+  if (!lab.learn || !lab.learn.length) return '';
+  var tabs = lab.learn.map(function (t, n) {
+    return '<button type="button" role="tab" id="learn-tab-' + n + '" class="lab-learn-tab" aria-controls="learn-panel" aria-selected="' + (n === 0) + '" tabindex="' + (n === 0 ? 0 : -1) + '" data-i="' + n + '">' +
+      '<span class="lab-learn-tab-num mono">' + String(n + 1).padStart(2, '0') + '</span>' +
+      '<span class="lab-learn-tab-name">' + escapeHtml(t.tab) + '</span></button>';
+  }).join('');
+  return '<section id="learn" class="lab-section">' +
+    '<div class="lab-kicker mono">02 / навыки</div>' +
+    '<h2 class="lab-h2 display">Чему вы научитесь</h2>' +
+    '<div class="lab-learn">' +
+      '<div class="lab-learn-tabs" role="tablist" aria-orientation="vertical" aria-label="Темы лабы">' + tabs + '</div>' +
+      '<div class="lab-learn-panel" id="learn-panel" role="tabpanel" aria-live="polite"></div>' +
+    '</div></section>';
+}
+
+function initLearn(lab) {
+  if (!lab.learn) return;
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.lab-learn-tab'));
+  var panel = document.getElementById('learn-panel');
+  if (!tabs.length || !panel) return;
+  function show(n, focus) {
+    var t = lab.learn[n];
+    tabs.forEach(function (b, k) {
+      b.setAttribute('aria-selected', String(k === n));
+      b.tabIndex = k === n ? 0 : -1;
+    });
+    panel.setAttribute('aria-labelledby', 'learn-tab-' + n);
+    panel.innerHTML =
+      '<h3 class="lab-learn-title display">' + escapeHtml(t.title) + '</h3>' +
+      '<p class="lab-learn-text">' + escapeHtml(t.text) + '</p>' +
+      '<ul class="lab-learn-points">' + t.points.map(function (x) { return '<li>' + escapeHtml(x) + '</li>'; }).join('') + '</ul>' +
+      (t.code ? '<pre class="lab-learn-code"><code>' + escapeHtml(t.code) + '</code></pre>' : '');
+    panel.classList.remove('is-in'); void panel.offsetWidth; panel.classList.add('is-in');
+    if (focus) tabs[n].focus();
+  }
+  tabs.forEach(function (b, n) {
+    b.addEventListener('click', function () { show(n); });
+    b.addEventListener('keydown', function (e) {
+      var d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+      if (d) { e.preventDefault(); show((n + d + tabs.length) % tabs.length, true); }
+      else if (e.key === 'Home') { e.preventDefault(); show(0, true); }
+      else if (e.key === 'End') { e.preventDefault(); show(tabs.length - 1, true); }
+    });
+  });
+  show(0);
+}
+
+// Плитки стека: на тач-экранах переворот по тапу.
+function initTiles() {
+  Array.prototype.forEach.call(document.querySelectorAll('.lab-tile.can-flip'), function (t) {
+    t.addEventListener('click', function () { t.classList.toggle('is-flip'); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.classList.toggle('is-flip'); }
+    });
+  });
+}
+
 function renderLabPage(key) {
   var i = LABS.findIndex(function (l) { return l.key === key; });
   if (i < 0) i = 0;
@@ -592,23 +713,35 @@ function renderLabPage(key) {
         '</div>'
       : '') +
 
+    renderLearn(lab) +
+
     '<section class="lab-section-alt"><div class="lab-section-inner">' +
-      '<div class="lab-kicker mono">02 / стек</div>' +
-      '<h2 class="lab-h2 display">Технологии лабы</h2>' +
-      '<div class="lab-chips">' +
-        lab.stack.map(function (s) { return '<span class="lab-chip">' + escapeHtml(s) + '</span>'; }).join('') +
+      '<div class="lab-kicker mono">' + (lab.learn ? '03' : '02') + ' / стек</div>' +
+      '<h2 class="lab-h2 display">Технологии в этой работе</h2>' +
+      '<div class="lab-bento">' +
+        lab.stack.map(function (name, n) {
+          var info = (lab.stackInfo && lab.stackInfo[n]) || {};
+          var flip = !!info.back;
+          return '<div class="lab-tile' + (flip ? ' can-flip' : '') + '"' + (flip ? ' tabindex="0"' : '') + ' style="--i:' + n + '">' +
+            '<div class="lab-tile-in">' +
+              '<div class="lab-tile-face lab-tile-front"><span class="lab-tile-num mono">' + String(n + 1).padStart(2, '0') + '</span>' +
+                '<span class="lab-tile-name">' + escapeHtml(name) + '</span>' +
+                (info.tag ? '<small class="mono">' + escapeHtml(info.tag) + '</small>' : '') + '</div>' +
+              (flip ? '<div class="lab-tile-face lab-tile-back"><span>' + escapeHtml(info.back) + '</span></div>' : '') +
+            '</div></div>';
+        }).join('') +
       '</div>' +
     '</div></section>' +
 
     '<section id="materials" class="lab-section">' +
-      '<div class="lab-kicker mono">03 / материалы</div>' +
-      '<h2 class="lab-h2 display">Куда открыть</h2>' +
-      '<div class="lab-materials mono">' +
+      '<div class="lab-kicker mono">' + (lab.learn ? '04' : '03') + ' / материалы</div>' +
+      '<h2 class="lab-h2 display">С чего начать</h2>' +
+      '<div class="lab-materials">' +
         (lab.open
-          ? '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-material"><span>методичка (README)</span><span>↗</span></a>'
-          : '<span class="lab-material" style="opacity:.5;cursor:not-allowed"><span>методичка скоро</span><span>—</span></span>') +
-        '<a href="' + lab.repo + '" target="_blank" rel="noopener" class="lab-material"><span>репозиторий лабы</span><span>↗</span></a>' +
-        '<a href="' + lab.repo + '/commits/main" target="_blank" rel="noopener" class="lab-material"><span>история коммитов</span><span>↗</span></a>' +
+          ? materialCard('1', 'методичка', 'Откройте и идите по шагам: код → зачем → команда → ожидаемый результат → проверь себя. Прогресс галочек сохраняется в браузере.', lab.open)
+          : materialCard('1', 'методичка скоро', 'Методичка ещё в подготовке — загляните позже.', '')) +
+        materialCard('2', 'репозиторий лабы', 'Открытый репозиторий лабы: README со статусом и исходники. Можно клонировать и запускать у себя.', lab.repo) +
+        materialCard('3', 'история коммитов', 'Как развивалась лаба: каждое изменение методички и кода — отдельный коммит, всё видно по порядку.', lab.repo + '/commits/main') +
       '</div>' +
     '</section>' +
 
@@ -629,6 +762,8 @@ function renderLabPage(key) {
     '</footer>';
 
   initNavAutoHide();
+  initLearn(lab);
+  initTiles();
   if (window.FlipGallery) FlipGallery.init('.lab-hero-image img');
 
   if (window.PageLoader) PageLoader.enter(lab.title, lab.accent);
