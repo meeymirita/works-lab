@@ -779,6 +779,256 @@ var LABS = [
         "code": "postgres:\n  healthcheck:\n    test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n    interval: 5s\n    retries: 5\napp:\n  depends_on:\n    postgres:\n      condition: service_healthy"
       }
     ],
+    sessions: [
+      {
+        "h": "",
+        "t": "Первый образ и bash-entrypoint",
+        "r": "Образ Node-приложения с .dockerignore и entrypoint.sh, который проверяет окружение и передаёт управление через exec"
+      },
+      {
+        "h": "",
+        "t": "Данные, сеть, ожидание БД",
+        "r": "PostgreSQL в своей сети с volume; приложение ждёт БД, корректно останавливается по SIGTERM; образ собран multi-stage"
+      },
+      {
+        "h": "",
+        "t": "Compose и Production Hell",
+        "r": "Весь стек поднимается одной командой с .env, restart policy и лимитами; сломанный compose починен без подсказок"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса и запуск контейнера",
+      "rows": [
+        {
+          "label": "Хост",
+          "boxes": [
+            "curl localhost:3000",
+            ".env"
+          ]
+        },
+        {
+          "label": "Docker",
+          "boxes": [
+            "-p 3000:3000",
+            "сеть lab-net (DNS по имени)"
+          ]
+        },
+        {
+          "label": "Контейнер app",
+          "boxes": [
+            "entrypoint.sh",
+            "ожидание postgres",
+            "exec node server.js"
+          ]
+        },
+        {
+          "label": "Контейнер postgres",
+          "boxes": [
+            "postgres:17-alpine",
+            "healthcheck pg_isready"
+          ]
+        },
+        {
+          "label": "Данные",
+          "boxes": [
+            "named volume pgdata"
+          ]
+        }
+      ],
+      "note": "Ловушка: без exec в конце entrypoint.sh PID 1 остаётся у bash, docker stop не доходит до node и ждёт 10 секунд до SIGKILL.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "хост",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "Docker · контейнер app",
+            "x": 250,
+            "w": 430
+          },
+          {
+            "t": "postgres · данные",
+            "x": 710,
+            "w": 276
+          }
+        ],
+        "nodes": [
+          {
+            "id": "curl",
+            "t": "curl :3000",
+            "s": "запрос с хоста",
+            "x": 110,
+            "y": 150,
+            "d": "Запрос с хоста на localhost:3000; приложение отвечает строкой с именем из APP_NAME."
+          },
+          {
+            "id": "env",
+            "t": ".env",
+            "s": "подстановка ${VAR}",
+            "x": 110,
+            "y": 350,
+            "d": "Compose подставляет из .env APP_NAME и POSTGRES_PASSWORD; файл в .gitignore, в git идёт только .env.example."
+          },
+          {
+            "id": "port",
+            "t": "-p 3000:3000",
+            "s": "хост:контейнер",
+            "x": 350,
+            "y": 110,
+            "d": "Реальный проброс порта; EXPOSE в Dockerfile только документация. Контейнерная часть должна совпадать с портом приложения."
+          },
+          {
+            "id": "ep",
+            "t": "entrypoint.sh",
+            "s": "set -euo pipefail",
+            "x": 350,
+            "y": 270,
+            "d": "ENTRYPOINT-скрипт проверяет APP_ENV и APP_NAME и падает с exit 1, если в production нет обязательной переменной."
+          },
+          {
+            "id": "wait",
+            "t": "ожидание БД",
+            "s": "until /dev/tcp",
+            "x": 350,
+            "y": 430,
+            "d": "Цикл until пробует открыть TCP к postgres:5432 до 30 раз с паузой 2 с, иначе выходит с ошибкой."
+          },
+          {
+            "id": "net",
+            "t": "сеть lab-net",
+            "s": "DNS по имени",
+            "x": 570,
+            "y": 110,
+            "d": "Пользовательская bridge-сеть со встроенным DNS: имя postgres резолвится в IP контейнера. В сети по умолчанию так не работает."
+          },
+          {
+            "id": "app",
+            "t": "node server.js",
+            "s": "PID 1 через exec",
+            "x": 570,
+            "y": 270,
+            "d": "exec заменяет bash процессом из CMD, поэтому node получает SIGTERM напрямую и останавливается быстро."
+          },
+          {
+            "id": "pg",
+            "t": "postgres:17",
+            "s": "healthcheck",
+            "x": 800,
+            "y": 170,
+            "d": "База в контейнере; healthcheck pg_isready нужен, чтобы depends_on с condition: service_healthy ждал готовности, а не просто старта."
+          },
+          {
+            "id": "vol",
+            "t": "pgdata",
+            "s": "named volume",
+            "x": 800,
+            "y": 380,
+            "d": "Named volume на /var/lib/postgresql/data: данные переживают удаление контейнера."
+          }
+        ],
+        "edges": [
+          {
+            "a": "curl",
+            "b": "port"
+          },
+          {
+            "a": "port",
+            "b": "ep"
+          },
+          {
+            "a": "env",
+            "b": "ep"
+          },
+          {
+            "a": "ep",
+            "b": "wait"
+          },
+          {
+            "a": "wait",
+            "b": "net"
+          },
+          {
+            "a": "net",
+            "b": "pg"
+          },
+          {
+            "a": "pg",
+            "b": "app"
+          },
+          {
+            "a": "pg",
+            "b": "vol"
+          },
+          {
+            "a": "app",
+            "b": "port",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "env",
+            "txt": "Compose подставляет значения из .env и запускает контейнер app."
+          },
+          {
+            "n": "ep",
+            "txt": "entrypoint.sh проверяет окружение (APP_ENV, APP_NAME)."
+          },
+          {
+            "n": "wait",
+            "txt": "Цикл until ждёт, пока postgres:5432 начнёт принимать соединения."
+          },
+          {
+            "n": "net",
+            "txt": "Имя postgres резолвится DNS сети lab-net."
+          },
+          {
+            "n": "pg",
+            "txt": "healthcheck pg_isready проходит, база готова."
+          },
+          {
+            "n": "app",
+            "txt": "exec \"$@\": node становится PID 1 и слушает порт 3000."
+          },
+          {
+            "n": "port",
+            "txt": "Docker пробрасывает ответ с порта 3000 контейнера на хост.",
+            "back": true
+          },
+          {
+            "n": "curl",
+            "txt": "curl получает: «Привет! Меня зовут …».",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Зачем в конце entrypoint-скрипта пишут exec \"$@\", а не просто \"$@\"?",
+        "a": "exec заменяет процесс bash процессом из аргументов: тот же PID, но другой код внутри. Без него команда стартует дочерним процессом, а PID 1 остаётся у bash, и сигналы остановки приходят ему, а не приложению."
+      },
+      {
+        "q": "Что произойдёт при docker stop, если PID 1 — bash-скрипт без exec?",
+        "a": "Docker шлёт SIGTERM в PID 1 и ждёт 10 секунд. Bash не пересылает сигнал дочернему node, поэтому тот о нём не узнаёт, и по таймауту всё убивается через SIGKILL, минуя graceful shutdown."
+      },
+      {
+        "q": "Зачем нужен healthcheck вместе с обычным depends_on?",
+        "a": "Обычный depends_on гарантирует только порядок старта контейнеров, но не готовность: процесс postgres запущен, а порт 5432 ещё не принимает соединения. condition: service_healthy ждёт успешного pg_isready, а остаточную гонку закрывает ожидание БД в самом entrypoint."
+      },
+      {
+        "q": "Почему имена контейнеров резолвятся по DNS в пользовательской bridge-сети, но не в дефолтной?",
+        "a": "Встроенный DNS Docker обслуживает только сети, созданные через docker network create; у сети bridge по умолчанию его нет по историческим причинам совместимости. Поэтому для проекта из нескольких контейнеров создают свою сеть, а Compose делает это автоматически."
+      },
+      {
+        "q": "Как multi-stage build уменьшает итоговый образ?",
+        "a": "Сборка и тесты идут в первом стейдже со всеми зависимостями, а в финальный через COPY --from=builder переносятся только нужные файлы и ставятся production-зависимости. devDependencies, исходники тестов и слои первого стейджа в итоговый образ не попадают."
+      }
+    ],
     accent: '#2496ED',
   },
   {
