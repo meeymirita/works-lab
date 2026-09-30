@@ -4197,6 +4197,274 @@ var LABS = [
         "code": "@SubscribeMessage('ticket:subscribe')\nasync subscribe(@ConnectedSocket() client: Socket, @MessageBody() body: { ticketId?: unknown }) {\n  const user = client.data.user as AuthUser;\n  const ticket = await this.prisma.ticket.findFirst({\n    where: { id: Number(body?.ticketId), ...this.policy.scopeFor(user) },\n  });\n  if (!ticket) throw new WsException('Ticket not found');\n  await client.join(ticketRoom(ticket.id));\n}"
       }
     ],
+    sessions: [
+      {
+        "h": "~3 ч",
+        "t": "Фундамент: TypeScript, DI, модули, конфиг",
+        "r": "Свои декораторы и мини-DI-контейнер, модуль health, конфиг .env с валидацией"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "База данных: Docker, Prisma, CRUD",
+        "r": "CRUD тикетов с валидацией DTO, фильтром ошибок Prisma и историей изменений в транзакции"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Пользователи и безопасность",
+        "r": "Регистрация, логин по JWT, глобальный guard, refresh-ротация, роли и политика доступа"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Комментарии, события, real-time",
+        "r": "Комментарии, доменные события, WebSocket-шлюз, request id, Swagger, CORS и rate limiting"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Тесты и продакшн",
+        "r": "Unit- и e2e-тесты, динамический модуль аудита, health-чеки, Docker-образ, задания Production Hell"
+      }
+    ],
+    arch: {
+      "title": "Путь одного запроса",
+      "rows": [
+        {
+          "label": "Клиент",
+          "boxes": [
+            "curl / Swagger UI",
+            "Socket.IO-клиент"
+          ]
+        },
+        {
+          "label": "Конвейер Nest",
+          "boxes": [
+            "Middleware: helmet, RequestContext",
+            "Guards: Throttler → JwtAuth → Roles",
+            "ValidationPipe",
+            "Interceptors: HandlerTime, Timeout"
+          ]
+        },
+        {
+          "label": "Домен",
+          "boxes": [
+            "TicketsController",
+            "TicketsService · TicketPolicy",
+            "EventEmitter2"
+          ]
+        },
+        {
+          "label": "Данные",
+          "boxes": [
+            "PrismaService",
+            "PostgreSQL 17 · helpdesk"
+          ]
+        },
+        {
+          "label": "Real-time",
+          "boxes": [
+            "RealtimeListener",
+            "TicketsGateway · комнаты"
+          ]
+        }
+      ],
+      "note": "Обратный путь: событие публикуется только после коммита и уходит клиентам через шлюз по комнатам; если отправить его внутри транзакции, при откате клиенты получат факт, которого не было.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "клиент",
+            "x": 14,
+            "w": 224
+          },
+          {
+            "t": "конвейер и домен NestJS",
+            "x": 250,
+            "w": 440
+          },
+          {
+            "t": "данные и события",
+            "x": 700,
+            "w": 290
+          }
+        ],
+        "nodes": [
+          {
+            "id": "cl",
+            "t": "Клиент",
+            "s": "curl · Swagger · WS",
+            "x": 110,
+            "y": 230,
+            "d": "Отправляет REST-запросы с access-токеном в Authorization и подключается к Socket.IO по /ws с токеном в handshake."
+          },
+          {
+            "id": "mw",
+            "t": "Middleware",
+            "s": "helmet · request id",
+            "x": 350,
+            "y": 110,
+            "d": "helmet и cookie-parser, а RequestContext ставит x-request-id и пишет access-лог со статусом."
+          },
+          {
+            "id": "gd",
+            "t": "Guards",
+            "s": "Throttler→JwtAuth→Roles",
+            "x": 350,
+            "y": 230,
+            "d": "Глобальный JwtAuthGuard пропускает только с валидным токеном, если маршрут не помечен @Public(). RolesGuard проверяет роль."
+          },
+          {
+            "id": "pp",
+            "t": "ValidationPipe",
+            "s": "whitelist · transform",
+            "x": 350,
+            "y": 350,
+            "d": "Проверяет DTO, отбрасывает лишние поля и не даёт клиенту прислать role: ADMIN (mass assignment)."
+          },
+          {
+            "id": "ctl",
+            "t": "Controller",
+            "s": "тонкий, без ролей",
+            "x": 590,
+            "y": 350,
+            "d": "Только маппит HTTP на вызовы сервиса. Правил доступа и запросов к БД в контроллере нет."
+          },
+          {
+            "id": "svc",
+            "t": "TicketsService",
+            "s": "Policy · транзакция",
+            "x": 590,
+            "y": 230,
+            "d": "Бизнес-логика тикетов: политика доступа, обновление и запись истории изменений в одной транзакции Prisma."
+          },
+          {
+            "id": "ev",
+            "t": "EventEmitter2",
+            "s": "ticket.* после коммита",
+            "x": 590,
+            "y": 110,
+            "d": "Сервис публикует событие только после коммита транзакции. Слушатели живут в памяти процесса."
+          },
+          {
+            "id": "db",
+            "t": "PostgreSQL 17",
+            "s": "PrismaService",
+            "x": 830,
+            "y": 230,
+            "d": "Prisma Client один на приложение (глобальный PrismaModule). База helpdesk, для e2e-тестов отдельная helpdesk_test."
+          },
+          {
+            "id": "ws",
+            "t": "TicketsGateway",
+            "s": "Socket.IO · rooms",
+            "x": 830,
+            "y": 110,
+            "d": "Шлюз рассылает события по комнатам user:{id}, agents и ticket:{id}. Внутренние заметки уходят только в agents."
+          }
+        ],
+        "edges": [
+          {
+            "a": "cl",
+            "b": "mw"
+          },
+          {
+            "a": "mw",
+            "b": "gd"
+          },
+          {
+            "a": "gd",
+            "b": "pp"
+          },
+          {
+            "a": "pp",
+            "b": "ctl"
+          },
+          {
+            "a": "ctl",
+            "b": "svc"
+          },
+          {
+            "a": "svc",
+            "b": "db"
+          },
+          {
+            "a": "svc",
+            "b": "ev"
+          },
+          {
+            "a": "ev",
+            "b": "ws"
+          },
+          {
+            "a": "ws",
+            "b": "cl",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "cl",
+            "txt": "Клиент отправляет POST /api/tickets с access-токеном."
+          },
+          {
+            "n": "mw",
+            "txt": "Middleware: helmet, cookie-parser, RequestContext ставит x-request-id."
+          },
+          {
+            "n": "gd",
+            "txt": "Guards: Throttler, затем JwtAuth (@Public), затем Roles."
+          },
+          {
+            "n": "pp",
+            "txt": "ValidationPipe проверяет DTO и убирает лишние поля; контроллер передаёт DTO сервису."
+          },
+          {
+            "n": "svc",
+            "txt": "TicketsService проверяет TicketPolicy и открывает $transaction."
+          },
+          {
+            "n": "db",
+            "txt": "Prisma пишет тикет и запись истории в PostgreSQL, транзакция коммитится."
+          },
+          {
+            "n": "ev",
+            "txt": "После коммита сервис публикует ticket.created.",
+            "back": true
+          },
+          {
+            "n": "ws",
+            "txt": "TicketsGateway рассылает событие в нужные комнаты.",
+            "back": true
+          },
+          {
+            "n": "cl",
+            "txt": "Подписанные клиенты получают обновление по WebSocket.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Как Nest узнаёт, что передать в конструктор сервиса, и почему интерфейс нельзя использовать как токен DI?",
+        "a": "Nest читает типы параметров конструктора через emitDecoratorMetadata, и только у классов с декоратором, если тип существует в рантайме. Интерфейс после компиляции стирается: в paramtypes окажется Object, и контейнер не поймёт, что создавать. Для интерфейса нужен токен и @Inject(TOKEN) (шаг 2.3)."
+      },
+      {
+        "q": "Почему на запрос чужого тикета отвечаем 404, а не 403?",
+        "a": "Ответ 403 сообщает, что тикет с таким номером существует, и перебором можно оценить объём обращений и найти интересные номера. 404 не раскрывает ничего. Правило: нет права видеть — «не найдено», видеть можно, а менять нельзя — 403."
+      },
+      {
+        "q": "Синхронен ли EventEmitter2.emit() и почему событие публикуется после коммита?",
+        "a": "emit() вызывает слушателей синхронно и возвращается после них, так что медленный слушатель задерживает HTTP-ответ. Событие о факте публикуют после коммита: иначе при откате транзакции WebSocket уже разослал бы клиентам «тикет обновлён», чего не произошло. События живут в памяти одного процесса, поэтому они слабее брокера."
+      },
+      {
+        "q": "Как работают ротация refresh-токенов и reuse detection?",
+        "a": "При обновлении выдаётся новый refresh, а старый помечается отозванным. Если отозванный токен предъявлен повторно, отзывается вся семья (familyId): и атакующий, и пользователь получают 401 и логинятся заново. Гонку двух вкладок закрывает условный UPDATE ... WHERE revoked_at IS NULL: вторая вкладка получит 401, но семья не отзывается."
+      },
+      {
+        "q": "Почему в БД хранится хэш refresh-токена, и почему для него хватает SHA-256, а для пароля нужен argon2?",
+        "a": "Хэш хранят, чтобы утечка дампа БД не давала войти под любым пользователем. Пароли короткие и перебираемые, поэтому нужен медленный argon2. Refresh-секрет — 32 случайных байта, перебрать его невозможно, и быстрого SHA-256 достаточно."
+      }
+    ],
     accent: '#E0234E',
   },
   {
