@@ -1196,6 +1196,96 @@ var LABS = [
     image: '../graphql/GraphQL.png',
     open: '../graphql/GraphQL_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/graphql-lab',
+    stackInfo: [
+      {
+        "tag": "сервер",
+        "back": "Каркас API и Apollo Server: code-first схема из декораторов и резолверы."
+      },
+      {
+        "tag": "ORM",
+        "back": "Доступ к данным и миграции, откуда резолверы берут строки."
+      },
+      {
+        "tag": "база данных",
+        "back": "Хранилище фильмов, людей, рецензий и пользователей."
+      },
+      {
+        "tag": "батчинг",
+        "back": "Схлопывает запросы резолверов полей и лечит N+1."
+      },
+      {
+        "tag": "pub/sub",
+        "back": "Доставка событий подписок между несколькими инстансами."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Интерфейсы и юнионы",
+        "title": "Один тип поля — несколько реализаций",
+        "text": "Интерфейс Credit описывает общие поля актёрской и режиссёрской работы, а union SearchResult объединяет фильм и человека. Исполнителю нужен resolveType, иначе он не поймёт, какой конкретный тип вернулся.",
+        "points": [
+          "@InterfaceType и implements",
+          "createUnionType и resolveType",
+          "Фрагменты ... on для выборки полей"
+        ],
+        "code": "@InterfaceType({\n  description: 'Участие человека в фильме',\n  resolveType: (value: CreditSource) => (value.kind === 'director' ? DirectorCredit : CastCredit),\n})\nexport abstract class Credit { /* movie, person */ }\n\nexport const SearchResult = createUnionType({\n  name: 'SearchResult',\n  types: () => [Movie, Person] as const,\n  resolveType: (value: object) => ('title' in value ? Movie : Person),\n});"
+      },
+      {
+        "tab": "N+1 и DataLoader",
+        "title": "Батчинг вместо запроса на каждую строку",
+        "text": "Наивные резолверы полей делают отдельный запрос на каждый фильм. DataLoader собирает ключи за один тик и отправляет один запрос с IN. Кэш загрузчика нужно создавать на каждый запрос, иначе данные потекут между пользователями.",
+        "points": [
+          "Контракт: результат той же длины и в том же порядке, что ids",
+          "Отдельные загрузчики для один-к-одному и один-ко-многим",
+          "Новый набор загрузчиков в context() на каждый запрос"
+        ],
+        "code": "function byId<T extends { id: number }>(label: string, fetch: (ids: number[]) => Promise<T[]>) {\n  return new DataLoader<number, T>(async (ids) => {\n    const rows = await fetch([...ids]);\n    const map = new Map(rows.map((r) => [r.id, r]));\n    return ids.map((id) => map.get(id) ?? new Error(`${label} ${id} not found`));\n  });\n}"
+      },
+      {
+        "tab": "Права на поля",
+        "title": "Авторизация внутри схемы",
+        "text": "Доступ проверяется не только на входе в мутацию, но и на отдельном поле. Чужой email отдаёт ошибку FORBIDDEN, а остальная часть ответа приходит: GraphQL умеет частичные ответы.",
+        "points": [
+          "ResolveField с проверкой пользователя из контекста",
+          "Порядок guard'ов: сначала кто ты, потом можно ли",
+          "Nullable-поле превращает ошибку в null, а не в падение всего запроса"
+        ],
+        "code": "@ResolveField(() => String, { nullable: true, description: 'Виден только владельцу и админу' })\nemail(@Parent() user: User, @Context('user') me: AuthUser | null) {\n  if (me && (me.id === user.id || me.role === 'ADMIN')) return user.email;\n  throw gqlError('FORBIDDEN', 'Email виден только владельцу');\n}"
+      },
+      {
+        "tab": "Курсорная пагинация",
+        "title": "Connection вместо offset",
+        "text": "Лента рецензий отдаётся в формате edges/pageInfo. Курсор непрозрачен для клиента, а запрос берёт take + 1 строку, чтобы узнать про следующую страницу без COUNT.",
+        "points": [
+          "Курсор как base64url от id",
+          "hasNextPage без лишнего запроса",
+          "totalCount через отдельный загрузчик"
+        ],
+        "code": "const rows = await this.prisma.review.findMany({\n  where: { movieId, ...(beforeId ? { id: { lt: beforeId } } : {}) },\n  orderBy: { id: 'desc' },\n  take: take + 1,   // +1: узнать, есть ли следующая страница, без COUNT\n});\nconst page = rows.slice(0, take);\npageInfo: { hasNextPage: rows.length > take, endCursor: edges.at(-1)?.cursor ?? null },"
+      },
+      {
+        "tab": "Подписки на Redis",
+        "title": "Когда экземпляров два",
+        "text": "Подписки на PubSub в памяти работают, пока запущен один процесс. Со вторым инстансом событие, опубликованное в одном, не доходит до подписчика в другом; Redis PubSub решает это.",
+        "points": [
+          "Воспроизвести проблему на двух портах",
+          "Драйвер выбирается переменной окружения",
+          "Два соединения Redis: publisher и subscriber"
+        ],
+        "code": "useFactory: (): PubSubEngine => {\n  if (process.env.PUBSUB_DRIVER === 'redis') {\n    const url = process.env.REDIS_URL ?? 'redis://localhost:6379';\n    return new RedisPubSub({ publisher: new Redis(url), subscriber: new Redis(url) });\n  }\n  return new PubSub();\n},"
+      },
+      {
+        "tab": "Тяжёлые запросы",
+        "title": "Лимит глубины и сложности",
+        "text": "Запрос, легальный по схеме, может вложить связи на десять уровней и уложить базу. Защита работает до выполнения: правило валидации считает глубину по AST, а плагин оценивает сложность.",
+        "points": [
+          "depthLimit как правило валидации",
+          "Интроспекция и циклы фрагментов не считаются",
+          "graphql-query-complexity в плагине Apollo"
+        ],
+        "code": "OperationDefinition(node) {\n  const depth = measure(node.selectionSet, 0, new Set());\n  if (depth > maxDepth) {\n    context.reportError(new GraphQLError(`Глубина запроса ${depth} превышает лимит ${maxDepth}`,\n      { nodes: [node], extensions: { code: 'QUERY_TOO_DEEP', depth, maxDepth } }));\n  }\n},"
+      }
+    ],
     accent: '#E535AB',
   },
   {
