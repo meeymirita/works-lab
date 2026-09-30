@@ -392,6 +392,96 @@ var LABS = [
     image: 'images/vue.png',
     open: '../vue/Vue_Lab_Helpdesk.html',
     repo: 'https://github.com/meeymirita/vue-lab',
+    stackInfo: [
+      {
+        "tag": "Фреймворк",
+        "back": "Основа приложения: реактивность, компоненты и Composition API."
+      },
+      {
+        "tag": "Сборка",
+        "back": "Dev-сервер с мгновенным HMR и продакшен-сборка проекта."
+      },
+      {
+        "tag": "Состояние",
+        "back": "Общий store для тикетов и авторизации вне компонентов."
+      },
+      {
+        "tag": "Маршрутизация",
+        "back": "Страницы, параметры, query-фильтры и guards для защиты маршрутов."
+      },
+      {
+        "tag": "Среда",
+        "back": "Запускает инструменты сборки и тестов, а также мок-бэкенд."
+      }
+    ],
+    learn: [
+      {
+        "tab": "ref и computed",
+        "title": "Реактивное состояние",
+        "text": "ref оборачивает примитив в объект с .value, а computed кэширует производное значение. Ловушка: деструктуризация reactive-объекта превращает поле в обычную строку и теряет реактивность.",
+        "points": [
+          "ref для примитивов, reactive для объектов",
+          "computed пересчитывается только при смене зависимостей",
+          "watch нужен для побочных эффектов, например запросов"
+        ],
+        "code": "const status = ref('open')\nstatus.value = 'closed'\n\nconst filters = reactive({ status: 'open', q: '' })\nconst { q } = filters    // деструктуризация теряет реактивность\n\nconst visible = computed(() =>\n  tickets.value.filter(t => filters.status === 'all' || t.status === filters.status)\n)"
+      },
+      {
+        "tab": "Props и emits",
+        "title": "Контракт компонента",
+        "text": "Компонент принимает данные через props только для чтения и сообщает наверх через emits. Данные текут вниз, события вверх.",
+        "points": [
+          "defineProps описывает входы с типами и значениями по умолчанию",
+          "defineEmits перечисляет исходящие события",
+          "Родитель владеет состоянием, потомок его не мутирует"
+        ],
+        "code": "const props = defineProps({\n  ticket:   { type: Object, required: true },\n  selected: { type: Boolean, default: false },\n})\nconst emit = defineEmits(['select', 'status-change'])\n\n// шаблон: <article @click=\"emit('select', ticket.id)\">"
+      },
+      {
+        "tab": "Слоты",
+        "title": "Разметка от родителя",
+        "text": "Props передают данные, слоты передают разметку. Именованные слоты дают несколько мест для вставки, а scoped-слот отдаёт значения обратно родителю.",
+        "points": [
+          "Слот по умолчанию и именованные слоты",
+          "Дефолтное содержимое, если слот не передан",
+          "Scoped-слот передаёт данные, например функцию close"
+        ],
+        "code": "<!-- BaseModal.vue -->\n<header><slot name=\"title\">Без названия</slot></header>\n<slot />\n<footer><slot name=\"actions\" :close=\"close\" /></footer>\n\n<!-- родитель -->\n<BaseModal>\n  <template #title>Новый тикет</template>\n  <template #actions=\"{ close }\"><button @click=\"close\">Отмена</button></template>\n</BaseModal>"
+      },
+      {
+        "tab": "Composable",
+        "title": "Переиспользуемая логика",
+        "text": "Функция useXxx() собирает ref, computed и watch и возвращает реактивные значения. Состояние у каждого вызова своё, в отличие от store.",
+        "points": [
+          "Выносится логика, а не разметка",
+          "Загрузка, ошибка и индикатор в одном месте",
+          "Вызывается внутри setup или другого composable"
+        ],
+        "code": "export function useAsync(fn) {\n  const data = ref(null), error = ref(null), loading = ref(false)\n  async function run(...args) {\n    loading.value = true; error.value = null\n    try { data.value = await fn(...args) } catch (e) { error.value = e } finally { loading.value = false }\n  }\n  return { data, error, loading, run }\n}"
+      },
+      {
+        "tab": "Router и guards",
+        "title": "Адрес как состояние",
+        "text": "Фильтры в query переживают F5 и передаются ссылкой, а guard решает, пускать ли на маршрут. Ловушка: store в guard нужно вызывать внутри колбэка, а не на уровне модуля.",
+        "points": [
+          "params, query и вложенные маршруты",
+          "meta заменяет if в каждой странице",
+          "Возврат объекта из guard — редирект"
+        ],
+        "code": "router.beforeEach(to => {\n  const auth = useAuthStore()\n  if (to.meta.requiresAuth && !auth.isAuthenticated) {\n    return { name: 'login', query: { redirect: to.fullPath } }\n  }\n  if (to.meta.requiresRole && auth.user?.role !== to.meta.requiresRole) {\n    return { name: 'tickets' }\n  }\n})"
+      },
+      {
+        "tab": "Pinia",
+        "title": "Общее состояние приложения",
+        "text": "Store в setup-синтаксисе пишется как composable, но существует в одном экземпляре. Ловушка: без storeToRefs деструктуризация store теряет реактивность.",
+        "points": [
+          "state, getters и actions в одной функции",
+          "Менять state только через actions",
+          "В тестах свежая Pinia на каждый тест"
+        ],
+        "code": "export const useTicketsStore = defineStore('tickets', () => {\n  const items = ref([])\n  const open  = computed(() => items.value.filter(t => t.status === 'open'))\n  async function load(params) { items.value = (await api.tickets.list(params)).items }\n  return { items, open, load }\n})\n\nconst { items, open } = storeToRefs(useTicketsStore())"
+      }
+    ],
     accent: '#42B883',
   },
   {
