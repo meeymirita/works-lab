@@ -10,6 +10,92 @@ var LABS = [
     image: 'images/rabbitmq.png',
     open: '../rabbitmq/docs/RabbitMQ_Lab_Plan_v1_pro_max.html',
     repo: 'https://github.com/meeymirita/rabbitmq-lab',
+    stackInfo: [
+      {
+        "tag": "фреймворк",
+        "back": "Приложение с заказами и воркерами на php-amqplib."
+      },
+      {
+        "tag": "база данных",
+        "back": "Заказы, outbox_messages и processed_messages в одной транзакции."
+      },
+      {
+        "tag": "брокер",
+        "back": "Exchange, очереди, DLX и приоритеты: предмет изучения лабы."
+      },
+      {
+        "tag": "почта",
+        "back": "Локальный SMTP для проверки писем воркера и retry."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Модель AMQP",
+        "title": "Exchange, очередь и маршрутизация",
+        "text": "Издатель пишет в exchange, а тот раскладывает сообщения по очередям по биндингам. Ловушка: сообщение без подходящей очереди молча уничтожается, а order.* не совпадает с order.item.added.",
+        "points": [
+          "direct, topic, fanout, headers",
+          "Флаг mandatory возвращает потерянное сообщение",
+          "Жизнь сообщения от publish до ack"
+        ],
+        "code": "1. relay: basic.publish(exchange=orders.topic, key=order.created, props{message_id=UUID, delivery_mode=2})\n2. брокер: routing по биндингам → копии в order.queue, email.queue, analytics.queue\n4. брокер → relay: basic.ack(seq_no)          ← publisher confirm\n5. брокер → worker:order: basic.deliver(delivery_tag=17, redelivered=false)\n7. worker → брокер: basic.ack(17)"
+      },
+      {
+        "tab": "Transactional Outbox",
+        "title": "Запись в БД и событие атомарно",
+        "text": "Публикация в брокер после коммита может потеряться при падении, а до коммита — уйти без заказа. Outbox пишет событие в ту же транзакцию, а отдельный релей публикует его в очередь.",
+        "points": [
+          "Проблема dual write",
+          "Гарантия at-least-once, не exactly-once",
+          "SKIP LOCKED для нескольких релеев"
+        ],
+        "code": "$order = DB::transaction(function () use ($data, $outbox) {\n    $order = Order::create([...]);\n    $order->items()->createMany($data['items']);\n\n    $outbox->write('order.created', [\n        'order_id' => $order->id,\n    ], $order->priority);\n\n    return $order;\n});"
+      },
+      {
+        "tab": "Идемпотентный consumer",
+        "title": "Ручной ack и защита от дублей",
+        "text": "Воркер подтверждает сообщение только после коммита. Если он упал между коммитом и ack, брокер доставит сообщение повторно, а маркер в processed_messages не даст обработать его второй раз.",
+        "points": [
+          "no_ack=false и ручной basic_ack",
+          "Уникальный индекс (message_id, consumer)",
+          "Обработка и маркер в одной транзакции"
+        ],
+        "code": "DB::transaction(function () use ($payload, $msg, $id) {\n    $this->process($payload, $msg);\n    ProcessedMessage::create([\n        'message_id' => $id,\n        'consumer'   => $this->consumerName(),\n        'processed_at' => now(),\n    ]);\n});\n$msg->ack();"
+      },
+      {
+        "tab": "Retry, DLX, DLQ",
+        "title": "Отложенные повторы через TTL",
+        "text": "Очередь имеет один DLX, поэтому воркер сам публикует копию в нужную retry-очередь, а возврат по истечении TTL делает брокер. Одна очередь с разными TTL не годится из-за head-of-line blocking.",
+        "points": [
+          "Три retry-очереди: 10 с, 30 с, 300 с",
+          "Копия, а не requeue; сначала publish, потом ack",
+          "email.dlq как последний рубеж"
+        ],
+        "code": "{ \"name\": \"email.retry.1\", \"vhost\": \"/\", \"durable\": true, \"arguments\": {\n    \"x-queue-type\": \"classic\", \"x-message-ttl\": 10000,\n    \"x-dead-letter-exchange\": \"email.dlx\",\n    \"x-dead-letter-routing-key\": \"email\" } }"
+      },
+      {
+        "tab": "Prefetch и приоритеты",
+        "title": "Справедливая раздача сообщений",
+        "text": "basic_qos ограничивает число неподтверждённых сообщений на воркера, поэтому быстрый воркер получает больше. Приоритет через x-max-priority заметен только тогда, когда в очереди есть backlog.",
+        "points": [
+          "prefetch 1, 10, 100 и consumer utilisation",
+          "--scale order-worker=3: competing consumers",
+          "Приоритеты 1–10, а не 255"
+        ],
+        "code": "$this->channel->basic_qos(0, config('rabbitmq.prefetch'), false);\n$this->channel->basic_consume(\n    queue: $this->queue(),\n    no_ack: false,\n    callback: fn (AMQPMessage $m) => $this->handleMessage($m),\n);"
+      },
+      {
+        "tab": "Publisher confirms",
+        "title": "Брокер подтверждает приём",
+        "text": "В confirm-режиме брокер присылает ack на каждую публикацию, и только после него строка outbox помечается отправленной. Без подтверждения она остаётся pending и уйдёт на следующем проходе.",
+        "points": [
+          "confirm_select и wait_for_pending_acks",
+          "Confirm на сообщение стоит round-trip",
+          "Батчи ускоряют публикацию"
+        ],
+        "code": "$ch->confirm_select();\n// ... basic_publish для пачки pending-строк\n$ch->wait_for_pending_acks(timeout: 5);\n// confirm получен → status='sent'"
+      }
+    ],
     accent: '#FF6600',
   },
   {
