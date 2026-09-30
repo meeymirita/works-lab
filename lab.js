@@ -1565,6 +1565,96 @@ var LABS = [
     image: '../css/css.png',
     open: '../css/CSS_Lab_FrontFest.html',
     repo: 'https://github.com/meeymirita/css-lab',
+    stackInfo: [
+      {
+        "tag": "язык",
+        "back": "Единственный язык проекта: разметка готовая, пишутся только стили."
+      },
+      {
+        "tag": "каскад",
+        "back": "Слои задают порядок групп стилей независимо от специфичности."
+      },
+      {
+        "tag": "раскладка",
+        "back": "Сетка спикеров, программа по линиям времени и subgrid для тарифов."
+      },
+      {
+        "tag": "адаптив",
+        "back": "Карточки подстраиваются под контейнер, а не под окно."
+      },
+      {
+        "tag": "цвет",
+        "back": "Палитра и тёмная тема на oklch и light-dark()."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Каскад и @layer",
+        "title": "Слои вместо войны специфичности",
+        "text": "Чужой CSS с #id и !important перебить обычными средствами нельзя. Порядок слоёв проверяется раньше специфичности, поэтому один объявленный порядок решает проблему без хаков.",
+        "points": [
+          "Порядок слоёв объявляется одной строкой",
+          "@import ... layer(...) для каждого файла",
+          "У !important порядок слоёв переворачивается"
+        ],
+        "code": "@layer reset, vendor, tokens, base, layout, components, utilities;\n\n@import url('reset.css') layer(reset);\n@import url('vendor-widget.css') layer(vendor);\n@import url('tokens.css') layer(tokens);\n@import url('components.css') layer(components);"
+      },
+      {
+        "tab": "Цвет и тёмная тема",
+        "title": "oklch и light-dark()",
+        "text": "Вся палитра строится от одного оттенка, а тёмная тема задаётся вторым значением в light-dark(). Ловушка: жёстко заданный цвет в компоненте не переключается вместе с темой.",
+        "points": [
+          "oklch: предсказуемая светлота",
+          "color-mix и относительный синтаксис для производных",
+          "color-scheme: light dark и ручной data-theme"
+        ],
+        "code": ":root {\n  color-scheme: light dark;\n  --brand:      light-dark(oklch(52% 0.2 var(--hue)), oklch(72% 0.16 var(--hue)));\n  --brand-soft: light-dark(oklch(94% 0.04 var(--hue)), oklch(28% 0.06 var(--hue)));\n  --bg:         light-dark(oklch(98.5% 0.005 var(--hue)), oklch(17% 0.015 var(--hue)));\n}\n:root[data-theme=\"dark\"] { color-scheme: dark; }"
+      },
+      {
+        "tab": "Адаптивная сетка",
+        "title": "Grid без медиазапросов",
+        "text": "Сетка спикеров сама решает, сколько колонок помещается. Ловушка: minmax(18rem, 1fr) даёт горизонтальный скролл на узком экране, пока минимум не обёрнут в min().",
+        "points": [
+          "auto-fill против auto-fit",
+          "min(100%, 18rem) спасает узкие экраны",
+          "Дальше subgrid выравнивает строки карточек тарифов"
+        ],
+        "code": ".speaker-list {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));\n  gap: var(--space-5);\n}"
+      },
+      {
+        "tab": "Container queries",
+        "title": "Компонент знает своё место",
+        "text": "Карточка спикера должна зависеть от ширины контейнера, а не окна: одна и та же карточка встречается в сетке и в узкой колонке. Медиазапрос этого не различает.",
+        "points": [
+          "container-type: inline-size на предке",
+          "@container вместо @media",
+          "Единицы cqi для шрифта от ширины карточки"
+        ],
+        "code": ".speaker { container-type: inline-size; }\n\n.speaker-card { flex-direction: column; }\n@container (inline-size >= 24rem) {\n  .speaker-card { flex-direction: row; }\n}\n.speaker-card h3 { font-size: clamp(1.05rem, 0.8rem + 3cqi, 1.4rem); }"
+      },
+      {
+        "tab": "Формы на :has()",
+        "title": "Состояние без JavaScript",
+        "text": "Родительский селектор :has() подсвечивает поле по состоянию его input и показывает блок по выбранному тарифу. :user-invalid, в отличие от :invalid, срабатывает только после взаимодействия.",
+        "points": [
+          "Ошибка только после работы с полем",
+          "Показать блок по :checked без JS",
+          "Вложенность CSS с &"
+        ],
+        "code": ".field {\n  &:has(:user-invalid) {\n    & input, & textarea { border-color: var(--danger); }\n    & .error-text { display: block; }\n  }\n}\n.workshops { display: none; }\n.form:has(#plan-workshops:checked) .workshops { display: grid; }"
+      },
+      {
+        "tab": "Анимации",
+        "title": "@property и popover",
+        "text": "Регистрация переменной через @property учит браузер интерполировать угол, поэтому градиентная рамка вращается плавно. Для поповера @starting-style задаёт точку старта анимации из display: none.",
+        "points": [
+          "@property с типом <angle>",
+          "transition ... allow-discrete",
+          "prefers-reduced-motion как обязательное уважение к пользователю"
+        ],
+        "code": "@property --angle { syntax: \"<angle>\"; initial-value: 0deg; inherits: false; }\n\n.plan-featured {\n  background: conic-gradient(from var(--angle), var(--brand), var(--brand)) border-box;\n  animation: spin-border 6s linear infinite;\n}\n@keyframes spin-border { to { --angle: 360deg; } }"
+      }
+    ],
     accent: '#2965F1',
   },
   {
