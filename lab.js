@@ -207,6 +207,32 @@ var LABS = [
     repo: 'https://github.com/meeymirita/angular-lab',
     accent: '#CC26D5',
   },
+  {
+    key: 'css',
+    titleMain: 'css',
+    title: 'CSS Lab',
+    subtitle: 'FrontFest — сайт конференции',
+    desc: 'Современный CSS с нуля на сайте фронтенд-конференции: каскад и @layer, токены, oklch и тёмная тема через light-dark(), Flexbox, Grid и subgrid, адаптив и container queries, :has() и формы, sticky, анимации и view transitions. Разметка готовая — вы пишете только стили, без фреймворков и препроцессоров.',
+    stack: ['CSS', '@layer', 'Grid', 'Container Queries', 'oklch'],
+    difficulty: 'Базовая',
+    image: '../css/css.png',
+    open: '../css/CSS_Lab_FrontFest.html',
+    repo: 'https://github.com/meeymirita/css-lab',
+    accent: '#2965F1',
+  },
+  {
+    key: 'tailwind',
+    titleMain: 'tailwind',
+    title: 'Tailwind Lab',
+    subtitle: 'Pulse — сервис аналитики',
+    desc: 'Tailwind CSS v4 с нуля на сервисе аналитики «Pulse»: лендинг, дашборд и настройки. Утилиты и шкалы, тема через @theme, варианты и состояния (group, peer, has-*), адаптив и container queries, тёмная тема, формы, @layer components и @apply, сборка на Vite и nginx. Разметку пишете сами.',
+    stack: ['Tailwind CSS 4', '@theme', 'Vite', 'Container Queries', 'Dark mode'],
+    difficulty: 'Базовая',
+    image: '../tailwind/tailwind.png',
+    open: '../tailwind/Tailwind_Lab_Pulse.html',
+    repo: 'https://github.com/meeymirita/tailwind-lab',
+    accent: '#38BDF8',
+  },
 ];
 
 function escapeHtml(str) {
