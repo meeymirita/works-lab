@@ -1218,6 +1218,96 @@ var LABS = [
     image: '../nuxt/Nuxt.png',
     open: '../nuxt/Nuxt_Lab_HelpCenter.html',
     repo: 'https://github.com/meeymirita/nuxt-lab',
+    stackInfo: [
+      {
+        "tag": "Фреймворк",
+        "back": "Универсальное приложение: SSR, SSG и SPA с файловым роутингом и авто-импортами."
+      },
+      {
+        "tag": "Типизация",
+        "back": "Типы выводятся из серверных хендлеров и общих схем до самого шаблона."
+      },
+      {
+        "tag": "Сервер",
+        "back": "Серверный движок рендерит страницы и обслуживает API-маршруты."
+      },
+      {
+        "tag": "База данных",
+        "back": "Типобезопасный доступ к SQLite: схема, миграции и запросы."
+      },
+      {
+        "tag": "Контент",
+        "back": "Статьи базы знаний из markdown-файлов с запросами по коллекциям."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Файловый роутинг",
+        "title": "Маршруты задают файлы",
+        "text": "Структура app/pages/ превращается в маршруты, а параметры пишутся в квадратных скобках. Файл [...slug].vue ловит любой остальной путь и подходит для 404.",
+        "points": [
+          "Динамические сегменты: [id].vue, [category]/[slug].vue",
+          "NuxtLink предзагружает код страницы",
+          "Под капотом всё тот же Vue Router"
+        ],
+        "code": "app/pages/\n├── index.vue                  → /\n├── kb/\n│   ├── index.vue              → /kb\n│   └── [category]/\n│       └── [slug].vue         → /kb/network/vpn-setup\n├── tickets/\n│   ├── index.vue              → /tickets\n│   └── [id].vue               → /tickets/42\n└── [...slug].vue              → catch-all (404)"
+      },
+      {
+        "tab": "useFetch и гидрация",
+        "title": "Запрос на сервере, без повтора в браузере",
+        "text": "useFetch выполняется во время SSR и кладёт результат в payload, поэтому при гидрации запроса нет. Из-за этого setup идёт дважды, и любой код с window или расхождением разметки приводит к ошибкам.",
+        "points": [
+          "Тип data выводится из серверного хендлера",
+          "useFetch(url) — это useAsyncData с автоключом",
+          "onMounted и window только в браузере"
+        ],
+        "code": "const { data, status, error, refresh } = await useFetch('/api/status')\n\nconst { data: article } = await useAsyncData(`kb-${slug}`, () =>\n  queryCollection('kb').path(`/kb/${category}/${slug}`).first()\n)"
+      },
+      {
+        "tab": "Режимы рендеринга",
+        "title": "SSG, SWR, SPA и SSR в одном приложении",
+        "text": "Режим рендеринга задаётся для каждого маршрута через routeRules. Статьи собираются при сборке, статус кешируется, кабинет агента работает как SPA, а личные данные рендерятся на каждый запрос.",
+        "points": [
+          "prerender — HTML на сборке",
+          "swr — кеш с фоновым обновлением",
+          "ssr: false — оболочка без серверного рендера"
+        ],
+        "code": "export default defineNuxtConfig({\n  routeRules: {\n    '/':          { prerender: true },\n    '/kb/**':     { prerender: true },\n    '/status':    { swr: 60 },\n    '/agent/**':  { ssr: false },\n    // /tickets/** — правил нет, значит SSR на каждый запрос\n  },\n})"
+      },
+      {
+        "tab": "Nitro и валидация",
+        "title": "API внутри проекта",
+        "text": "Файл в server/api/ становится маршрутом, а метод берётся из суффикса. Тело запроса проверяется Zod-схемой из shared/, ошибки уходят клиенту с кодом и деталями по полям.",
+        "points": [
+          "Имя файла определяет метод: tickets.post.ts",
+          "readValidatedBody принимает safeParse",
+          "createError превращает ошибку в HTTP-ответ"
+        ],
+        "code": "export default defineEventHandler(async (event) => {\n  const result = await readValidatedBody(event, body => TicketCreateSchema.safeParse(body))\n  if (!result.success) {\n    throw createError({\n      statusCode: 400,\n      statusMessage: 'Проверьте поля формы',\n      data: z.flattenError(result.error),\n    })\n  }\n  const ticket = useDb().insert(tables.tickets).values(result.data).returning().get()\n  setResponseStatus(event, 201)\n  return { id: ticket.id, status: ticket.status }\n})"
+      },
+      {
+        "tab": "Состояние на SSR",
+        "title": "Почему модульный ref опасен",
+        "text": "Модуль на сервере загружается один раз на процесс, поэтому ref на уровне модуля общий для всех пользователей. Безопасны useState и Pinia, состояние которых создаётся на каждый запрос.",
+        "points": [
+          "В браузере модуль живёт в одной вкладке, на сервере — на всех",
+          "useState передаёт значение через payload",
+          "callOnce выполняет инициализацию один раз"
+        ],
+        "code": "// composables/useRecentlyViewed.ts\nconst recent = ref<number[]>([])                 // ← на уровне модуля\nexport function useRecentlyViewed() { return recent }"
+      },
+      {
+        "tab": "Сессии и защита",
+        "title": "Сессия в зашифрованной cookie",
+        "text": "Пользователь хранится в sealed cookie, а тип User расширяется один раз и работает и на сервере, и на клиенте. Ловушка: внутренний SSR-запрос к API идёт без cookie, а защищать данные нужно на сервере, не только middleware.",
+        "points": [
+          "setUserSession и requireUserSession на сервере",
+          "useUserSession на клиенте",
+          "Расширение типа через declaration merging"
+        ],
+        "code": "// shared/types/auth.d.ts\nimport type { Role } from '#shared/types/domain'\ndeclare module '#auth-utils' {\n  interface User { id: number; email: string; name: string; role: Role }\n}\nexport {}"
+      }
+    ],
     accent: '#00DC82',
   },
   {
