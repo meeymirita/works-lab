@@ -853,6 +853,92 @@ var LABS = [
     image: '../postgresql/PostgreSQL.png',
     open: '../postgresql/PostgreSQL_Lab_CoffeeShop.html',
     repo: 'https://github.com/meeymirita/postgresql-lab',
+    stackInfo: [
+      {
+        "tag": "СУБД",
+        "back": "Единственный объект изучения: планировщик, индексы, транзакции, MVCC и партиционирование."
+      },
+      {
+        "tag": "клиент",
+        "back": "Рабочее место: EXPLAIN, \\d, \\timing и psql-сессии для параллельных экспериментов."
+      },
+      {
+        "tag": "нагрузка",
+        "back": "Имитирует конкурентных кассиров и воспроизводит гонки и дедлоки."
+      },
+      {
+        "tag": "окружение",
+        "back": "Поднимает Postgres с расширениями pg_stat_statements и pageinspect одной командой."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Индекс под FK",
+        "title": "Первый B-tree и EXPLAIN",
+        "text": "Запрос «позиции заказа» на миллионе строк читает всю таблицу, пока нет индекса на внешний ключ. EXPLAIN ANALYZE с BUFFERS показывает разницу в буферах, а не только во времени.",
+        "points": [
+          "Seq Scan против Index Scan и Bitmap",
+          "как читать actual, loops и Buffers",
+          "индекс под каждый внешний ключ"
+        ],
+        "code": "CREATE INDEX order_items_order_id_idx ON order_items (order_id);\n\nEXPLAIN (ANALYZE)\nSELECT o.id, oi.product_id, oi.qty\nFROM orders o JOIN order_items oi ON oi.order_id = o.id\nWHERE o.id = 500000;   -- ~117 мс → ~0.08 мс"
+      },
+      {
+        "tab": "Составной индекс",
+        "title": "Порядок колонок и статистика",
+        "text": "Индекс (customer_id, created_at DESC) убирает Sort, и LIMIT останавливается после 20 записей. Но для клиента с неверной оценкой планировщик выбирает другой план: проблема в статистике.",
+        "points": [
+          "левый префикс и порядок колонок",
+          "почему планировщик ошибается в rows",
+          "ANALYZE и расширенная статистика"
+        ],
+        "code": "CREATE INDEX orders_customer_created_idx ON orders (customer_id, created_at DESC);\n\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT * FROM orders WHERE customer_id = 42\nORDER BY created_at DESC LIMIT 20;   -- 70 мс → 0.04 мс"
+      },
+      {
+        "tab": "Частичный и GIN",
+        "title": "Индекс только там, где нужно",
+        "text": "Экран бариста интересуют около 0,15% заказов — частичный индекс покрывает только их. GIN закрывает подстроки, теги и jsonb, но индекс по @> не помогает запросу через ->>.",
+        "points": [
+          "WHERE в определении индекса",
+          "pg_trgm для ILIKE и полнотекстовый поиск",
+          "BRIN для журналов"
+        ],
+        "code": "CREATE INDEX orders_active_idx ON orders (shop_id, created_at)\n  WHERE status IN ('new', 'paid', 'preparing', 'ready');\n\nCREATE INDEX customers_name_trgm ON customers USING gin (full_name gin_trgm_ops);"
+      },
+      {
+        "tab": "N+1 и пагинация",
+        "title": "Запросы глазами базы",
+        "text": "OFFSET 500000 читает и выбрасывает пол-миллиона строк, keyset-пагинация идёт по индексу от последней увиденной строки. Ловушка: нельзя перейти сразу на страницу 537.",
+        "points": [
+          "N+1 в pg_stat_statements",
+          "row comparison (created_at, id) < (…)",
+          "поиск медленных запросов и auto_explain"
+        ],
+        "code": "SELECT id, total, created_at FROM orders\nWHERE (created_at, id) < ('2025-09-01', 0)\nORDER BY created_at DESC, id DESC\nLIMIT 20;   -- 4 буфера вместо ~9700"
+      },
+      {
+        "tab": "Изоляция и блокировки",
+        "title": "Гонки и очередь на SKIP LOCKED",
+        "text": "Прочитал, вычел, записал — 50 продаж списывают 6 штук. Атомарный UPDATE, FOR UPDATE и версия строки решают задачу по-разному, а SKIP LOCKED превращает таблицу в очередь.",
+        "points": [
+          "потерянное обновление через pgbench",
+          "Read Committed, Repeatable Read, Serializable",
+          "дедлоки и pg_blocking_pids"
+        ],
+        "code": "WITH next AS (\n  SELECT id FROM orders\n  WHERE shop_id = 3 AND status = 'paid'\n  ORDER BY created_at LIMIT 1\n  FOR UPDATE SKIP LOCKED\n)\nUPDATE orders o SET status = 'preparing'\nFROM next WHERE o.id = next.id RETURNING o.id;"
+      },
+      {
+        "tab": "MVCC и VACUUM",
+        "title": "Версии строк на странице",
+        "text": "UPDATE — это буквально DELETE плюс INSERT: старая версия остаётся на странице, пока её не уберёт VACUUM. Долгая транзакция держит горизонт и мешает уборке.",
+        "points": [
+          "xmin, xmax, ctid и pageinspect",
+          "мёртвые строки, autovacuum, HOT",
+          "партиционирование журнала по месяцам"
+        ],
+        "code": "SELECT xmin, xmax, ctid, * FROM cups;\n\nSELECT lp, t_xmin, t_xmax, t_ctid\nFROM heap_page_items(get_raw_page('cups', 0));   -- все версии на странице"
+      }
+    ],
     accent: '#4A90D9',
   },
   {
