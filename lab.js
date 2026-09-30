@@ -495,6 +495,92 @@ var LABS = [
     image: 'images/typescript.png',
     open: '../typescript/TypeScript_Lab_Warehouse.html',
     repo: 'https://github.com/meeymirita/typescript-lab',
+    stackInfo: [
+      {
+        "tag": "Язык",
+        "back": "Статическая типизация домена: union, generics и условные типы."
+      },
+      {
+        "tag": "Среда",
+        "back": "Запускает CLI и инструменты сборки для проекта."
+      },
+      {
+        "tag": "Валидация",
+        "back": "Проверяет внешние данные в рантайме и выводит из схемы типы."
+      },
+      {
+        "tag": "Тесты",
+        "back": "Проверяет и логику, и типы, включая expectTypeOf."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Структурная типизация",
+        "title": "Тип — это форма, а не имя",
+        "text": "Значение подходит под тип, если у него есть все нужные поля. Ловушка: два alias на string взаимозаменяемы, и перепутанные аргументы компилируются.",
+        "points": [
+          "Лишние поля у переменной не мешают",
+          "Литерал в аннотации проходит excess property check",
+          "Различить одинаковые по форме типы помогают branded types"
+        ],
+        "code": "interface Entity { id: string }\nconst item = { id: '1', name: 'Болт' }\nconst e: Entity = item                          // ✔\nconst e2: Entity = { id: '1', name: 'Болт' }    // ✖ лишнее свойство\n\ntype ItemId = string; type LocationId = string\nfunction move(item: ItemId, loc: LocationId) {}\nmove(locationId, itemId)                        // ✔ компилируется"
+      },
+      {
+        "tab": "Размеченный union",
+        "title": "Discriminated union",
+        "text": "Вариант события определяется литеральным полем kind, и внутри case тип сужается до нужного варианта. Ветка default с never превращает забытый вариант в ошибку компиляции.",
+        "points": [
+          "У каждого варианта только его поля",
+          "switch по дискриминанту сужает тип",
+          "assertNever проверяет полноту разбора"
+        ],
+        "code": "type Movement =\n  | { kind: 'in';       itemId: string; to: string;   qty: number; unitCost: number }\n  | { kind: 'out';      itemId: string; from: string; qty: number; reason: 'sale' | 'writeoff' }\n  | { kind: 'transfer'; itemId: string; from: string; to: string; qty: number }\n\nfunction describe(m: Movement): string {\n  switch (m.kind) {\n    case 'in':       return `+${m.qty} → ${m.to} по ${m.unitCost}`\n    case 'out':      return `−${m.qty} из ${m.from} (${m.reason})`\n    case 'transfer': return `${m.qty}: ${m.from} → ${m.to}`\n    default:         return assertNever(m)\n  }\n}"
+      },
+      {
+        "tab": "Generics",
+        "title": "Тип как параметр",
+        "text": "Generic нужен, когда тип на входе должен сохраниться на выходе. Если параметр T встречается в сигнатуре один раз, достаточно unknown.",
+        "points": [
+          "Ограничения через extends keyof T",
+          "Generic-типы: Result и Paginated",
+          "Generic-репозиторий для любой сущности с id"
+        ],
+        "code": "function groupBy<T, K extends keyof T>(list: T[], key: K): Map<T[K], T[]> { … }\n\ntype Result<T, E> = { ok: true; value: T } | { ok: false; error: E }\ntype Paginated<T> = { items: T[]; total: number; page: number }\n\ninterface Repository<T extends { id: string }> {\n  get(id: string): T | undefined\n  save(e: T): void\n}"
+      },
+      {
+        "tab": "Mapped и conditional",
+        "title": "Как устроены типы-утилиты",
+        "text": "Partial, Pick и Extract построены на трёх механизмах: mapped, conditional и template literal типах. Их достаточно узнавать в сигнатурах библиотек, изобретать каждый день не нужно.",
+        "points": [
+          "Mapped проходит по ключам и строит новый тип",
+          "Conditional с infer вытаскивает вложенный тип",
+          "Template literal собирает строковые union"
+        ],
+        "code": "type Partial<T> = { [K in keyof T]?: T[K] }\ntype Unwrap<T>  = T extends Promise<infer U> ? U : T\ntype Extract<U, M> = U extends M ? U : never\n\ntype Group = 'item' | 'stock'\ntype Action = 'add' | 'list'\ntype Command = `${Group}:${Action}`\n// 'item:add' | 'item:list' | 'stock:add' | 'stock:list'"
+      },
+      {
+        "tab": "unknown и сужение",
+        "title": "Внешние данные не заслуживают доверия",
+        "text": "Типы стираются при компиляции, поэтому всё, что пришло извне, имеет тип unknown. Пока значение не проверено, обращаться к его полям нельзя.",
+        "points": [
+          "unknown безопаснее any",
+          "Сужение через typeof, in и проверку на null",
+          "never описывает недостижимые ветки"
+        ],
+        "code": "const data: unknown = JSON.parse(text)\ndata.items                                   // ✖ 'data' is of type 'unknown'\nif (typeof data === 'object' && data !== null && 'items' in data) { … }\n\nfunction fail(msg: string): never { throw new Error(msg) }"
+      },
+      {
+        "tab": "Zod на границе",
+        "title": "Схема как источник типа",
+        "text": "Zod проверяет данные в рантайме, а тип выводится из той же схемы через z.infer. Результат safeParse сам является размеченным объединением.",
+        "points": [
+          "Один источник правды для рантайма и компилятора",
+          "z.discriminatedUnion повторяет union из домена",
+          "safeParse возвращает success или error без исключения"
+        ],
+        "code": "const MovementSchema = z.discriminatedUnion('kind', [\n  z.object({ kind: z.literal('in'),  itemId: z.string(), to: z.string(),   qty: z.number().positive(), unitCost: z.number().nonnegative() }),\n  z.object({ kind: z.literal('out'), itemId: z.string(), from: z.string(), qty: z.number().positive(), reason: z.enum(['sale', 'writeoff', 'sample']) }),\n])\ntype MovementInput = z.infer<typeof MovementSchema>\n\nconst parsed = MovementSchema.safeParse(JSON.parse(line))\nif (parsed.success) apply(parsed.data)"
+      }
+    ],
     accent: '#3178C6',
   },
   {
