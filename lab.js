@@ -6586,6 +6586,344 @@ var LABS = [
     ],
     accent: '#38BDF8',
   },
+  {
+    key: 'inertia',
+    titleMain: 'inertia',
+    title: 'Inertia Lab',
+    subtitle: 'Inkwell — блог-платформа',
+    desc: 'Laravel 13 + Inertia 3 + Vue 3 без starter kit, на блог-платформе «Inkwell». Протокол на проводе (объект страницы, XHR-визиты, конфликт версий, 303-редиректы), props как публичный API через ресурсы, формы и валидация без 422, SSR и его типичные поломки (hydration mismatch, утечка Pinia между посетителями), три роли на Policies без дублирования прав на фронте.',
+    stack: ['Laravel 13', 'Inertia 3', 'Vue 3', 'TypeScript', 'Pinia'],
+    difficulty: 'Средняя',
+    image: '../inertia/inertia.png',
+    open: '../inertia/Inertia_Lab_Inkwell.html',
+    repo: 'https://github.com/meeymirita/inertia-lab',
+    stackInfo: [
+      {
+        "tag": "бэкенд",
+        "back": "Laravel 13: контроллеры, FormRequest, Policies, сессии."
+      },
+      {
+        "tag": "мост",
+        "back": "Inertia 3 — протокол между Laravel и Vue, без отдельного API."
+      },
+      {
+        "tag": "фронтенд",
+        "back": "Vue 3 на Composition API, строго типизированный."
+      },
+      {
+        "tag": "состояние",
+        "back": "Pinia только для того, чего нет на сервере."
+      },
+      {
+        "tag": "рендеринг",
+        "back": "SSR для публичных страниц, студия автора — без него."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Протокол на проводе",
+        "title": "HTML один раз, дальше — JSON",
+        "text": "Первый визит — обычный GET: Laravel рендерит app.blade.php с объектом страницы внутри <script type=\"application/json\">. Каждый следующий клик по <Link> — XHR с заголовком X-Inertia: true на тот же URL; в ответ приходит тот же объект страницы, но уже application/json. Один маршрут обслуживает и HTML, и JSON — отдельного REST API нет.",
+        "points": [
+          "component + props + url + version в каждом ответе",
+          "X-Inertia-Version расходится → 409 → полная перезагрузка",
+          "history.pushState хранит объект страницы для кнопки «назад»"
+        ],
+        "code": "GET /posts/hello-world                          (обычный запрос браузера)\n← 200 text/html\n   <div id=\"app\"></div>\n   <script data-page=\"app\" type=\"application/json\">\n     {\"component\":\"Posts/Show\",\"props\":{...},\"url\":\"/posts/hello-world\",\"version\":\"a1b2c3\"}\n   </script>\n\nклик <Link href=\"/posts/other\">\n  → GET /posts/other   X-Inertia: true   X-Inertia-Version: a1b2c3\n← 200 application/json   X-Inertia: true\n   {\"component\":\"Posts/Show\",\"props\":{...},\"url\":\"/posts/other\",\"version\":\"a1b2c3\"}"
+      },
+      {
+        "tab": "Props — белый список",
+        "title": "Resource вместо модели целиком",
+        "text": "Inertia::render('Posts/Show', ['post' => $post]) сериализует модель в JSON целиком — в браузер уйдёт всё, включая user_id и непоказанные поля. Каждая «форма» данных получает свой ресурс: PostCardResource для карточки в ленте, PostResource — для страницы поста с телом.",
+        "points": [
+          "Ресурс — белый список полей, как DTO на выходе",
+          "$hidden защищает по чёрному списку, ресурс — по белому",
+          "Markdown рендерится на сервере, в props уходит готовый HTML"
+        ],
+        "code": "// app/Http/Resources/PostResource.php\npublic function toArray(Request $request): array\n{\n    return [\n        ...PostCardResource::make($this->resource)->toArray($request),\n        'url' => route('posts.show', $this->resource),\n        'status' => $this->status,\n        'body_html' => Str::markdown($this->body, [\n            'html_input' => 'strip',\n            'allow_unsafe_links' => false,\n        ]),\n        'author_bio' => $this->author?->bio,\n    ];\n}"
+      },
+      {
+        "tab": "303, а не 302",
+        "title": "Почему редирект после PUT не повторяет метод",
+        "text": "После PUT /studio/posts/5 обычный redirect — это 302, а браузеры и XHR при 302 исторически могут повторить исходный метод на новом адресе: получился бы PUT вместо GET. Middleware Inertia превращает такие редиректы в 303 See Other — однозначно «теперь сделай GET».",
+        "points": [
+          "Ошибка валидации — это тоже редирект: 302 back + errors в сессии",
+          "errors приходит как shared prop, а не 422 JSON",
+          "Состояние формы (useForm) переживает редирект с ошибками"
+        ],
+        "code": "useForm({ title, body, cover }).post(store.url(), { forceFormData: true })\n  → POST /studio/posts   X-Inertia: true   multipart/form-data\n       ├── ошибка → redirect()->back() (302) + errors во flash-сессии\n       │     → HandleInertiaRequests кладёт errors в props → form.errors.title\n       └── успех → redirect()->route('studio.posts.edit', $post)  (303 для PUT/PATCH/DELETE)"
+      },
+      {
+        "tab": "Отложенные props",
+        "title": "optional и defer — не вычислять лишнее",
+        "text": "Prop значением вычисляется на каждом запросе, даже если partial reload попросил другое поле. Inertia::optional откладывает и вычисление, и отправку до явного запроса через only; Inertia::defer не отправляет в первом ответе, а клиент сам дозапрашивает его сразу после рендера.",
+        "points": [
+          "Комментарии — optional: не нужны, пока не долистали",
+          "Тяжёлая статистика дашборда — defer: страница видна сразу",
+          "Inertia::merge добавляет новые данные к старым — «показать ещё»"
+        ],
+        "code": "return Inertia::render('Posts/Show', [\n    'post' => PostResource::make($post),\n    'comments' => Inertia::optional(\n        fn () => CommentResource::collection($post->commentsVisibleTo($request->user())->get())\n    ),\n]);"
+      },
+      {
+        "tab": "SSR: один процесс на всех",
+        "title": "Pinia на уровне модуля — общий стор на сервер",
+        "text": "SSR-сервер — долгоживущий процесс Node, рендерящий страницы для всех посетителей подряд. const pinia = createPinia() на верхнем уровне модуля создаёт один store на весь сервер: посетитель A записал имя — посетитель B получил его в разметке. Inertia 3 вызывает withApp(app) на каждый рендер — именно там нужно создавать Pinia.",
+        "points": [
+          "withApp — единственное место для Vue-плагинов",
+          "window, localStorage на верхнем уровне компонента роняют SSR",
+          "/studio/* исключены через withoutSsr — индексация там не нужна"
+        ],
+        "code": "import { createInertiaApp } from '@inertiajs/vue3'\nimport { createPinia } from 'pinia'\n\ncreateInertiaApp({\n    pages: './Pages',\n    title: (title) => (title ? `${title} — Inkwell` : 'Inkwell'),\n    withApp(app) {\n        // новый store на КАЖДЫЙ рендер — важно для SSR\n        app.use(createPinia())\n    },\n})"
+      },
+      {
+        "tab": "Без лишнего визита",
+        "title": "usePoll и useHttp",
+        "text": "Не каждое обновление данных — это визит Inertia. usePoll делает периодический partial reload с автостопом при размонтировании и паузой в фоновой вкладке; useHttp обращается к обычному JSON-эндпоинту (например, проверка уникальности слага) без смены страницы и истории.",
+        "points": [
+          "usePoll(15_000, { only: ['counts'] }) — обновляет только счётчик",
+          "Пауза в фоновой вкладке — не греет сервер зря",
+          "useHttp не трогает history и объект страницы"
+        ],
+        "code": "import { usePage, usePoll } from '@inertiajs/vue3'\n\nconst page = usePage()\nif (page.props.auth.user?.role === 'editor') {\n    usePoll(15_000, { only: ['counts'] })   // каждые 15 с — partial reload только счётчиков\n}"
+      }
+    ],
+    sessions: [
+      {
+        "h": "~3,5 ч",
+        "t": "Протокол и фундамент",
+        "r": "Чистый Laravel + Inertia руками, лента на ресурсах с layout"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Страница поста",
+        "r": "SSR-страница поста с мета-тегами и комментариями при прокрутке"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Пользователи и формы",
+        "r": "Авторизация, студия автора, редактор поста с автосохранением"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Данные и производительность",
+        "r": "Бесконечная лента, дашборд на отложенных props, модерация"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Тесты и продакшн",
+        "r": "Тесты assertInertia, сборка и запуск с SSR, Production Hell"
+      }
+    ],
+    arch: {
+      "title": "Путь Inertia-визита",
+      "rows": [
+        {
+          "label": "Браузер",
+          "boxes": [
+            "Vue 3 + Pinia + Wayfinder",
+            "клик <Link> → router.visit"
+          ]
+        },
+        {
+          "label": "Запрос",
+          "boxes": [
+            "X-Inertia: true",
+            "X-Inertia-Version · X-XSRF-TOKEN"
+          ]
+        },
+        {
+          "label": "Laravel",
+          "boxes": [
+            "HandleInertiaRequests (share/version)",
+            "Controller → Resource → Inertia::render"
+          ]
+        },
+        {
+          "label": "Ответ",
+          "boxes": [
+            "первый визит: HTML + JSON в <script>",
+            "дальше: application/json, X-Inertia: true"
+          ]
+        },
+        {
+          "label": "Клиент",
+          "boxes": [
+            "resolve(component) → подмена без reload",
+            "history.pushState(page)"
+          ]
+        }
+      ],
+      "note": "При расхождении X-Inertia-Version сервер отвечает 409 с X-Inertia-Location — клиент делает window.location = ..., то есть полную перезагрузку.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "браузер",
+            "x": 14,
+            "w": 230
+          },
+          {
+            "t": "протокол",
+            "x": 260,
+            "w": 220
+          },
+          {
+            "t": "Laravel",
+            "x": 500,
+            "w": 490
+          }
+        ],
+        "nodes": [
+          {
+            "id": "vue",
+            "t": "Vue-компонент",
+            "s": "<Link> · router.visit",
+            "x": 110,
+            "y": 150,
+            "d": "Клик по <Link> перехватывается клиентом Inertia вместо обычной навигации браузера."
+          },
+          {
+            "id": "req",
+            "t": "XHR-визит",
+            "s": "X-Inertia: true",
+            "x": 350,
+            "y": 110,
+            "d": "Запрос уходит на тот же URL с заголовками X-Inertia: true и X-Inertia-Version."
+          },
+          {
+            "id": "mw",
+            "t": "HandleInertiaRequests",
+            "s": "share() + version()",
+            "x": 350,
+            "y": 310,
+            "d": "Middleware сравнивает версию ассетов; расхождение — 409 и X-Inertia-Location."
+          },
+          {
+            "id": "ctrl",
+            "t": "Controller",
+            "s": "Inertia::render(...)",
+            "x": 610,
+            "y": 150,
+            "d": "Контроллер вызывает Inertia::render с именем компонента и props."
+          },
+          {
+            "id": "res",
+            "t": "API Resource",
+            "s": "белый список полей",
+            "x": 610,
+            "y": 330,
+            "d": "Каждый prop проходит через Resource — белый список, а не модель целиком."
+          },
+          {
+            "id": "page",
+            "t": "Page Object",
+            "s": "component · props · url · version",
+            "x": 850,
+            "y": 240,
+            "d": "Laravel собирает объект страницы и отправляет его как HTML (первый визит) или JSON (дальше)."
+          },
+          {
+            "id": "swap",
+            "t": "Подмена компонента",
+            "s": "pushState · без reload",
+            "x": 850,
+            "y": 420,
+            "d": "Клиент разбирает ответ, подменяет компонент и кладёт объект страницы в history.state."
+          }
+        ],
+        "edges": [
+          {
+            "a": "vue",
+            "b": "req"
+          },
+          {
+            "a": "req",
+            "b": "mw"
+          },
+          {
+            "a": "mw",
+            "b": "ctrl"
+          },
+          {
+            "a": "ctrl",
+            "b": "res"
+          },
+          {
+            "a": "res",
+            "b": "page"
+          },
+          {
+            "a": "page",
+            "b": "swap"
+          },
+          {
+            "a": "swap",
+            "b": "vue",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "vue",
+            "txt": "Клик по <Link>: клиент Inertia перехватывает переход вместо обычной навигации."
+          },
+          {
+            "n": "req",
+            "txt": "Запрос уходит с X-Inertia: true и X-Inertia-Version — тем же URL, что и обычный GET."
+          },
+          {
+            "n": "mw",
+            "txt": "HandleInertiaRequests сверяет версию ассетов; при расхождении — 409 и полная перезагрузка."
+          },
+          {
+            "n": "ctrl",
+            "txt": "Контроллер вызывает Inertia::render с именем компонента и props."
+          },
+          {
+            "n": "res",
+            "txt": "Каждый prop проходит через API Resource — белый список полей."
+          },
+          {
+            "n": "page",
+            "txt": "Laravel собирает объект страницы: component, props, url, version."
+          },
+          {
+            "n": "swap",
+            "txt": "Клиент подменяет компонент без перезагрузки и кладёт объект в history.state."
+          },
+          {
+            "n": "vue",
+            "txt": "Следующий клик повторяет цикл — один маршрут обслуживает и HTML, и JSON.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Почему валидация в Inertia не возвращает 422, и как на фронте узнать об ошибке?",
+        "a": "Laravel видит, что запрос не ждёт JSON (заголовок X-Inertia, а не Accept: application/json), и делает обычный redirect back с ошибками в сессии — ровно как для Blade-формы. Middleware Inertia берёт их из сессии и кладёт в shared prop errors, поэтому form.errors.title появляется без единого 422-ответа. Вся валидация пишется один раз — в FormRequest — и на фронте не дублируется."
+      },
+      {
+        "q": "Чем 303 после PUT/PATCH/DELETE отличается от обычного 302, и зачем это нужно?",
+        "a": "По историческим причинам браузер и XHR при 302 могут повторить исходный метод на новом адресе — PUT превратился бы в PUT на другом URL. 303 See Other однозначно говорит клиенту «теперь сделай GET». Middleware Inertia подменяет 302 на 303 именно для PUT, PATCH и DELETE."
+      },
+      {
+        "q": "Если prop передан значением, а не замыканием, что произойдёт при partial reload?",
+        "a": "Значение всё равно вычислится — контроллер выполнится целиком, просто ответ не отправится клиенту. Замыкание же вообще не вызовется, если его не запросили через only. Отсюда правило «тяжёлое — в замыкание или Inertia::optional/defer», а не в простое значение."
+      },
+      {
+        "q": "Почему Pinia, созданная на верхнем уровне модуля, ломает SSR?",
+        "a": "SSR-сервер — это долгоживущий процесс Node, который рендерит страницы для всех посетителей подряд. const pinia = createPinia() на верхнем уровне модуля выполняется один раз на весь сервер — один store на всех. Inertia 3 вызывает withApp(app) на каждый рендер, и именно там app.use(createPinia()) даёт свежий store на каждый запрос."
+      },
+      {
+        "q": "Зачем при обновлении поста с новой обложкой отправляют POST с _method: 'put', а не просто PUT?",
+        "a": "Если в данных формы есть File, Inertia отправляет multipart/form-data, а PHP разбирает multipart только для POST. Для PUT-запроса файл тихо «потеряется». Поэтому отправляют POST с полем _method: 'put' — Laravel увидит его и маршрутизирует как PUT (method spoofing); это не баг Inertia или Laravel, а особенность PHP."
+      }
+    ],
+    accent: '#8B5CF6',
+  },
 ];
 
 function escapeHtml(str) {
