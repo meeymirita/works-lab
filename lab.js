@@ -6591,7 +6591,7 @@ var LABS = [
     titleMain: 'inertia',
     title: 'Inertia Lab',
     subtitle: 'Inkwell — блог-платформа',
-    desc: 'Laravel 13 + Inertia 3 + Vue 3 без starter kit, на блог-платформе «Inkwell». Протокол на проводе (объект страницы, XHR-визиты, конфликт версий, 303-редиректы), props как публичный API через ресурсы, формы и валидация без 422, SSR и его типичные поломки (hydration mismatch, утечка Pinia между посетителями), три роли на Policies без дублирования прав на фронте.',
+    desc: 'Laravel 13 + Inertia 3 + Vue 3 без starter kit, на блог-платформе «Inkwell»: протокол на проводе и объект страницы, props как публичный API через Resources, формы и валидация без 422, SSR и мета-теги, hydration mismatch и утечка Pinia между посетителями, optional/defer/merge для отложенных props, роли и Policies без дублирования прав на фронте, typed routes через Wayfinder.',
     stack: ['Laravel 13', 'Inertia 3', 'Vue 3', 'TypeScript', 'Pinia'],
     difficulty: 'Средняя',
     image: '../inertia/inertia.png',
