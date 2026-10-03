@@ -368,7 +368,7 @@ var LABS = [
     title: 'Redis Lab',
     subtitle: 'Кэш, локи, rate limit, Streams',
     desc: 'Redis как кэш, хранилище сессий, примитив синхронизации и брокер событий: cache-aside, distributed lock, rate limiter, Streams, XAUTOCLAIM, Pub/Sub-дашборд.',
-    stack: ['Laravel 13', 'PostgreSQL 17', 'Redis 7'],
+    stack: ['Laravel 13', 'PostgreSQL 18', 'Redis 8'],
     difficulty: 'Средняя',
     image: 'images/redis.png',
     open: '../redis/Redis_Lab_Plan.html',
@@ -484,7 +484,7 @@ var LABS = [
           ]
         },
         {
-          "label": "PostgreSQL 17",
+          "label": "PostgreSQL 18",
           "boxes": [
             "orders + order_items (транзакция)"
           ]
@@ -524,7 +524,7 @@ var LABS = [
             "w": 190
           },
           {
-            "t": "Redis 7",
+            "t": "Redis 8",
             "x": 250,
             "w": 430
           },
@@ -839,7 +839,7 @@ var LABS = [
           ]
         },
         {
-          "label": "Traefik v3.1",
+          "label": "Traefik v3.7",
           "boxes": [
             "EntryPoints web :80 / websecure :443",
             "Providers: docker labels + file"
@@ -878,7 +878,7 @@ var LABS = [
             "w": 190
           },
           {
-            "t": "Traefik v3.1",
+            "t": "Traefik v3.7",
             "x": 250,
             "w": 430
           },
@@ -1815,7 +1815,7 @@ var LABS = [
     title: 'TypeScript Lab',
     subtitle: 'Warehouse — складской учёт',
     desc: 'Типизация домена складского учёта с нуля: generics, размеченные объединения, mapped/conditional types, CLI на Zod, сквозная типизация API + Vue.',
-    stack: ['TypeScript 5.x', 'Node 22+', 'Zod', 'Vitest'],
+    stack: ['TypeScript 5.x', 'Node 24+', 'Zod', 'Vitest'],
     difficulty: 'Высокая',
     image: 'images/typescript.png',
     open: '../typescript/TypeScript_Lab_Warehouse.html',
@@ -2194,7 +2194,7 @@ var LABS = [
     title: 'Laravel Lab',
     subtitle: 'TaskFlow — таск-трекер',
     desc: 'Laravel 13 «изнутри»: ~30 компонентов illuminate/*, Eloquent-связи, Service Container, Auth/Policy, Observer, очереди, Mailable, кэш, Broadcasting, тесты.',
-    stack: ['Laravel 13', 'PostgreSQL 17', 'Redis', 'RabbitMQ', 'Reverb'],
+    stack: ['Laravel 13', 'PostgreSQL 18', 'Redis', 'RabbitMQ', 'Reverb'],
     difficulty: 'Высокая',
     image: 'images/laravel.png',
     open: '../laravel/Laravel_Lab_TaskFlow.html',
@@ -2631,7 +2631,7 @@ var LABS = [
           "Манифесты зависимостей копируются раньше исходников",
           "Тот же приём для Composer"
         ],
-        "code": "FROM node:20-slim\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . ."
+        "code": "FROM node:24-slim\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . ."
       },
       {
         "tab": "Bash strict mode",
@@ -2664,7 +2664,7 @@ var LABS = [
           "Bind mount для исходников при разработке",
           "Режим :ro и USER вместо root"
         ],
-        "code": "docker run -v pgdata:/var/lib/postgresql/data postgres:17\n\ndocker run -v /home/user/project/src:/app/src myapp\n\n-v ./config:/etc/app/config:ro"
+        "code": "docker run -v pgdata:/var/lib/postgresql postgres:18\n\ndocker run -v /home/user/project/src:/app/src myapp\n\n-v ./config:/etc/app/config:ro"
       },
       {
         "tab": "Сети и DNS",
@@ -2675,7 +2675,7 @@ var LABS = [
           "EXPOSE и -p — не одно и то же",
           "Compose создаёт такую сеть сам"
         ],
-        "code": "docker network create lab-net\n\ndocker run -d --name postgres --network lab-net postgres:17-alpine\ndocker run -d --name app --network lab-net myapp\n\ndocker run -p 8080:3000 myapp"
+        "code": "docker network create lab-net\n\ndocker run -d --name postgres --network lab-net postgres:18-alpine\ndocker run -d --name app --network lab-net myapp\n\ndocker run -p 8080:3000 myapp"
       },
       {
         "tab": "Compose и healthcheck",
@@ -2734,7 +2734,7 @@ var LABS = [
         {
           "label": "Контейнер postgres",
           "boxes": [
-            "postgres:17-alpine",
+            "postgres:18-alpine",
             "healthcheck pg_isready"
           ]
         },
@@ -2825,7 +2825,7 @@ var LABS = [
           },
           {
             "id": "pg",
-            "t": "postgres:17",
+            "t": "postgres:18",
             "s": "healthcheck",
             "x": 800,
             "y": 170,
@@ -2837,7 +2837,7 @@ var LABS = [
             "s": "named volume",
             "x": 800,
             "y": 380,
-            "d": "Named volume на /var/lib/postgresql/data: данные переживают удаление контейнера."
+            "d": "Named volume на /var/lib/postgresql: данные переживают удаление контейнера."
           }
         ],
         "edges": [
@@ -3110,7 +3110,7 @@ var LABS = [
           "label": "Данные",
           "boxes": [
             "PdoConnection",
-            "PostgreSQL 17"
+            "PostgreSQL 18"
           ]
         },
         {
@@ -3208,7 +3208,7 @@ var LABS = [
           },
           {
             "id": "pg",
-            "t": "PostgreSQL 17",
+            "t": "PostgreSQL 18",
             "s": "drinks · orders",
             "x": 880,
             "y": 390,
@@ -3330,7 +3330,7 @@ var LABS = [
     title: 'Чистый JS Lab',
     subtitle: 'Vanilla Helpdesk — фундамент без фреймворка',
     desc: 'Чистый JavaScript с нуля — общий фундамент для Vue и TypeScript: var/let/const и hoisting, this и замыкания, прототипы и class, event loop и async/await, DOM без фреймворка, ESM-модули, своя реактивность на Proxy, финальное мини-SPA с явным сравнением с Vue.',
-    stack: ['JavaScript ES2022', 'Node.js 22+', 'json-server', 'node:test', 'Docker'],
+    stack: ['JavaScript ES2022', 'Node.js 24+', 'json-server', 'node:test', 'Docker'],
     difficulty: 'Средняя',
     image: '../js/JavaScript.png',
     open: '../js/JS_Lab_VanillaHelpdesk.html',
@@ -4102,7 +4102,7 @@ var LABS = [
     title: 'NestJS Lab',
     subtitle: 'DI руками, JWT-ротация, real-time',
     desc: 'Helpdesk API собран с нуля слой за слоем: свой мини-DI контейнер, границы модулей и provider scopes, Prisma и транзакции, JWT-ротация refresh-токенов с reuse-detection, RBAC через TicketPolicy, доменные события и WebSocket-шлюз, свой динамический модуль, unit и e2e тесты.',
-    stack: ['NestJS 11', 'Prisma 6', 'PostgreSQL 17', 'JWT + argon2', 'Socket.IO'],
+    stack: ['NestJS 11', 'Prisma 6', 'PostgreSQL 18', 'JWT + argon2', 'Socket.IO'],
     difficulty: 'Высокая',
     image: '../nestjs/nest.png',
     open: '../nestjs/NestJS_Lab_Plan.html',
@@ -4255,7 +4255,7 @@ var LABS = [
           "label": "Данные",
           "boxes": [
             "PrismaService",
-            "PostgreSQL 17 · helpdesk"
+            "PostgreSQL 18 · helpdesk"
           ]
         },
         {
@@ -4346,7 +4346,7 @@ var LABS = [
           },
           {
             "id": "db",
-            "t": "PostgreSQL 17",
+            "t": "PostgreSQL 18",
             "s": "PrismaService",
             "x": 830,
             "y": 230,
@@ -4473,7 +4473,7 @@ var LABS = [
     title: 'GraphQL Lab',
     subtitle: 'CineGraph — каталог фильмов на GraphQL',
     desc: 'Самостоятельный проект CineGraph с нуля: язык запросов и жизненный цикл запроса, N+1 в резолверах и DataLoader, JWT и права на уровне полей, интерфейсы и юнионы, курсорная пагинация, подписки через Redis, защита от тяжёлых запросов, unit и e2e тесты.',
-    stack: ['NestJS + Apollo Server', 'Prisma 7', 'PostgreSQL 17', 'DataLoader', 'Redis'],
+    stack: ['NestJS + Apollo Server', 'Prisma 7', 'PostgreSQL 18', 'DataLoader', 'Redis'],
     difficulty: 'Высокая',
     image: '../graphql/GraphQL.png',
     open: '../graphql/GraphQL_Lab_Plan.html',
@@ -4622,7 +4622,7 @@ var LABS = [
         {
           "label": "Данные и события",
           "boxes": [
-            "PrismaService → PostgreSQL 17",
+            "PrismaService → PostgreSQL 18",
             "PubSub → Redis reviewAdded"
           ]
         }
@@ -4707,7 +4707,7 @@ var LABS = [
           },
           {
             "id": "db",
-            "t": "PostgreSQL 17",
+            "t": "PostgreSQL 18",
             "s": "Prisma",
             "x": 830,
             "y": 230,
