@@ -7828,29 +7828,77 @@ function toggleTocNode(btn) {
   }
 }
 
+// Методички с 02.10.2026 — «бандлы»: разделов <h2> в самом HTML нет, текст лежит в сжатом JSON (window.LAB)
+// внутри <script type="__bundler/manifest">. Достаём его так же, как это делает сама страница методички.
+function readBundleLab(html) {
+  var m = html.match(/<script type="__bundler\/manifest">([\s\S]*?)<\/script>/);
+  if (!m || typeof DecompressionStream === 'undefined') return Promise.resolve(null);
+  var man;
+  try { man = JSON.parse(m[1]); } catch (e) { return Promise.resolve(null); }
+  var keys = Object.keys(man).filter(function (k) { return /javascript/.test(man[k].mime || ''); });
+
+  function decode(asset) {
+    var bin = atob(asset.data), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    var stream = new Blob([bytes]).stream();
+    if (asset.compressed) stream = stream.pipeThrough(new DecompressionStream('gzip'));
+    return new Response(stream).text();
+  }
+  function next(i) {
+    if (i >= keys.length) return Promise.resolve(null);
+    return decode(man[keys[i]]).then(function (txt) {
+      if (txt.indexOf('window.LAB=') !== 0) return next(i + 1);
+      // после объекта могут идти ещё операторы вида «;window.LAB.accent="#…";» — отрезаем их
+      var body = txt.slice('window.LAB='.length), cut = body.indexOf(';window.LAB.');
+      if (cut !== -1) body = body.slice(0, cut);
+      try { return JSON.parse(body.replace(/;\s*$/, '')); } catch (e) { return null; }
+    });
+  }
+  return next(0);
+}
+
+function tocItemsFromLab(L) {
+  var units = (L && L.units) || [];
+  var steps = units.filter(function (u) { return u.kind === 'step'; });
+  var items = units.filter(function (u) { return u.kind !== 'step'; }).map(function (u) {
+    return { id: u.key, title: (u.num ? u.num + '. ' : '') + u.title, subs: [] };
+  });
+  var subs = steps.map(function (st) { return st.num + ' ' + st.title.replace(/^🔨\s*/, ''); });
+  var host = items.filter(function (it) { return /пошагов|задани|сесси/i.test(it.title); })[0];
+  if (host) host.subs = subs;
+  else if (steps.length) items.push({ id: steps[0].key, title: 'Шаги по сессиям', subs: subs });
+  return items;
+}
+
+function tocItemsFromHtml(html) {
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  var sections = Array.prototype.slice.call(doc.querySelectorAll('h2[id]'));
+  return sections.map(function (h2) {
+    var title = h2.textContent.replace(/#\s*$/, '').trim();
+    var subs = [];
+    var el = h2.nextElementSibling;
+    while (el && el.tagName !== 'H2') {
+      if (el.tagName === 'H3') {
+        var subTitle = el.textContent.replace(/#\s*$/, '').trim();
+        if (/^\d+\.\d+/.test(subTitle)) subs.push(subTitle);
+      }
+      el = el.nextElementSibling;
+    }
+    return { id: h2.id, title: title, subs: subs };
+  });
+}
+
 function loadToc(lab, panel) {
   panel.innerHTML = '<div class="lab-toc-status mono">загрузка…</div>';
 
   fetch(lab.open)
     .then(function (res) { return res.text(); })
     .then(function (html) {
-      var doc = new DOMParser().parseFromString(html, 'text/html');
-      var sections = Array.prototype.slice.call(doc.querySelectorAll('h2[id]'));
-
-      var items = sections.map(function (h2) {
-        var title = h2.textContent.replace(/#\s*$/, '').trim();
-        var subs = [];
-        var el = h2.nextElementSibling;
-        while (el && el.tagName !== 'H2') {
-          if (el.tagName === 'H3') {
-            var subTitle = el.textContent.replace(/#\s*$/, '').trim();
-            if (/^\d+\.\d+/.test(subTitle)) subs.push(subTitle);
-          }
-          el = el.nextElementSibling;
-        }
-        return { id: h2.id, title: title, subs: subs };
-      });
-
+      var items = tocItemsFromHtml(html);                       // старый формат методичек: обычные <h2>
+      if (items.length) return items;
+      return readBundleLab(html).then(tocItemsFromLab);         // новый формат: оглавление из window.LAB
+    })
+    .then(function (items) {
       panel.dataset.loaded = '1';
 
       if (!items.length) {
