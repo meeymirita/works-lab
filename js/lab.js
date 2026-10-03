@@ -5,7 +5,7 @@ var LABS = [
     title: 'RabbitMQ Lab',
     subtitle: 'Transactional Outbox, воркеры, DLQ',
     desc: 'Асинхронная обработка заказов через очереди: Transactional Outbox, идемпотентный consumer, prefetch, crash-тесты, retry с TTL→DLX, priority queues, fanout.',
-    stack: ['Laravel 13', 'PostgreSQL 16', 'RabbitMQ', 'Mailpit'],
+    stack: ['Laravel 13', 'PostgreSQL 18', 'RabbitMQ', 'Mailpit'],
     difficulty: 'Высокая',
     image: 'images/rabbitmq.png',
     open: '../rabbitmq/docs/RabbitMQ_Lab_Plan_v1_pro_max.html',
@@ -124,7 +124,7 @@ var LABS = [
           ]
         },
         {
-          "label": "PostgreSQL 16 (одна транзакция)",
+          "label": "PostgreSQL 18 (одна транзакция)",
           "boxes": [
             "orders",
             "outbox_messages"
@@ -1072,9 +1072,9 @@ var LABS = [
     key: 'php-coffee',
     titleMain: 'oop',
     title: 'OOP Lab',
-    subtitle: 'Coffee Shop API на PHP 8.5',
-    desc: 'ООП на PHP 8.5 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
-    stack: ['PHP 8.5', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
+    subtitle: 'Coffee Shop API на PHP 8.4',
+    desc: 'ООП на PHP 8.4 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
+    stack: ['PHP 8.4', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
     difficulty: 'Базовая',
     image: 'images/php.png',
     open: '../php-coffee/docs/OOP_Lab_CoffeeShop.html',
@@ -1082,7 +1082,7 @@ var LABS = [
     stackInfo: [
       {
         "tag": "язык",
-        "back": "Весь домен — на PHP 8.5: readonly, enum, promotion конструктора, first-class callable."
+        "back": "Весь домен — на PHP 8.4: readonly, enum, promotion конструктора, first-class callable."
       },
       {
         "tag": "каркас",
@@ -1439,7 +1439,7 @@ var LABS = [
     title: 'Vue Lab',
     subtitle: 'Helpdesk на Vue 3',
     desc: 'Система тикетов на Vue 3 с нуля: реактивность, компоненты, слоты, Pinia, Vue Router с guard-ами, WebSocket, канбан-доска, тесты на Vitest.',
-    stack: ['Vue 3.5', 'Vite 8', 'Pinia 2+', 'Vue Router', 'Node'],
+    stack: ['Vue 3.5', 'Vite 7', 'Pinia 2+', 'Vue Router', 'Node'],
     difficulty: 'Высокая',
     image: 'images/vue.png',
     open: '../vue/Vue_Lab_Helpdesk.html',
@@ -2946,8 +2946,8 @@ var LABS = [
     titleMain: 'php',
     title: 'Чистый PHP Lab',
     subtitle: 'Фундамент без фреймворка',
-    desc: 'Чистый PHP 8.5 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
-    stack: ['PHP 8.5', 'PDO', 'PostgreSQL', 'Composer (PSR-4)'],
+    desc: 'Чистый PHP 8.4 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
+    stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)'],
     difficulty: 'Базовая',
     image: '../php/php.png',
     open: '../php/PHP_Lab_VanillaCoffee.html',
@@ -2955,7 +2955,7 @@ var LABS = [
     stackInfo: [
       {
         "tag": "язык",
-        "back": "Весь код написан на чистом PHP 8.5 без фреймворка: типы, замыкания, генераторы, Reflection."
+        "back": "Весь код написан на чистом PHP 8.4 без фреймворка: типы, замыкания, генераторы, Reflection."
       },
       {
         "tag": "доступ к БД",
@@ -4102,7 +4102,7 @@ var LABS = [
     title: 'NestJS Lab',
     subtitle: 'DI руками, JWT-ротация, real-time',
     desc: 'Helpdesk API собран с нуля слой за слоем: свой мини-DI контейнер, границы модулей и provider scopes, Prisma и транзакции, JWT-ротация refresh-токенов с reuse-detection, RBAC через TicketPolicy, доменные события и WebSocket-шлюз, свой динамический модуль, unit и e2e тесты.',
-    stack: ['NestJS 11', 'Prisma 6', 'PostgreSQL 18', 'JWT + argon2', 'Socket.IO'],
+    stack: ['NestJS 11', 'Prisma 7', 'PostgreSQL 18', 'JWT + argon2', 'Socket.IO'],
     difficulty: 'Высокая',
     image: '../nestjs/nest.png',
     open: '../nestjs/NestJS_Lab_Plan.html',
@@ -4837,7 +4837,7 @@ var LABS = [
     title: 'PostgreSQL Lab',
     subtitle: 'Coffee Shop изнутри — база без ORM',
     desc: 'Что происходит под ORM на миллионе заказов кофейни: JOIN с нуля, EXPLAIN и индексы B-tree/GIN/BRIN под конкретный запрос, статистика, N+1 глазами базы, уровни изоляции и аномалии, блокировки и дедлоки, SKIP LOCKED, MVCC и VACUUM, партиционирование.',
-    stack: ['PostgreSQL 17', 'psql', 'pgbench', 'Docker'],
+    stack: ['PostgreSQL 18', 'psql', 'pgbench', 'Docker'],
     difficulty: 'Средняя–высокая',
     image: '../postgresql/PostgreSQL.png',
     open: '../postgresql/PostgreSQL_Lab_CoffeeShop.html',
@@ -5034,7 +5034,7 @@ var LABS = [
             "s": "терминалы A, B, C",
             "x": 110,
             "y": 150,
-            "d": "Несколько клиентов одновременно подключаются к одному контейнеру pglab (postgres:17) и шлют запросы."
+            "d": "Несколько клиентов одновременно подключаются к одному контейнеру pglab (postgres:18) и шлют запросы."
           },
           {
             "id": "be",
