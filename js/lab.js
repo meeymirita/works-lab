@@ -1072,9 +1072,9 @@ var LABS = [
     key: 'php-coffee',
     titleMain: 'oop',
     title: 'OOP Lab',
-    subtitle: 'Coffee Shop API на PHP 8.4',
-    desc: 'ООП на PHP 8.4 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
-    stack: ['PHP 8.4', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
+    subtitle: 'Coffee Shop API на PHP 8.5',
+    desc: 'ООП на PHP 8.5 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
+    stack: ['PHP 8.5', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
     difficulty: 'Базовая',
     image: 'images/php.png',
     open: '../php-coffee/docs/OOP_Lab_CoffeeShop.html',
@@ -1082,7 +1082,7 @@ var LABS = [
     stackInfo: [
       {
         "tag": "язык",
-        "back": "Весь домен — на PHP 8.4: readonly, enum, promotion конструктора, first-class callable."
+        "back": "Весь домен — на PHP 8.5: readonly, enum, promotion конструктора, first-class callable."
       },
       {
         "tag": "каркас",
@@ -1439,7 +1439,7 @@ var LABS = [
     title: 'Vue Lab',
     subtitle: 'Helpdesk на Vue 3',
     desc: 'Система тикетов на Vue 3 с нуля: реактивность, компоненты, слоты, Pinia, Vue Router с guard-ами, WebSocket, канбан-доска, тесты на Vitest.',
-    stack: ['Vue 3.5', 'Vite 6+', 'Pinia 2+', 'Vue Router', 'Node'],
+    stack: ['Vue 3.5', 'Vite 8', 'Pinia 2+', 'Vue Router', 'Node'],
     difficulty: 'Высокая',
     image: 'images/vue.png',
     open: '../vue/Vue_Lab_Helpdesk.html',
@@ -1815,7 +1815,7 @@ var LABS = [
     title: 'TypeScript Lab',
     subtitle: 'Warehouse — складской учёт',
     desc: 'Типизация домена складского учёта с нуля: generics, размеченные объединения, mapped/conditional types, CLI на Zod, сквозная типизация API + Vue.',
-    stack: ['TypeScript 5.x', 'Node 24+', 'Zod', 'Vitest'],
+    stack: ['TypeScript 6', 'Node 24+', 'Zod', 'Vitest'],
     difficulty: 'Высокая',
     image: 'images/typescript.png',
     open: '../typescript/TypeScript_Lab_Warehouse.html',
@@ -2946,8 +2946,8 @@ var LABS = [
     titleMain: 'php',
     title: 'Чистый PHP Lab',
     subtitle: 'Фундамент без фреймворка',
-    desc: 'Чистый PHP 8.4 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
-    stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)'],
+    desc: 'Чистый PHP 8.5 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
+    stack: ['PHP 8.5', 'PDO', 'PostgreSQL', 'Composer (PSR-4)'],
     difficulty: 'Базовая',
     image: '../php/php.png',
     open: '../php/PHP_Lab_VanillaCoffee.html',
@@ -2955,7 +2955,7 @@ var LABS = [
     stackInfo: [
       {
         "tag": "язык",
-        "back": "Весь код написан на чистом PHP 8.4 без фреймворка: типы, замыкания, генераторы, Reflection."
+        "back": "Весь код написан на чистом PHP 8.5 без фреймворка: типы, замыкания, генераторы, Reflection."
       },
       {
         "tag": "доступ к БД",
@@ -3730,7 +3730,7 @@ var LABS = [
     title: 'Kubernetes Lab',
     subtitle: 'От Compose к оркестрации',
     desc: 'Миграция стека из Traefik-лабы в Kubernetes (kind): Pod и Deployment, Service и DNS, ConfigMap/Secret, Volumes и PVC, readiness/liveness-пробы, Traefik как Ingress-контроллер, HorizontalPodAutoscaler.',
-    stack: ['Kubernetes v1.31.0', 'kind v0.24.0', 'kubectl', 'Traefik'],
+    stack: ['Kubernetes v1.37.0', 'kind v0.33.0', 'kubectl', 'Traefik'],
     difficulty: 'Средняя–высокая',
     image: '../kubernetes/kubernetes.png',
     open: '../kubernetes/Kubernetes_Lab_Plan.html',
