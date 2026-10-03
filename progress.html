@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Все работы и прогресс — ANITECH</title>
+<meta name="description" content="Все лабораторные ANITECH PERFORMANCE одним списком: ссылки на методички и общий прогресс по каждой.">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<style>
+:root { --bg:#faf9f5; --ink:#17140f; --muted:#5d584f; --hair:#d9d4c8; --card:#fff; --track:#e8e3d6; --accent:#ec3013; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12110f; --ink:#f1ede4; --muted:#a39d90; --hair:#2f2c26; --card:#1a1815; --track:#2b2823; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+.wrap { max-width:960px; margin:0 auto; padding:32px 16px 64px; }
+a { color:inherit; }
+.back { font-size:14px; color:var(--muted); text-decoration:none; }
+.back:hover { color:var(--ink); }
+h1 { margin:12px 0 4px; font-size:clamp(28px,5vw,44px); line-height:1.05; letter-spacing:-.02em; }
+.sub { margin:0 0 24px; color:var(--muted); }
+.total { background:var(--card); border:2px solid var(--ink); padding:18px 20px; margin-bottom:32px; }
+.total-top { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-weight:800; }
+.bar { height:10px; background:var(--track); margin-top:10px; overflow:hidden; }
+.bar > i { display:block; height:100%; width:0; background:var(--c, var(--accent)); transition:width .4s; }
+.total-note { margin-top:8px; font-size:13px; color:var(--muted); }
+h2 { margin:32px 0 10px; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.lab { display:grid; grid-template-columns:32px 64px minmax(0,1fr) minmax(130px,220px); gap:6px 16px; align-items:center; padding:12px 0; border-top:1px solid var(--hair); }
+.thumb { grid-column:2; grid-row:1 / span 2; width:64px; height:64px; object-fit:cover; border:1px solid var(--hair); background:var(--track); display:block; }
+.lab:last-child { border-bottom:1px solid var(--hair); }
+.num { font:700 13px ui-monospace,Menlo,monospace; color:var(--muted); }
+.name { font-weight:800; font-size:17px; text-decoration:none; }
+.name:hover { color:var(--c); }
+.name { grid-column:3; }
+.meta { grid-column:3; font-size:13px; color:var(--muted); }
+.meta a { margin-right:12px; }
+.pct { text-align:right; font:700 13px ui-monospace,Menlo,monospace; }
+.lab .bar { grid-column:4; grid-row:2; margin-top:0; }
+.lab .pct { grid-column:4; grid-row:1; }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--c); margin-right:8px; }
+@media (max-width:620px) {
+  .lab { grid-template-columns:26px 52px minmax(0,1fr); }
+  .thumb { width:52px; height:52px; }
+  .lab .pct, .lab .bar { grid-column:3; grid-row:auto; text-align:left; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← ANITECH PERFORMANCE</a>
+  <h1>Все работы и прогресс</h1>
+  <p class="sub">Отмечайте разделы и шаги в методичках — здесь они сложатся в общий прогресс по каждой лабе.</p>
+  <div class="total" id="total"></div>
+  <div id="list"></div>
+</div>
+<script>
+var GROUPS = [{"title":"Фронтенд","labs":[{"key":"css","title":"CSS Lab","subtitle":"FrontFest — сайт конференции","difficulty":"Базовая","accent":"#2965F1","open":"../css/CSS_Lab_FrontFest.html","page":"css.html","thumb":"images/thumbs/css.webp","storage":"lab-redesign-v1:css-lab-frontfest","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","step-1-1","step-1-2","step-1-3","step-1-4","step-2-1","step-2-2","step-2-3","step-2-4","step-3-1","step-3-2","step-3-3","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-6-4","sec-11","sec-12","sec-13","sec-14"]},{"key":"tailwind","title":"Tailwind Lab","subtitle":"Pulse — сервис аналитики","difficulty":"Базовая","accent":"#38BDF8","open":"../tailwind/Tailwind_Lab_Pulse.html","page":"tailwind.html","thumb":"images/thumbs/tailwind.webp","storage":"lab-redesign-v1:tailwind-lab-pulse","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","step-1-1","step-1-2","step-1-3","step-1-4","step-2-1","step-2-2","step-2-3","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-6-4","sec-11","sec-12","sec-13","sec-14"]},{"key":"js","title":"Чистый JS Lab","subtitle":"Vanilla Helpdesk — фундамент без фреймворка","difficulty":"Средняя","accent":"#F4D35E","open":"../js/JS_Lab_VanillaHelpdesk.html","page":"js.html","thumb":"images/thumbs/js.webp","storage":"lab-redesign-v1:js-lab-vanillahelpdesk","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","sec-12","sec-13","sec-14","sec-15","sec-16","step-1-1","step-1-2","step-1-3","step-2-1","step-2-2","step-3-1","step-3-2","step-3-3","step-4-1","step-4-2","step-4-3","step-5-1","step-5-2","step-5-3","step-6-1","step-6-2","step-7-1","step-7-2","step-7-3","step-8-1","step-8-2","step-8-3","step-8-4","sec-17","sec-18","sec-19","sec-20"]},{"key":"typescript","title":"TypeScript Lab","subtitle":"Warehouse — складской учёт","difficulty":"Высокая","accent":"#3178C6","open":"../typescript/TypeScript_Lab_Warehouse.html","page":"typescript.html","thumb":"images/thumbs/typescript.webp","storage":"lab-redesign-v1:typescript-lab-warehouse","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-2-4","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","sec-10","sec-11","sec-12","sec-13"]},{"key":"vue","title":"Vue Lab","subtitle":"Helpdesk на Vue 3","difficulty":"Высокая","accent":"#42B883","open":"../vue/Vue_Lab_Helpdesk.html","page":"vue.html","thumb":"images/thumbs/vue.webp","storage":"lab-redesign-v1:vue-lab-helpdesk","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-2-4","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","sec-10","sec-11","sec-12","sec-13"]},{"key":"nuxt","title":"Nuxt Lab","subtitle":"Help Center — SSR, SSG и SPA в одном приложении","difficulty":"Высокая","accent":"#00DC82","open":"../nuxt/Nuxt_Lab_HelpCenter.html","page":"nuxt.html","thumb":"images/thumbs/nuxt.webp","storage":"lab-redesign-v1:nuxt-lab-helpcenter","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","step-1-1","step-1-2","step-1-3","step-1-4","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-4-5","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-6-4","step-6-5","sec-12","sec-13","sec-14","sec-15"]},{"key":"angular","title":"Angular Lab","subtitle":"RoomBook — бронирование переговорных","difficulty":"Высокая","accent":"#CC26D5","open":"../angular/Angular_Lab_RoomBook.html","page":"angular.html","thumb":"images/thumbs/angular.webp","storage":"lab-redesign-v1:angular-lab-roombook","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","step-1-1","step-1-2","step-1-3","step-1-4","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-4-5","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-6-4","sec-11","sec-12","sec-13","sec-14"]}]},{"title":"Бэкенд","labs":[{"key":"php","title":"Чистый PHP Lab","subtitle":"Фундамент без фреймворка","difficulty":"Базовая","accent":"#C9A876","open":"../php/PHP_Lab_VanillaCoffee.html","page":"php.html","thumb":"images/thumbs/php.webp","storage":"lab-redesign-v1:php-lab-vanillacoffee","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","sec-12","sec-13","step-1-1","step-1-2","step-2-1","step-2-2","step-2-3","step-3-1","step-3-2","step-3-3","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-6-1","step-6-2","step-6-3","step-7-1","step-7-2","step-7-3","step-7-4","step-8-1","step-8-2","step-8-3","sec-14","sec-15","sec-16","sec-17"]},{"key":"php-coffee","title":"OOP Lab","subtitle":"Coffee Shop API на PHP 8.4","difficulty":"Базовая","accent":"#777BB4","open":"../php-coffee/docs/OOP_Lab_CoffeeShop.html","page":"php-coffee.html","thumb":"images/thumbs/php-coffee.webp","storage":"lab-redesign-v1:oop-lab-coffeeshop","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","sec-10","sec-11","sec-12","sec-13"]},{"key":"algorithms-php","title":"Algorithms PHP Lab","subtitle":"CoffeeAlgo — алгоритмы и структуры данных","difficulty":"Базовая","accent":"#b45f06","open":"../algorithms-php/Algo_Lab_CoffeeAlgo.html","page":"algorithms-php.html","thumb":"images/thumbs/algorithms-php.webp","storage":"lab-redesign-v1:algo-lab-coffeealgo","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","sec-12","sec-13","sec-14","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-3-1","step-3-2","step-3-3","step-4-1","step-4-2","step-4-3","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-6-4","step-7-1","step-7-2","step-7-3","step-7-4","step-7-5","step-8-1","step-8-2","step-8-3","step-9-1","step-9-2","step-9-3","step-10-1","step-10-2","step-10-3","step-11-1","step-11-2","step-11-3","step-11-4","step-12-1","step-12-2","step-12-3","step-13-1","step-13-2","step-13-3"]},{"key":"postgresql","title":"PostgreSQL Lab","subtitle":"Coffee Shop изнутри — база без ORM","difficulty":"Средняя–высокая","accent":"#4A90D9","open":"../postgresql/PostgreSQL_Lab_CoffeeShop.html","page":"postgresql.html","thumb":"images/thumbs/postgresql.webp","storage":"lab-redesign-v1:postgresql-lab-coffeeshop","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-0-1","step-0-2","step-0-3","step-0-4","step-0-5","step-1-1","step-1-2","step-1-3","step-2-1","step-2-2","step-2-3","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-7-1","step-7-2","step-7-3","step-7-4","step-8-1","step-8-2","step-9-1","step-9-2","step-9-3","step-9-4","step-10-1","step-10-2","step-11-1","step-11-2","step-11-3","step-11-4","step-12-1","step-12-2","step-12-3","sec-10","sec-11","sec-12","sec-13"]},{"key":"redis","title":"Redis Lab","subtitle":"Кэш, локи, rate limit, Streams","difficulty":"Средняя","accent":"#DC382D","open":"../redis/Redis_Lab_Plan.html","page":"redis.html","thumb":"images/thumbs/redis.webp","storage":"lab-redesign-v1:redis-lab-plan","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-1-6","step-1-7","step-1-8","step-2-1","step-2-2","step-2-3","step-2-4","step-3-1","step-3-2","step-3-3","step-3-4","step-3-5","sec-12","sec-13","sec-14","sec-15"]},{"key":"rabbitmq","title":"RabbitMQ Lab","subtitle":"Transactional Outbox, воркеры, DLQ","difficulty":"Высокая","accent":"#FF6600","open":"../rabbitmq/docs/RabbitMQ_Lab_Plan_v1_pro_max.html","page":"rabbitmq.html","thumb":"images/thumbs/rabbitmq.webp","storage":"lab-redesign-v1:rabbitmq-lab-plan-v1-pro-max","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-1-6","step-1-7","step-1-8","step-1-9","step-2-1","step-2-2","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","sec-10","sec-11","sec-12","sec-13"]},{"key":"laravel","title":"Laravel Lab","subtitle":"TaskFlow — таск-трекер","difficulty":"Высокая","accent":"#FF2D20","open":"../laravel/Laravel_Lab_TaskFlow.html","page":"laravel.html","thumb":"images/thumbs/laravel.webp","storage":"lab-redesign-v1:laravel-taskflow","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","sec-12","step-1-1","step-1-2","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-2-6","step-2-7","step-2-8","step-3-1","step-3-2","step-3-3","step-4-1","step-4-2","step-4-3","step-5-1","step-5-2","step-5-3","step-6-1","step-6-2","step-6-3","step-6-4","step-7-1","step-7-2","step-7-3","step-7-4","step-8-1","step-8-2","step-8-3","step-9-1","step-9-2","step-9-3","step-9-4","step-10-1","step-10-2","step-10-3","step-10-4","sec-13","sec-14","sec-15","sec-16"]},{"key":"laravel-performance","title":"Laravel Performance Lab","subtitle":"CoffeePerf — замеры и оптимизация","difficulty":"Базовая","accent":"#0e7490","open":"../laravel-performance/Perf_Lab_LaravelCoffeePerf.html","page":"laravel-performance.html","thumb":"images/thumbs/laravel-performance.webp","storage":"lab-redesign-v1:perf-lab-laravelcoffeeperf","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","sec-10","sec-11","sec-12","sec-13","sec-14","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-4-5","step-5-1","step-5-2","step-5-3","step-5-4","step-5-5","step-6-1","step-6-2","step-6-3","step-6-4","step-6-5","step-7-1","step-7-2","step-7-3","step-7-4","step-8-1","step-8-2","step-8-3","step-8-4","step-9-1","step-9-2","step-9-3","step-9-4"]},{"key":"inertia","title":"Inertia Lab","subtitle":"Inkwell — блог-платформа","difficulty":"Средняя","accent":"#8B5CF6","open":"../inertia/Inertia_Lab_Inkwell.html","page":"inertia.html","thumb":"images/thumbs/inertia.webp","storage":"lab-redesign-v1:inertia-lab-inkwell","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-2-1","step-2-2","step-2-3","step-2-4","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-4-5","step-5-1","step-5-2","step-5-3","step-5-4","step-5-5","step-6-1","step-6-2","step-6-3","sec-10","sec-11","sec-12","sec-13"]},{"key":"nestjs","title":"NestJS Lab","subtitle":"DI руками, JWT-ротация, real-time","difficulty":"Высокая","accent":"#E0234E","open":"../nestjs/NestJS_Lab_Plan.html","page":"nestjs.html","thumb":"images/thumbs/nestjs.webp","storage":"lab-redesign-v1:nestjs-lab-plan","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-2-1","step-2-2","step-2-3","step-3-1","step-3-2","step-3-3","step-3-4","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-6-1","step-6-2","step-7-1","step-7-2","step-7-3","step-8-1","step-8-2","step-8-3","step-9-1","step-9-2","step-9-3","step-9-4","step-9-5","sec-10","sec-11","sec-12","sec-13"]},{"key":"graphql","title":"GraphQL Lab","subtitle":"CineGraph — каталог фильмов на GraphQL","difficulty":"Высокая","accent":"#E535AB","open":"../graphql/GraphQL_Lab_Plan.html","page":"graphql.html","thumb":"images/thumbs/graphql.webp","storage":"lab-redesign-v1:graphql-lab-plan","units":["sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-2-4","step-3-1","step-3-2","step-3-3","step-4-1","step-4-2","step-4-3","step-4-4","step-5-1","step-5-2","step-5-3","step-5-4","step-6-1","step-6-2","step-6-3","step-6-4","step-6-5","step-6-6","sec-10","sec-11","sec-12","sec-13"]}]},{"title":"Инфраструктура","labs":[{"key":"docker","title":"Docker Lab","subtitle":"Крепкое владение Docker и Bash с нуля","difficulty":"Базовая","accent":"#2496ED","open":"../docker/Docker_Bash_Lab.html","page":"docker.html","thumb":"images/thumbs/docker.webp","storage":"lab-redesign-v1:docker-bash-lab","units":["sec-0","sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-3-1","step-3-2","step-3-3","step-3-4","sec-10","sec-11","sec-12","sec-13"]},{"key":"traefik","title":"Traefik Lab","subtitle":"Reverse proxy, service discovery, TLS","difficulty":"Низкая–средняя","accent":"#14B8A6","open":"../traefik/Docker_and_Traefik_Lab_Plan.html","page":"traefik.html","thumb":"images/thumbs/traefik.webp","storage":"lab-redesign-v1:docker-and-traefik-lab-plan","units":["sec-0","sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-1-6","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-3-1","step-3-2","step-3-3","step-3-4","sec-10","sec-11","sec-12","sec-13","sec-14"]},{"key":"kubernetes","title":"Kubernetes Lab","subtitle":"От Compose к оркестрации","difficulty":"Средняя–высокая","accent":"#326CE5","open":"../kubernetes/Kubernetes_Lab_Plan.html","page":"kubernetes.html","thumb":"images/thumbs/kubernetes.webp","storage":"lab-redesign-v1:kubernetes-lab-plan","units":["sec-0","sec-1","sec-2","sec-3","sec-4","sec-5","sec-6","sec-7","sec-8","sec-9","step-1-1","step-1-2","step-1-3","step-1-4","step-1-5","step-2-1","step-2-2","step-2-3","step-2-4","step-2-5","step-3-1","step-3-2","step-3-3","step-3-4","sec-10","sec-11","sec-12","sec-13"]}]}];
+
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function readProgress(lab) {
+  var done = 0, secs = 0;
+  try {
+    var saved = JSON.parse(localStorage.getItem(lab.storage) || '{}');
+    var map = saved.done || {};
+    done = lab.units.filter(function (k) { return map[k]; }).length;
+    secs = saved.tTotal || 0;
+  } catch (e) {}
+  return { done: done, total: lab.units.length, secs: secs };
+}
+
+function fmtTime(s) {
+  if (!s) return '';
+  var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return h ? h + ' ч ' + m + ' мин' : m + ' мин';
+}
+
+function render() {
+  var allDone = 0, allTotal = 0, started = 0, finished = 0, secs = 0, html = '', n = 0;
+  GROUPS.forEach(function (g) {
+    html += '<h2>' + esc(g.title) + '</h2>';
+    g.labs.forEach(function (lab) {
+      n++;
+      var p = readProgress(lab), pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+      allDone += p.done; allTotal += p.total; secs += p.secs;
+      if (p.done) started++; if (p.total && p.done === p.total) finished++;
+      html += '<div class="lab" style="--c:' + lab.accent + '">'
+        + '<span class="num">' + String(n).padStart(2, '0') + '</span>'
+        + '<img class="thumb" src="' + esc(lab.thumb) + '" alt="" width="64" height="64" loading="lazy">'
+        + '<a class="name" href="' + esc(lab.open) + '"><span class="dot"></span>' + esc(lab.title) + '</a>'
+        + '<span class="pct">' + pct + '% · ' + p.done + '/' + p.total + '</span>'
+        + '<span class="meta">' + esc(lab.subtitle) + ' · ' + esc(lab.difficulty)
+        + (p.secs ? ' · ' + fmtTime(p.secs) : '') + '<br>'
+        + '<a href="' + esc(lab.open) + '">Методичка ↗</a><a href="' + esc(lab.page) + '">Страница лабы</a></span>'
+        + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
+        + '</div>';
+    });
+  });
+  document.getElementById('list').innerHTML = html;
+  var all = allTotal ? Math.round(allDone / allTotal * 100) : 0;
+  document.getElementById('total').innerHTML =
+    '<div class="total-top"><span>Общий прогресс</span><span>' + all + '%</span></div>'
+    + '<div class="bar"><i style="width:' + all + '%"></i></div>'
+    + '<div class="total-note">отмечено ' + allDone + ' из ' + allTotal + ' разделов и шагов · начато лаб: ' + started + ' из ' + n
+    + ' · пройдено целиком: ' + finished + (secs ? ' · времени в методичках: ' + fmtTime(secs) : '') + '</div>';
+}
+render();
+window.addEventListener('focus', render);          // вернулись из методички — обновить цифры
+window.addEventListener('storage', render);
+</script>
+</body>
+</html>

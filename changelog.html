@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хронология — ANITECH PERFORMANCE</title>
+<meta name="description" content="Полная хронология проекта: что добавлялось, менялось и убиралось в каждой лабе и на сайте, коммит за коммитом, с самого первого дня.">
+
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Onest:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #08070a;
+    --bg-alt: #0f0c12;
+    --text: #f7f2f5;
+    --text-dim: rgba(247,242,245,.82);
+    --text-dimmer: rgba(247,242,245,.55);
+    --line: rgba(247,242,245,.14);
+    --pink: #ff2e88;
+    --cyan: #7df9ff;
+    --soft: #f8c8dc;
+    --header-h: 73px;
+    --added: #2f9e4a;
+    --changed: #e0a800;
+    --removed: #d64545;
+    --renamed: #8a8a94;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Onest', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; }
+
+  * { scrollbar-width: thin; scrollbar-color: rgba(255,46,136,.4) var(--bg); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,46,136,.4); border-radius: 999px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--pink); }
+  ::selection { background: var(--pink); color: var(--bg); }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 5vw; }
+  .display { font-family: 'Dela Gothic One', sans-serif; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.12); opacity: 1; } }
+
+  header {
+    position: sticky; top: 0; z-index: 40; height: var(--header-h);
+    background: rgba(8,7,10,.76); backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255,46,136,.35);
+  }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 14px; gap: 16px; max-width: 1400px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; letter-spacing: .04em; }
+  .logo::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pink);
+    box-shadow: 0 0 16px var(--pink); animation: pulse 2s ease-in-out infinite;
+  }
+  nav { display: flex; align-items: center; gap: clamp(10px,2vw,28px); font-size: 12px; color: var(--text); }
+  nav a { position: relative; transition: color .2s ease; }
+  nav a:hover { color: var(--pink); }
+  nav a.nav-cta { background: var(--pink); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-weight: 700; }
+  nav a.nav-cta:hover { color: var(--bg); opacity: .85; }
+  @media (max-width: 640px) { nav a:not(.nav-cta) { display: none; } }
+
+  .cl-hero { position: relative; padding: clamp(48px,8vw,90px) 0 clamp(30px,5vw,50px); overflow: hidden; }
+  .cl-glow {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(50% 60% at 15% 10%, rgba(125,249,255,.14), transparent 70%),
+                radial-gradient(40% 50% at 90% 40%, rgba(255,46,136,.1), transparent 70%);
+  }
+  .kicker { font-size: 12px; letter-spacing: .24em; color: var(--cyan); margin-bottom: 14px; position: relative; z-index: 1; }
+  .cl-h1 { font-size: clamp(34px,6vw,68px); line-height: .98; margin: 0 0 16px; position: relative; z-index: 1; }
+  .cl-h1 .accent-word { color: var(--pink); }
+  .cl-lead { max-width: 62ch; font-size: clamp(15px,1.4vw,17px); line-height: 1.7; color: var(--text-dim); position: relative; z-index: 1; margin: 0; }
+
+  .cl-stats { display: flex; flex-wrap: wrap; gap: clamp(20px,4vw,44px); margin-top: 30px; position: relative; z-index: 1; }
+  .cl-stat-num { font-family: 'Dela Gothic One',sans-serif; font-size: clamp(28px,3.4vw,40px); color: var(--pink); line-height: 1; }
+  .cl-stat-label { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-dimmer); margin-top: 4px; }
+
+  .cl-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; position: relative; z-index: 1; }
+  .cl-legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: .06em; color: var(--text-dimmer); border: 1px solid var(--line); padding: 5px 11px; border-radius: 999px; }
+  .cl-legend-dot { width: 8px; height: 8px; border-radius: 999px; flex: 0 0 auto; }
+
+  .timeline { padding: clamp(30px,5vw,60px) 0 clamp(60px,8vw,100px); }
+
+  .cl-day { position: relative; padding-left: 30px; margin-bottom: clamp(34px,5vw,54px); border-left: 2px solid var(--line); }
+  .cl-day:last-child { border-left-color: transparent; }
+  .cl-day-banner {
+    position: relative; margin-left: -30px; margin-bottom: 18px;
+    background: linear-gradient(90deg, var(--bg-alt), rgba(15,12,18,0));
+    border-left: 2px solid var(--pink);
+    padding: 10px 0 10px 28px;
+  }
+  .cl-day-banner::before {
+    content: ""; position: absolute; left: -9px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; border-radius: 999px; background: var(--bg);
+    border: 2px solid var(--pink); box-shadow: 0 0 12px rgba(255,46,136,.5);
+  }
+  .cl-day-date { font-size: clamp(19px,2.2vw,26px); margin: 0; }
+  .cl-day-title { font-size: 13px; color: var(--text-dimmer); margin-top: 3px; }
+  .cl-day-count { font-size: 10.5px; color: var(--cyan); letter-spacing: .1em; margin-top: 3px; }
+
+  .cl-items { display: flex; flex-direction: column; gap: 10px; }
+  .cl-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .cl-item.milestone { border-color: var(--lab-color, var(--pink)); background: linear-gradient(90deg, rgba(255,46,136,.05), var(--bg-alt) 40%); }
+  .cl-tags { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; min-width: 128px; }
+  .cl-lab-tag {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700;
+    color: var(--lab-color); white-space: nowrap;
+  }
+  .cl-lab-tag .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--lab-color); box-shadow: 0 0 8px var(--lab-color); flex: 0 0 auto; }
+  .cl-type-badge {
+    display: inline-flex; align-items: center; font-family: 'JetBrains Mono',monospace; font-size: 9.5px;
+    letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px;
+    background: var(--type-soft); color: var(--type-color); border: 1px solid var(--type-color);
+    width: fit-content;
+  }
+  .cl-text { font-size: 14px; line-height: 1.6; color: var(--text-dim); flex: 1 1 auto; }
+  .cl-text b { color: var(--text); }
+
+  .cl-footer { padding: 24px 0; border-top: 1px solid var(--line); font-size: 11px; letter-spacing: .1em; color: var(--text-dimmer); text-align: center; }
+
+  @media (max-width: 640px) {
+    .cl-item { flex-direction: column; }
+    .cl-tags { flex-direction: row; min-width: 0; flex-wrap: wrap; }
+    .cl-day { padding-left: 20px; }
+    .cl-day-banner { margin-left: -20px; padding-left: 18px; }
+  }
+
+  /* ===== редизайн «аниме-опенинг»: та же стилистика, что на главной ===== */
+  :root { --paper: #f4efe6; --ink: #050407; --halftone: radial-gradient(rgba(247,242,245,.16) 1.1px, transparent 1.6px) 0 0 / 9px 9px; }
+  .mono { letter-spacing: .08em; }
+  html, body { overflow-x: clip; }
+  @media (max-width: 520px) { .logo-sub { display: none; } nav > * { white-space: nowrap; } }
+  /* длинные имена файлов и репозиториев в тексте событий переносятся, а не вылезают за экран */
+  .cl-text { overflow-wrap: anywhere; }
+  header { background: rgba(5,4,7,.86); border-bottom: 2px solid var(--pink); }
+  .logo { font-size: 17px; letter-spacing: .02em; }
+  nav a.nav-cta { border-radius: 4px; box-shadow: 3px 3px 0 var(--cyan); transition: transform .15s ease, box-shadow .15s ease; }
+  nav a.nav-cta:hover { opacity: 1; transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--cyan); }
+
+  .cl-hero { background: var(--ink); isolation: isolate; }
+  .cl-glow {
+    z-index: -1;
+    background: repeating-conic-gradient(from 0deg at 80% 30%, rgba(247,242,245,.06) 0deg 1.2deg, transparent 1.2deg 7deg);
+    mask-image: radial-gradient(closest-side at 80% 30%, transparent 8%, #000 70%);
+  }
+  .cl-hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--halftone); opacity: .5; mask-image: linear-gradient(110deg, transparent 40%, #000 90%); pointer-events: none; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 10px; margin-bottom: 18px;
+    background: var(--paper); color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    transform: skewX(-12deg); box-shadow: 4px 4px 0 var(--pink);
+  }
+  .kicker::before { content: ""; width: 8px; height: 8px; background: var(--pink); }
+  .cl-h1 { font-size: clamp(30px,8.6vw,76px); line-height: 1; font-weight: 400; }
+  .cl-h1 .accent-word { position: relative; z-index: 0; color: var(--ink); padding: 0 .1em; }
+  .cl-h1 .accent-word::before { content: ""; position: absolute; inset: .08em -.02em .02em; z-index: -1; background: var(--pink); transform: skewX(-10deg); }
+  .cl-stat { padding: 12px 16px; background: rgba(5,4,7,.7); border: 1px solid var(--line); border-left: 4px solid var(--pink); }
+  .cl-stat:nth-child(2) { border-left-color: var(--cyan); }
+  .cl-stat:nth-child(3) { border-left-color: #ffd23f; }
+  .cl-stat-num { color: var(--paper); font-weight: 400; }
+  .cl-legend-item { border-radius: 0; border-width: 2px; }
+
+  .cl-day { border-left: 2px dashed var(--line); }
+  .cl-day-banner {
+    background: var(--bg-alt); border: 2px solid var(--paper); border-left-width: 2px;
+    box-shadow: 6px 6px 0 var(--pink); margin-right: 8px;
+  }
+  .cl-day-banner::before { border-radius: 0; transform: translateY(-50%) rotate(45deg); background: var(--pink); border-color: var(--paper); box-shadow: none; }
+  .cl-day-date { font-weight: 400; }
+  .cl-item { border-radius: 0; border-width: 2px; transition: transform .15s ease, box-shadow .15s ease; }
+  .cl-item:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--lab-color, var(--line)); }
+  .cl-item.milestone { background: var(--bg-alt); box-shadow: 5px 5px 0 var(--lab-color, var(--pink)); }
+  .cl-type-badge { border-radius: 0; }
+  .cl-footer { border-top: 2px solid var(--pink); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="../index.html#intro" class="logo display">ANITECH<span class="logo-sub"> PERFORMANCE</span></a>
+    <nav class="mono">
+      <a href="../index.html#routes">маршруты</a>
+      <a href="../index.html#works">лабы</a>
+      <a href="progress.html" title="Все работы и общий прогресс">прогресс</a>
+      <a href="https://github.com/meeymirita/anitech-performance" target="_blank" rel="noopener" class="nav-cta">репозиторий ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="cl-hero">
+  <div class="cl-glow"></div>
+  <div class="wrap">
+    <div class="kicker mono">История проекта</div>
+    <h1 class="cl-h1 display">Хроно<span class="accent-word">логия</span></h1>
+    <p class="cl-lead">Каждый коммит во всех репозиториях платформы — главный сайт, 15 лаб, витрина works и lab-fixes — от самого первого дня до сегодняшнего: что добавлялось, что переписывалось, что убиралось. Сверху — самые свежие изменения.</p>
+    <div class="cl-stats" id="cl-stats"></div>
+    <div class="cl-legend" id="cl-legend"></div>
+  </div>
+</section>
+
+<div class="wrap timeline" id="timeline"></div>
+
+<footer class="cl-footer mono">ANITECH · обучающая платформа · <span id="cl-generated"></span></footer>
+
+<script>
+// ── справочник лаб: цвет + подпись ──────────────────────────────────────
+var LABS = {
+  site:        { label: 'Сайт / инфраструктура', color: '#7df9ff' },
+  rabbitmq:    { label: 'RabbitMQ Lab',           color: '#FF6600' },
+  traefik:     { label: 'Traefik Lab',            color: '#14B8A6' },
+  redis:       { label: 'Redis Lab',              color: '#DC382D' },
+  'php-coffee':{ label: 'OOP Lab',                color: '#777BB4' },
+  vue:         { label: 'Vue Lab',                color: '#42B883' },
+  typescript:  { label: 'TypeScript Lab',         color: '#3178C6' },
+  laravel:     { label: 'Laravel Lab',            color: '#FF2D20' },
+  docker:      { label: 'Docker Lab',             color: '#2496ED' },
+  php:         { label: 'Чистый PHP Lab',         color: '#C9A876' },
+  js:          { label: 'Чистый JS Lab',          color: '#F4D35E' },
+  kubernetes:  { label: 'Kubernetes Lab',         color: '#326CE5' },
+  nestjs:      { label: 'NestJS Lab',             color: '#E0234E' },
+  graphql:     { label: 'GraphQL Lab',            color: '#E535AB' },
+  postgresql:  { label: 'PostgreSQL Lab',         color: '#4A90D9' },
+  nuxt:        { label: 'Nuxt Lab',               color: '#00DC82' },
+  angular:     { label: 'Angular Lab',            color: '#CC26D5' },
+  css:         { label: 'CSS Lab',                color: '#2965F1' },
+  tailwind:    { label: 'Tailwind Lab',           color: '#38BDF8' },
+  inertia:     { label: 'Inertia Lab',            color: '#8B5CF6' },
+  'laravel-performance': { label: 'Laravel Performance Lab', color: '#0e7490' },
+  'algorithms-php': { label: 'Algorithms PHP Lab', color: '#b45f06' },
+};
+
+var TYPES = {
+  added:   { label: 'Добавлено',      color: 'var(--added)' },
+  changed: { label: 'Изменено',       color: 'var(--changed)' },
+  removed: { label: 'Удалено',        color: 'var(--removed)' },
+  renamed: { label: 'Переименовано',  color: 'var(--renamed)' },
+};
+
+// ── хронология по дням ──────────────────────────────────────────────────
+var DAYS = [
+{date:'2026-09-07', title:'RabbitMQ-лаба стартовала сама по себе — общего репозитория ещё не существует', items:[
+  {lab:'rabbitmq', type:'added', text:'Первый набросок методички RabbitMQ, <code>docker-compose.yml</code> и конфиг брокера (<code>definitions.json</code>, <code>rabbitmq.conf</code>).'},
+  {lab:'rabbitmq', type:'changed', text:'Черновой план заменён на подробную версию <code>v1_pro_max</code>; случайно закоммиченный <code>.env</code> обезврежен переименованием в инертный <code>text.txt</code> (секретов в нём не было, но привычка правильная).'},
+]},
+{date:'2026-09-08', title:'RabbitMQ: от плана к настоящему коду', items:[
+  {lab:'rabbitmq', type:'added', text:'Поднят полноценный скелет Laravel 13 внутри лабы (конфиги, миграции, тесты) и добавлен <code>docs/rabbit.md</code>; старый дублирующий файл плана удалён.'},
+  {lab:'rabbitmq', type:'changed', text:'Донастроены <code>docker-compose.yml</code> и конфиг RabbitMQ.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлены Eloquent-модели домена заказов — <code>Order</code>, <code>OrderItem</code>, <code>OrderEvent</code>, <code>OutboxMessage</code>, <code>ProcessedMessage</code>, <code>Product</code> — и миграция таблиц.'},
+  {lab:'rabbitmq', type:'changed', text:'У моделей заказа донастроены связи и приведения типов.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлен <code>OutboxWriter</code> — сервис, который пишет запись Transactional Outbox в той же транзакции, что и сам заказ.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлены <code>OrderController</code> и маршрут создания заказа.'},
+]},
+{date:'2026-09-10', title:'RabbitMQ: воркеры и AMQP-слой', items:[
+  {lab:'rabbitmq', type:'added', text:'Добавлена фабрика AMQP-соединений, подключена библиотека для работы с AMQP.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлен базовый абстрактный класс воркера — <code>AbstractAmqpWorker</code>.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлен <code>OutboxRelayCommand</code> — процесс, вычитывающий outbox и публикующий сообщения в очередь; подключён в docker-compose.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлены три конкурирующих воркера — <code>order</code>, <code>email</code>, <code>analytics</code> — и подключены в docker-compose.'},
+]},
+{date:'2026-09-11', title:'Родился общий репозиторий-хаб — Traefik и Redis присоединяются к RabbitMQ', items:[
+  {lab:'traefik', type:'added', text:'Первый набросок плана лабы Traefik.'},
+  {lab:'redis', type:'added', text:'Первый набросок плана лабы Redis.'},
+  {lab:'traefik', type:'added', text:'Добавлена альтернативная (v1) версия плана Traefik — позже станет канонической.'},
+  {lab:'site', type:'added', text:'<b>Родился общий репозиторий</b> <code>submodule-group-lab</code>: RabbitMQ, Redis и Traefik подключены как git submodules.', milestone:true},
+  {lab:'site', type:'changed', text:'Опечатка <code>readmy.md</code> исправлена на <code>README.md</code>, сабмодули перенесены из служебной папки <code>modules/</code> в корень репозитория.'},
+  {lab:'site', type:'changed', text:'README дополнен содержательным обзором лаб (пара правок подряд).'},
+  {lab:'rabbitmq', type:'added', text:'Добавлены Makefile и <code>docs/order-path-explained.md</code> — пошаговый разбор пути заказа.'},
+  {lab:'site', type:'added', text:'Добавлен <code>.gitignore</code>, чтобы папка <code>.idea/</code> не попадала в репозиторий.'},
+]},
+{date:'2026-09-13', title:'Самый плотный ранний день: OOP-лаба, Vue и TypeScript стартуют, RabbitMQ дописан до конца', items:[
+  {lab:'rabbitmq', type:'added', text:'Добавлен <code>ProductSeeder</code> для локального тестирования.'},
+  {lab:'rabbitmq', type:'added', text:'Добавлена команда <code>lab:orders</code> — генератор нагрузки для проверки <code>prefetch</code>.'},
+  {lab:'rabbitmq', type:'changed', text:'Исправлен хук <code>LAB_CRASH_BEFORE_ACK</code>: ядро Linux игнорирует <code>SIGKILL</code> для процесса с PID 1 в контейнере — воркер переведён на обычный <code>exit()</code>.'},
+  {lab:'php-coffee', type:'added', text:'<b>Родилась лаба OOP</b> (Coffee Shop API): инициализация репозитория и первый план методички.', milestone:true},
+  {lab:'site', type:'added', text:'Лаба OOP подключена как сабмодуль <code>php-coffee</code>.'},
+  {lab:'php-coffee', type:'removed', text:'Убрано неиспользуемое превью-изображение.'},
+  {lab:'site', type:'changed', text:'Обновлены URL сабмодулей после переименования репозиториев на GitHub.'},
+  {lab:'rabbitmq', type:'changed', text:'Добавлены читатель DLQ, retry с TTL→DLX для писем и сравнение с нативными Laravel Queue Jobs (шаги 5.3–5.4).'},
+  {lab:'site', type:'changed', text:'В README добавлена лаба OOP, описана каждая лаба отдельно.'},
+  {lab:'rabbitmq', type:'changed', text:'Добавлена fanout-рассылка (broadcast), ответы на вопросы для самопроверки и подборка материалов для чтения (шаг 6.2).'},
+  {lab:'site', type:'changed', text:'<b>Лаба RabbitMQ отмечена как пройденная</b> — README указывает на готовый пример в сабмодуле.', milestone:true},
+  {lab:'vue', type:'added', text:'Инициализация репозитория Vue-лабы.'},
+  {lab:'typescript', type:'added', text:'Инициализация репозитория TypeScript-лабы.'},
+  {lab:'site', type:'added', text:'Подключены сабмодули <code>vue-lab</code> и <code>typescript-lab</code>.'},
+  {lab:'vue', type:'changed', text:'Плейсхолдер-иконка заменена на реальную обложку (<code>vue-anime.png</code>).'},
+  {lab:'php-coffee', type:'changed', text:'Методичка OOP перенесена в <code>docs/</code>, добавлены заготовки <code>order-path-explained.md</code>, <code>php.md</code>, <code>self-check-answers.md</code>.'},
+  {lab:'vue', type:'added', text:'Добавлен план Vue-лабы: Helpdesk.'},
+  {lab:'site', type:'changed', text:'В README описан план Vue Helpdesk-лабы.'},
+  {lab:'typescript', type:'added', text:'Добавлен план TypeScript-лабы: Warehouse (складской учёт).'},
+  {lab:'site', type:'changed', text:'В README описан план TypeScript Warehouse-лабы.'},
+  {lab:'site', type:'changed', text:'В README добавлены рейтинг сложности и пререквизиты для каждой лабы.'},
+  {lab:'php-coffee', type:'added', text:'<b>Сессия 1</b>: docker-compose и полный скелет Laravel 13 (~60 файлов), исправлена авторизация RabbitMQ в <code>definitions.json</code>.'},
+  {lab:'php-coffee', type:'added', text:'Шаг 1.2: касса на массивах без ООП (<code>lab0/01_arrays.php</code>) — чтобы почувствовать боль без объектов.'},
+  {lab:'php-coffee', type:'added', text:'Шаг 1.3: первый объект-значение <code>Money</code>.'},
+  {lab:'php-coffee', type:'added', text:'Шаг 1.4: наследование и полиморфизм напитков (<code>Drinks.php</code>).'},
+  {lab:'php-coffee', type:'added', text:'Шаг 1.5: заказ с инвариантами — сессия 1 лабы OOP завершена.'},
+]},
+{date:'2026-09-15', title:'Стартует Laravel-лаба', items:[
+  {lab:'laravel', type:'added', text:'<b>Родилась лаба Laravel</b>: инициализация репозитория и план TaskFlow.', milestone:true},
+  {lab:'site', type:'added', text:'Сабмодуль <code>laravel-lab</code> подключён (до этого висел битой записью в <code>.gitmodules</code>).'},
+  {lab:'site', type:'changed', text:'В README описана лаба Laravel.'},
+]},
+{date:'2026-09-16', title:'У всех лаб появились README с обложками', items:[
+  {lab:'site', type:'added', text:'Разом во всех лабах — <b>Redis, Laravel, RabbitMQ, TypeScript, OOP, Vue</b>, а следом и <b>Traefik</b> — появились полноценные README с обзором и превью-картинкой; обложки временно легли в <code>images/</code> корневого репозитория.'},
+]},
+{date:'2026-09-18', title:'Стартует Docker-лаба, и на сайте впервые появляется лендинг', items:[
+  {lab:'traefik', type:'removed', text:'Старый (самый первый) черновик плана Traefik удалён.'},
+  {lab:'traefik', type:'renamed', text:'Альтернативная версия плана переименована в канонический <code>Docker_and_Traefik_Lab_Plan.html</code>.'},
+  {lab:'docker', type:'added', text:'<b>Родилась лаба Docker</b>: репозиторий, обложка и методичка «Docker + Bash Lab».', milestone:true},
+  {lab:'site', type:'added', text:'Сабмодуль <code>docker-lab</code> подключён.'},
+  {lab:'site', type:'added', text:'<b>На сайте появился первый лендинг</b> (<code>index.html</code>).', milestone:true},
+  {lab:'docker', type:'changed', text:'README лабы Docker дополнен описанием.'},
+  {lab:'site', type:'changed', text:'Лендинг переписан без зависимости от Tailwind CDN — чистый CSS.'},
+  {lab:'site', type:'changed', text:'Тема лендинга переключена на светло-розовую, исправлено выравнивание кнопок на карточках.'},
+  {lab:'site', type:'changed', text:'Каждая карточка лабы окрашена в фирменный цвет своей технологии.'},
+  {lab:'site', type:'changed', text:'Обложка Traefik заменена на настоящую (была временная <code>docker.png</code>).'},
+  {lab:'site', type:'removed', text:'Убрано фото автора, переписан блок «об авторе».'},
+]},
+{date:'2026-09-20', title:'Самый насыщенный день: родился works, сайт переехал на тёмную неоновую тему, активированы Чистый JS и Чистый PHP', items:[
+  {lab:'site', type:'added', text:'<b>Родился отдельный сабмодуль <code>works</code></b> — стилизованные страницы-методички для каждой лабы (общий <code>lab.js</code>/<code>lab.css</code> + первые 8 страниц).', milestone:true},
+  {lab:'site', type:'changed', text:'Превью-картинки лаб перенесены из корня в <code>works/images</code>.'},
+  {lab:'site', type:'changed', text:'<b>Лендинг полностью переделан в тёмную неоновую тему</b> — тот самый стиль, что и сейчас; старые превью-картинки в корне удалены, они переехали в <code>works</code>.', milestone:true},
+  {lab:'site', type:'added', text:'Во всех лабах, ещё не начатых по-настоящему — <b>Redis, Laravel, TypeScript, Docker, Vue, Traefik</b> — размечена одинаковая заготовка структуры проекта: <code>docs/</code>, папка приложения, Makefile, docker-compose.'},
+  {lab:'site', type:'changed', text:'Заготовки структуры уточнены под реальный план каждой лабы (нужные подпапки под <code>api/</code>, <code>web/</code>, <code>db/</code> и так далее), у всех выровнено расширение <code>docker-compose.yml</code> (было <code>.yaml</code>) — Docker в том числе.'},
+  {lab:'site', type:'changed', text:'Баннер в README теперь по абсолютной ссылке — <code>works</code> стал отдельным сабмодулем, и относительный путь перестал работать.'},
+  {lab:'site', type:'changed', text:'Таблица лаб в README пересортирована по сложности и зависимостям, убрана колонка статуса.'},
+  {lab:'site', type:'changed', text:'В README анонсированы будущие лабы «Чистый PHP» и «Чистый JS» (в разработке).'},
+  {lab:'site', type:'added', text:'Созданы пустые репозитории <code>php-lab</code> и <code>js-lab</code> — заглушки под будущие лабы.'},
+  {lab:'site', type:'added', text:'Для лаб PHP и JS на сайте появились обложки и карточки-заглушки.'},
+  {lab:'site', type:'removed', text:'На страницах лаб убран бейдж статуса «не начата / выполнена» — решили не размечать прогресс так грубо.'},
+  {lab:'js', type:'changed', text:'<b>«Чистый JS» стал настоящей лабой</b>: полная методичка «Vanilla Helpdesk», карточка на сайте, раздел в README, место в очереди — перед Vue и TypeScript.', milestone:true},
+  {lab:'rabbitmq', type:'added', text:'В Makefile добавлена команда <code>install-laravel</code>.'},
+  {lab:'site', type:'changed', text:'Hero-секция лендинга переделана: блок «об авторе» теперь сверху, двухколоночная раскладка, счётчик лаб исправлен на 10.'},
+  {lab:'site', type:'added', text:'Подключён собственный домен — добавлен файл <code>CNAME</code>.'},
+  {lab:'site', type:'changed', text:'Мелкая уборка вёрстки лендинга, починен переход по клику на карточку (он вёл на страницу лабы, но сломался при переделке разметки).'},
+  {lab:'php', type:'changed', text:'<b>«Чистый PHP» получил полную методичку</b> «Vanilla Coffee», поправлены технические неточности, лаба активирована везде — README, лендинг, страница лабы.', milestone:true},
+  {lab:'php', type:'changed', text:'Уточнена сложность лабы «Чистый PHP» — снижена до «Базовая».'},
+]},
+{date:'2026-09-21', title:'Короткий день — разбирались с доменом', items:[
+  {lab:'site', type:'changed', text:'Домен (<code>CNAME</code>) на минуту отключили и сразу вернули — похоже, разбирались с настройками DNS.'},
+]},
+{date:'2026-09-22', title:'Стартует Kubernetes, рождаются NestJS и GraphQL, на сайте — модалка «О проекте»', items:[
+  {lab:'kubernetes', type:'added', text:'<b>Родилась лаба Kubernetes</b> сразу «живой», без промежуточной заглушки: план, README, обложка, карточка и страница на сайте — всё за один день.', milestone:true},
+  {lab:'site', type:'changed', text:'На страницах всех лаб появилась модалка «Оглавление» с деревом разделов методички.'},
+  {lab:'site', type:'changed', text:'Карточки на лендинге пересортированы.'},
+  {lab:'nestjs', type:'added', text:'<b>Родился репозиторий NestJS Lab</b> (заготовка: Makefile, README, docker-compose).', milestone:true},
+  {lab:'graphql', type:'added', text:'<b>Родился репозиторий GraphQL Lab</b> (заготовка: Makefile, README, docker-compose).', milestone:true},
+  {lab:'nestjs', type:'added', text:'Добавлена первая полная версия методички — Helpdesk API, специально привязанный к бэкенду из Vue Lab.'},
+  {lab:'site', type:'changed', text:'Лаба NestJS появилась на лендинге: карточка и раздел в README.'},
+  {lab:'graphql', type:'added', text:'Добавлена первая полная версия методички — тот же Helpdesk-backend, но без REST, через резолверы.'},
+  {lab:'site', type:'changed', text:'Лаба GraphQL появилась на лендинге: карточка и раздел в README.'},
+  {lab:'nestjs', type:'changed', text:'Методичка дополнена блоками «под капотом», списками чтения перед каждым шагом и глоссарием со сносками.'},
+  {lab:'graphql', type:'changed', text:'Методичка дополнена блоками «под капотом», списками чтения перед каждым шагом и глоссарием со сносками.'},
+  {lab:'site', type:'added', text:'На лендинге появилась модалка «О проекте» с описанием трёх направлений — фронтенд, бэкенд, devops.'},
+  {lab:'site', type:'changed', text:'Модалка «О проекте» теперь сама открывается при первом визите и запоминает закрытие через <code>localStorage</code>.'},
+  {lab:'site', type:'added', text:'В блок «об авторе» под ссылку на GitHub добавлена ссылка на Telegram.'},
+  {lab:'site', type:'added', text:'В список навыков автора добавлены недостающие чипы технологий.'},
+]},
+{date:'2026-09-23', title:'NestJS и GraphQL переписаны с нуля, сайт ожил на GSAP, начат аудит методичек', items:[
+  {lab:'site', type:'removed', text:'Из README убрана фотография автора в разделе «Автор».'},
+  {lab:'nestjs', type:'changed', text:'<b>Методичка NestJS переписана с нуля</b> как куда более глубокий и полностью самостоятельный проект: свой мини-DI контейнер, JWT-ротация refresh-токенов с обнаружением повторного использования, RBAC через <code>TicketPolicy</code>, доменные события, WebSocket-шлюз с комнатами, свой динамический модуль.', milestone:true},
+  {lab:'graphql', type:'changed', text:'<b>Методичка GraphQL переписана с нуля</b> как самостоятельный проект <b>CineGraph</b> — свой домен (каталог фильмов), больше не завязанный на Helpdesk из NestJS Lab.', milestone:true},
+  {lab:'site', type:'changed', text:'Карточки NestJS/GraphQL на сайте обновлены под новый контент, стилизован скролл в модалке оглавления.'},
+  {lab:'site', type:'changed', text:'Обновлены ссылки на сабмодули и README/лендинг под переписанные методички.'},
+  {lab:'site', type:'added', text:'<b>Сайт переведён на анимации GSAP</b>: шапка прячется при прокрутке вниз и возвращается при прокрутке вверх, полоса прогресса привязана к скроллу, пункт меню подсвечивается у своего раздела, модалка «О проекте» вырастает из кнопки (Flip).', milestone:true},
+  {lab:'site', type:'added', text:'Загрузочный экран при каждом переходе между страницами: название лабы в её фирменном цвете и SVG-фигуры, которые через <code>MorphSVGPlugin.convertToPath()</code> перетекают одна в другую. GSAP обновлён до 3.13.'},
+  {lab:'site', type:'added', text:'Любая картинка на сайте — обложка в карточке, фото автора, обложка на странице лабы — по клику раскрывается на весь экран и возвращается на место (Flip).'},
+  {lab:'site', type:'changed', text:'Модалка «Оглавление» теперь работает на одной прерываемой анимации «появление → пауза → исчезание», а разделы оглавления раскрываются плавно, а не рывком.'},
+  {lab:'site', type:'changed', text:'Исправлен наклон карточек при наведении: раньше двигалась только первая, остальным мешала CSS-задержка анимации появления.'},
+  {lab:'site', type:'added', text:'Секции лендинга стали слоями: при прокрутке каждая следующая наезжает на предыдущую, а та закрепляется, уменьшается и затемняется.'},
+  {lab:'site', type:'changed', text:'Changelog: новые записи теперь сверху, исправлены опечатки и склонение счётчика событий.'},
+  {lab:'site', type:'added', text:'<b>Начат аудит всех методичек</b>: появилась папка <code>fixes/</code> — по файлу находок на каждую лабу, граф зависимостей и рекомендуемый порядок прохождения (<code>_order.md</code>), общие вопросы по версиям (<code>site.md</code>), инструкция и скрипт нарезки методички для вычитки агентами. Вычитаны Чистый PHP (12 находок), Чистый JS (23), Vue (12) и TypeScript (13).', milestone:true},
+  {lab:'site', type:'changed', text:'Обложки в карточках лендинга переведены на лёгкие WebP-превью.'},
+]},
+{date:'2026-09-24', title:'Большая вычитка: все 11 методичек проверены построчно и исправлены', items:[
+  {lab:'site', type:'added', text:'Вычитка <b>NestJS</b>: 4 находки — неверные номера заданий Production Hell, пример в шаге 6.2, не учитывающий состояние тикета после шага 4.4, конфликт нумерации шагов 10.x с разделом 10.'},
+  {lab:'site', type:'added', text:'Вычитка <b>Docker</b>: 8 находок, в основном ссылки на несуществующие разделы.'},
+  {lab:'site', type:'changed', text:'Промпт агентов-вычитчиков ужесточён: читать части целиком, сверять имена и порты между шагами, проверять код локально и писать «расхождений нет» только с перечнем проверенного.'},
+  {lab:'site', type:'added', text:'Вычитка <b>Kubernetes</b>: 9 находок — ссылки на неверные разделы Traefik-лабы, не заданный <code>POSTGRES_DB</code>, путаница ролей controller-manager и scheduler.'},
+  {lab:'site', type:'added', text:'Вычитка <b>Traefik</b>: 18 находок — canary не работал (сервисы без суффикса <code>@docker</code>), порядок middlewares ломал CORS на 429, не хватало <code>package.json</code> и <code>frontend/Dockerfile</code>, <code>chmod 600 acme.json</code> предлагалось пропустить.'},
+  {lab:'site', type:'added', text:'<b>Проверка связности DevOps-цепочки</b> Docker → Traefik → Kubernetes (<code>fixes/_chain_devops.md</code>): что каждая лаба берёт у предыдущей и что используется без объяснения.', milestone:true},
+  {lab:'site', type:'added', text:'Вычитка <b>Redis</b> (7 находок: неверный порядок аргументов <code>SET NX PX</code>, VIP-очередь выдавала заказы LIFO), <b>GraphQL</b> (3 — самая чистая методичка) и <b>Laravel</b> (22). Каждая находка перепроверена: 4 сняты или уточнены после сверки с исходниками пакетов.'},
+  {lab:'site', type:'changed', text:'Во всех файлах <code>fixes/</code> отмечены решения по каждому вопросу: PostgreSQL 17 везде, «Node 22+ (24 LTS тоже подходит)», Redis 7, Prisma 6 в NestJS и 7 в GraphQL — намеренно.'},
+  {lab:'graphql', type:'changed', text:'Исправлены: число SQL в примере N+1 (≈43), несуществующая опция <code>nullable</code> в <code>buildSchemaOptions</code>, недостаточная вложенность запроса интроспекции.'},
+  {lab:'typescript', type:'changed', text:'Исправлены примеры кода и тексты ошибок компилятора (проверены <code>tsc --strict</code>), структура playground; «TypeScript 5.x (≥ 5.6)».'},
+  {lab:'nestjs', type:'changed', text:'Шаги сессии 5 перенумерованы в 9.3–9.5, номера заданий Production Hell, контрпример в шаге 6.2; убрано обещание совместимости с Vue-фронтом; PostgreSQL 17.'},
+  {lab:'redis', type:'changed', text:'Лок от cache stampede реально ставится (<code>\'PX\', 3000, \'NX\'</code>), VIP-очередь снова FIFO, шаг 2.1 переименован в «Атомарный Lua-скрипт», шпаргалка и README согласованы; строчка про Redis 8.'},
+  {lab:'kubernetes', type:'changed', text:'Лаба стала самодостаточной: блок «Перед стартом» с kind/kubectl и полным кодом <code>api/</code>; версии kind v0.24.0 / Kubernetes v1.31.0; <code>POSTGRES_DB</code>; Adminer закрыт basicAuth через Middleware CRD; ссылки на Traefik-лабу исправлены.'},
+  {lab:'js', type:'changed', text:'Починен <code>throttle</code> — тест из методички теперь проходит; мок через DI вместо неработающего <code>t.mock.method</code>; исправлены примеры с <code>this</code>, каррированием и оглавление.'},
+  {lab:'vue', type:'changed', text:'Бэкенд подписан как «готовый мини-бэкенд (Node)»; шаг 4.3 явно убирает событие <code>select</code>; исправлены <code>load()</code>, порядок <code>use(pinia)</code>/<code>use(router)</code> и номера сессий; «Vite 6+ / Pinia 2+».'},
+  {lab:'laravel', type:'changed', text:'<code>statefulApi()</code> для SPA, рабочая навигация Vue-фронта, throttle на создание задач внутри <code>v1</code>, <code>TaskAssignerTest</code> через <code>Event::fake</code>, единый <code>deleted()</code> в observer, поиск ключей Redis по шаблону; отсылки к OOP-лабе и запасной путь для RabbitMQ-драйвера.'},
+  {lab:'docker', type:'changed', text:'Ссылки на разделы, объяснение порта <code>"3000:8080"</code>, добавлены <code>host:container:ro</code> и <code>--scale</code> (на них опирается Traefik-лаба); PostgreSQL 17.'},
+  {lab:'traefik', type:'changed', text:'Canary через <code>api@docker</code>, CORS-заголовки перед rate limit, обязательный <code>chmod 600 acme.json</code>, секреты в <code>.env</code>, недостающие файлы фронта и API, mkcert подключён к роутеру; PostgreSQL 17.'},
+  {lab:'php', type:'changed', text:'Лаба больше не считает Laravel-лабу пройденной: Container и Decorator — «видели в OOP-лабе», Sanctum и 419 — «встретите в Laravel-лабе» с точными номерами разделов; исправлены иерархия Throwable, <code>PDO::ATTR_ERRMODE</code>, <code>session_start()</code>, Container v2.'},
+  {lab:'site', type:'removed', text:'В 8 лабах удалены пустые заглушки <code>docker-compose.yml</code> и <code>Makefile</code> — методички создают их по шагам.'},
+  {lab:'site', type:'changed', text:'<b>Все правки внесены</b>: сабмодули 11 лаб обновлены; корневой README и карточки лендинга выровнены — порядок прохождения переписан, PostgreSQL 17, Node 22+, TypeScript 5.x, Vue без упоминания NestJS, фраза про Prisma 6 vs 7.', milestone:true},
+  {lab:'site', type:'changed', text:'Changelog дополнен хронологией вычитки и правок.'},
+  {lab:'site', type:'added', text:'Повторная, более глубокая вычитка NestJS (части 2–5 и 7): новых ошибок нет — первый проход здесь был верным.'},
+  {lab:'site', type:'changed', text:'Страницы лаб на сайте (<code>works</code>) сверены с исправленными методичками: чипы стека — PostgreSQL 17, Node 22+, TypeScript 5.x, Vue без NestJS, версии kind/Kubernetes.'},
+  {lab:'site', type:'added', text:'<b>Проверена связность фронтенда и бэкенда</b>: JS → Vue → TypeScript (8 находок) и OOP → Чистый PHP → RabbitMQ → Redis → Laravel (9 находок) — <code>fixes/_chain_frontend.md</code>, <code>fixes/_chain_backend.md</code>.', milestone:true},
+  {lab:'vue', type:'changed', text:'Мостики к JS-лабе: Proxy-реактивность уже собиралась руками, почему здесь долгоживущие сервисы вместо <code>exec dev</code>, соответствие <code>node --test</code> → Vitest; честная формулировка упражнения «TicketCard на TS».'},
+  {lab:'typescript', type:'changed', text:'Пояснено, почему API-слой возвращает <code>Result</code>, а не бросает исключение; мостик к <code>defineProps&lt;{…}&gt;()</code>, флаги скаффолда и осознанное отсутствие компонентных тестов.'},
+  {lab:'laravel', type:'changed', text:'Вместо несуществующих в RabbitMQ-лабе «Worker Kit» и <code>RetryChainPolicy</code> — ссылка на реальный retry через <code>x-retry-count</code> и TTL → DLX.'},
+  {lab:'redis', type:'changed', text:'Пояснено, что колонка <code>orders.priority</code> — пометка в схеме, а реальный приоритет живёт в ZSet.'},
+  {lab:'php-coffee', type:'changed', text:'<b>OOP-лаба вычитана и исправлена</b> (13 находок): вход в RabbitMQ UI, полные заголовки файлов в шагах 4.2 и 5.1, переключение акций и уведомлений через <code>.env</code>, верные числа в примерах; ссылки на RabbitMQ и Redis — в будущем времени, без выдуманных сущностей.', milestone:true},
+  {lab:'site', type:'changed', text:'README выровнены: в главном README — блок «Аудит и вычитка» со ссылками на <code>fixes/</code> и changelog, OOP-лаба отмечена исправленной; README OOP-лабы — PostgreSQL 17 и RabbitMQ Lab как следующий по порядку этап. README остальных лаб уже соответствуют исправленным методичкам (проверено поиском по всем файлам).'},
+  {lab:'site', type:'added', text:'В главный README добавлен раздел «Как это выглядит» — скриншоты карточек на главной, страницы лабы, оглавления и методички (на примере NestJS Lab).'},
+]},
+{date:'2026-09-25', title:'Родилась PostgreSQL-лаба — четырнадцатая', items:[
+  {lab:'postgresql', type:'added', text:'<b>Родился репозиторий PostgreSQL Lab</b> и сразу подключён сабмодулем <code>postgresql/</code>.', milestone:true},
+  {lab:'postgresql', type:'added', text:'Добавлена методичка <b>«Coffee Shop изнутри»</b>: семь сессий — от JOIN с нуля на песочнице до EXPLAIN, индексов B-tree/GIN/BRIN, статистики, N+1 глазами базы, уровней изоляции, блокировок и дедлоков, MVCC/VACUUM и партиционирования на миллионе заказов кофейни; финал — Production Hell.'},
+  {lab:'postgresql', type:'added', text:'Обложка лабы (<code>PostgreSQL.png</code>) и её WebP-превью для карточки и страницы лабы.'},
+  {lab:'postgresql', type:'added', text:'README лабы: о чём, стек (PostgreSQL 17 + <code>psql</code> + <code>pgbench</code>, без ORM), формат и план по сессиям.'},
+  {lab:'site', type:'added', text:'Лаба PostgreSQL появилась на сайте: карточка на лендинге (бэкенд), страница <code>works/postgresql.html</code> с оглавлением методички, раздел 14 в README; счётчики лаб — 14.'},
+  {lab:'site', type:'added', text:'В блок «об авторе» добавлен чип PostgreSQL.'},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code> PostgreSQL добавлена в порядок прохождения (самостоятельная, №14) и в таблицу вычитки — пока не начата.'},
+]},
+{date:'2026-09-26', title:'PostgreSQL, RabbitMQ и Nuxt вычитаны, родились Nuxt- и Angular-лабы — пятнадцатая и шестнадцатая', items:[
+  {lab:'postgresql', type:'changed', text:'<b>Методичка вычитана построчно</b> (13 частей, 10 находок) и исправлена: диаграмма схемы данных (<code>inventory</code> 8 000 → 4 000), оборванная фраза про background writer, тренировка на <code>\\gset</code> использовала ещё не созданную таблицу <code>customers</code>, число активных заказов в шаге 4.2 (0,3% → 0,15%) и неверный индекс в сравнении размеров, перепутанный субъект в объяснении <code>SKIP LOCKED</code>, дедлок на бонусах падал на собственный <code>CHECK</code>, отсутствующий <code>DROP INDEX</code> перед пересозданием <code>CONCURRENTLY</code> в шаге 10.1.', milestone:true},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code> таблица вычитки: PostgreSQL — «✅ пройдено 26.09» (10 находок), решение по варианту A применено.'},
+  {lab:'rabbitmq', type:'changed', text:'<b>Методичка вычитана дополнительно</b>, хотя лаба уже пройдена пользователем без замеченных ошибок (5 частей, 6 находок) и исправлена: quorum-очереди не «ограниченно», а вообще не поддерживают <code>x-max-priority</code>; consumer priority — с RabbitMQ 3.2, а не «3.8+»; перечитывание <code>definitions.json</code> через <code>docker compose restart</code> вместо <code>down -v</code>, сносившего volume postgres; таблица outbox называла таблицу «outbox» вместо <code>outbox_messages</code>; <code>LAB_CRASH_BEFORE_ACK</code>/<code>LAB_SIMULATE_SMTP_FAILURE</code> не долетали до воркеров (только <code>env_file</code>, без <code>environment:</code>) — оба crash-теста не воспроизводились как написано; перенумерован глоссарий (термины 18–21 не совпадали с порядком появления в тексте).', milestone:true},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code> таблица вычитки: RabbitMQ — «✅ пройдено 26.09» (6 находок), решение по варианту A применено; RabbitMQ больше не отмечена как «не вычитываем».'},
+  {lab:'site', type:'changed', text:'<b>Папка <code>fixes/</code> вынесена в отдельный репозиторий <code>lab-fixes</code></b> и подключена сабмодулем по тому же пути — содержимое то же, но теперь со своей историей. Во всех 14 лабах ссылка на файл вычитки в README ведёт в новый репозиторий.', milestone:true},
+  {lab:'site', type:'added', text:'<b>На главной появился раздел «Маршруты обучения»</b>: вкладки по трекам (все / фронтенд / Node / PHP / DevOps), цепочка лаб в порядке прохождения во всю ширину и карта зависимостей по дорожкам со стрелками, подсвечивающими выбранный путь; в hero — короткое вступление со ссылкой на треки. Порядок технологий сведён к одному везде на странице.', milestone:true},
+  {lab:'nuxt', type:'added', text:'<b>Родился репозиторий Nuxt Lab</b> и подключён сабмодулем <code>nuxt/</code>: заглушка с README и обложкой (<code>Nuxt.png</code>) и её WebP-превью.', milestone:true},
+  {lab:'site', type:'added', text:'Лаба Nuxt появилась на сайте: карточка на лендинге (фронтенд, пока «Методичка скоро»), страница <code>works/nuxt.html</code>, раздел 15 в README; в карте маршрутов — ветка TypeScript → Nuxt во фронтенд-треке; счётчики лаб — 15.'},
+  {lab:'nuxt', type:'added', text:'Добавлена методичка <b>«Help Center»</b>: Nuxt 4 + TypeScript, шесть сессий (~20,5 ч) — файловый роутинг и SSR руками, <code>useFetch</code>, payload и hydration mismatch, Nitro + Drizzle/SQLite и общие Zod-схемы в <code>shared/</code>, сессии и утечка состояния между пользователями, Nuxt Content и <code>routeRules</code> (SSG, SWR, SPA), SEO, тесты и multi-stage Docker. Почти в каждой сессии — шаг «сначала сломать, потом починить».'},
+  {lab:'nuxt', type:'changed', text:'README лабы: заглушка заменена на полный обзор — о чём, стек, формат и план по сессиям.'},
+  {lab:'site', type:'changed', text:'Карточка и страница Nuxt Lab открывают методичку, оглавление подтягивается на <code>works/nuxt.html</code>; в README убрана пометка «заглушка», раздел 15 расписан по сессиям. В <code>fixes/</code> Nuxt добавлена в порядок прохождения (№15, после Vue и TypeScript) и в таблицу вычитки.'},
+  {lab:'nuxt', type:'changed', text:'<b>Методичка вычитана и исправлена</b> (8 частей, 10 находок): два <code>useFetch</code> с одним URL в разных строках не делят данные — автоключ включает место вызова, шаг 2.2 переписан на явный <code>key</code>; комментарий в конце строки <code>COPY</code> ломал сборку prod-образа в шаге 6.4; «чужое» обращение №3 в шаге 4.3 на деле принадлежит Борису; фильтр «В работе» и поиск по «пароль» возвращают больше, чем в ожидаемом результате; middleware первой страницы повторяется в браузере при гидрации; мелочи в деревьях <code>.nuxt/</code> и проекта. Удалены пустые заглушки <code>docker-compose.yml</code> и <code>Makefile</code>.', milestone:true},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code>: <code>nuxt.md</code> с находками, таблица вычитки — Nuxt «✅ пройдено 26.09» (10 находок), решение по варианту A применено; <code>prep.py</code> умеет нарезать Nuxt.'},
+  {lab:'site', type:'changed', text:'Слайды категорий в «Работах» получили пустое место снизу: у высоких категорий (бэкенд) нижний ряд карточек стоял вплотную к краю экрана, и кнопку «Открыть методичку» сразу перекрывал следующий слайд.'},
+  {lab:'site', type:'changed', text:'Проверка всего сайта после редизайна: на телефоне шапка больше не шире экрана, декоративные ленты не дают сдвигать страницу вбок, длинные названия лаб (KUBERNETES, POSTGRESQL) помещаются в заголовок, код в «Хронологии» переносится. Появилась иконка вкладки. Скриншоты в «О проекте» и README пересняты в новом дизайне; выровнены данные лаб между главной и страницами (стек JS и Kubernetes, описание Nuxt), обновлены устаревшие тексты в README и в описаниях направлений.'},
+  {lab:'site', type:'changed', text:'<b>Редизайн «аниме-опенинг»</b>: сайт стал обучающей платформой в стилистике аниме-заставки. Первый экран — анимированный заголовок ANITECH со вспышкой, лучами и глитчем; лабы пронумерованы, категории стали направлениями, разделы — главами с плашками; карточки в рамках манги с жёсткой тенью и звёздами сложности; на карте маршрутов у каждой лабы окошко «к карточке / методичка». Все 15 страниц лаб — в том же стиле, с превью предыдущей и следующей лабы; «Хронология» — тоже. Шрифты с кириллицей: Dela Gothic One, Onest, JetBrains Mono.', milestone:true},
+  {lab:'site', type:'renamed', text:'<b>Общий репозиторий переименован</b>: <code>submodule-group-lab</code> → <code>anitech-performance</code>, под бренд сайта. Ссылки в README всех 15 лаб, на главной и в хронологии ведут на новое имя; старые ссылки GitHub перенаправляет сам.', milestone:true},
+  {lab:'php-coffee', type:'changed', text:'<b>Прохождение OOP Lab начато заново</b> по исправленной методичке: первая попытка (Laravel-скелет, <code>docker-compose.yaml</code>, <code>Makefile</code>, <code>lab0/</code> шагов 1.2–1.5) удалена, старт снова с шага 1.1.'},
+  {lab:'angular', type:'added', text:'<b>Родился репозиторий Angular Lab</b> и подключён сабмодулем <code>angular/</code>: заглушка с README и обложкой (<code>Angular.png</code>) и её WebP-превью.', milestone:true},
+  {lab:'site', type:'added', text:'Лаба Angular появилась на сайте: карточка на лендинге (фронтенд, пока «Методичка скоро»), страница <code>works/angular.html</code>, раздел 16 в README; счётчики лаб — 16. Место в карте маршрутов — после вычитки методички.'},
+  {lab:'angular', type:'changed', text:'Обложка-заглушка заменена настоящей: современный Angular (standalone-компоненты, сигналы) вместо AngularJS.'},
+  {lab:'angular', type:'added', text:'Добавлена методичка <b>«RoomBook»</b>: Angular 22 на внутреннем сервисе бронирования переговорных, шесть сессий и 26 шагов (~20,5 ч) — сигналы и OnPush без zone.js, DI и провайдеры, <code>HttpClient</code>, интерцепторы и <code>httpResource</code>, роутер с lazy и guards по ролям, Signal Forms с серверной проверкой слота, RxJS для поиска и SSE, тесты на Vitest и сборка под nginx. Бэкенд готовый — <code>api/server.mjs</code> на Node без зависимостей.', milestone:true},
+  {lab:'angular', type:'changed', text:'README лабы: заглушка заменена на полный обзор — о чём, стек, формат и план по сессиям.'},
+  {lab:'site', type:'changed', text:'Карточка и страница Angular Lab открывают методичку, оглавление подтягивается на <code>works/angular.html</code>; раздел 16 в README расписан по сессиям. В карте маршрутов Angular встал после Nuxt (дорожка «NUXT · NG»), трек «Фронтенд» теперь js → vue → typescript → nuxt → angular; в <code>fixes/</code> — зависимости в <code>_order.md</code> и строка «⬜ не начато» в таблице вычитки.'},
+  {lab:'angular', type:'changed', text:'<b>Методичка вычитана и исправлена</b> (8 частей, 4 агента + перепроверка с запуском готового API, 6 находок): блок чтения про DI и RxJS interop стоял перед роутером, а не перед разделами 4–5; в дереве проекта и схемах был несуществующий компонент <code>BookingForm</code> (форма живёт в <code>BookingPage</code>); ссылки «раздел 4» → «раздел 3» в шаге 4.1 и «nginx (6.4)» → «6.3»; уточнено, что <code>API_DELAY</code> не задерживает поток <code>/api/events</code>.'},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code>: <code>angular.md</code> с находками, таблица вычитки — Angular «✅ пройдено 26.09» (6 находок), решение по варианту A применено.'},
+]},
+{date:'2026-09-30', title:'Родились CSS- и Tailwind-лабы с методичками — семнадцатая и восемнадцатая', items:[
+  {lab:'css', type:'added', text:'<b>Родился репозиторий CSS Lab</b> и подключён сабмодулем <code>css/</code>. Методичка <b>«FrontFest»</b>: современный CSS с нуля на сайте конференции, шесть сессий (~20 ч) — каскад и <code>@layer</code>, токены, oklch и <code>light-dark()</code>, Flexbox, Grid и subgrid, container queries, <code>:has()</code>, view transitions.', milestone:true},
+  {lab:'tailwind', type:'added', text:'<b>Родился репозиторий Tailwind Lab</b> и подключён сабмодулем <code>tailwind/</code>. Методичка <b>«Pulse»</b>: Tailwind CSS v4 с нуля на сервисе аналитики, шесть сессий (~20 ч) — утилиты и шкалы, <code>@theme</code>, варианты (<code>group</code>, <code>peer</code>, <code>has-*</code>), container queries, тёмная тема через <code>@custom-variant</code>, <code>@layer components</code>, Vite и nginx.', milestone:true},
+  {lab:'site', type:'changed', text:'Лендинг: внутри каждого направления лабы разложены по подгруппам с заголовками — фронтенд: «Основы: стили и вёрстка» (CSS, Tailwind) → «Язык» (JS, TS) → «Фреймворки» (Vue, Nuxt, Angular); бэкенд: «Основы: PHP и ООП» → «Данные, кэш и очереди» → «Фреймворки и API»; инфраструктура: один ряд: Docker, вертикальный разделитель «Прокси и оркестрация →», затем Traefik и Kubernetes.'},
+  {lab:'site', type:'changed', text:'Страницы <code>works/</code>: номер «NN из N» брался из старого списка на 16 лаб, поэтому у CSS и Tailwind его не было; список и порядок дорожек в <code>lab-anime.js</code> приведены к главной (18 лаб, по подгруппам).'},
+  {lab:'css', type:'changed', text:'Методичка переведена на общий современный дизайн остальных лаб: статус-блок с таймером («Текущая сессия», «Всего в работе»), полоса прогресса, кнопка «Продолжить с последнего →», список пройденного; акцентный цвет свой.'},
+  {lab:'tailwind', type:'changed', text:'То же для методички Tailwind: общий дизайн, таймер, прогресс, «Продолжить с последнего →».'},
+  {lab:'site', type:'added', text:'Обе лабы на сайте (методички просмотрены выборочно: парность тегов, якоря, ссылки на соседнюю лабу — битого не найдено; построчная вычитка — ниже, в тот же день): карточки во фронтенде (сложность «Базовая»), страницы <code>works/css.html</code> и <code>works/tailwind.html</code>, превью-картинки, README лаб, разделы 17–18 в README; счётчики лаб — 18. В карте маршрутов новая дорожка «CSS»: css → tailwind → js; трек «Фронтенд» теперь css → tailwind → js → vue → typescript → nuxt → angular.'},
+  {lab:'css', type:'changed', text:'<b>Методичка вычитана и исправлена</b> (6 частей, 3 агента, 24 находки): баг схлопывания margin в шаге 1.4 стоял на <code>.eyebrow</code>, а не на <code>h1</code>; <code>sticky</code>-шапка из 6.1 не прилипала к grid-<code>body</code> (теперь flex-колонка); кнопки, серые из-за <code>!important</code>, — в блоке тарифов, а не в hero; неверные ожидания в 2.1, 3.2, 4.2, 5.2 (на 360px карточки вертикальные); <code>prefers-reduced-data</code> заменён, фокус в <code>forced-colors</code> починен; в дерево проекта добавлен <code>nginx.conf</code>, в «Мост к Tailwind» — реальные семь слоёв.'},
+  {lab:'tailwind', type:'changed', text:'<b>Методичка вычитана и исправлена</b> (5 частей, 3 агента, 20 находок): в палитру <code>brand</code> добавлены оттенки 300 и 800, которые использовались в шагах 3.1–3.2; <code>transparent</code> не исчезает после <code>--color-*: initial</code>; в 5.3 добавлен сам <code>legacy-banner</code>, а шаги 6.1/6.3 учитывают второй css-файл; <code>git diff pulse/index.html</code>; <code>no-cache</code> в nginx для <code>/app</code>; поправлены ссылки в таблице вариантов и заголовки шагов 4.1, 4.3.'},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code>: <code>css.md</code> и <code>tailwind.md</code> с находками, таблица вычитки — CSS «✅ пройдено 30.09» (24), Tailwind «✅ пройдено 30.09» (20); в <code>prep.py</code> добавлены лабы <code>css</code> и <code>tailwind</code>. Браузера и сети не было, выводы про рендеринг сделаны по спецификации и не проверены запуском.'},
+  {lab:'site', type:'added', text:'<b>Страницы лаб в <code>works/</code> стали содержательнее</b> — на всех 18: вертикальные табы «Чему вы научитесь» (5–6 главных тем каждой лабы с описанием и настоящим кодом из методички) и плитки стека в стиле bento — при наведении по плитке слева направо проходит «волна» и показывает, зачем эта технология в работе.'},
+  {lab:'site', type:'added', text:'Ещё три блока на каждой странице: «Карта сессий» (шкала, где ширина сегмента — длительность сессии, панель с результатом и накопленным временем, кнопка «пройти маршрут»), интерактивная схема главного пути данных лабы (блоки перетаскиваются на GSAP Draggable, стрелки тянутся следом, кнопка «отправить запрос» пускает точку по цепочке) и «Проверьте себя» — 5 вопросов из методички с раскрывающимися ответами. Для лаб без часов в методичке (Docker, Traefik, Kubernetes) часы не показываются.'},
+  {lab:'site', type:'changed', text:'Блок «Куда открыть» превращён в «С чего начать» (три шага с пояснениями), заголовок стека — «Технологии в этой работе»; подписи «Часть N» теперь считаются по порядку блоков. Данные блоков собраны агентами по методичкам и в браузере не проверялись — список доработок в <code>fixes/site.md</code>.'},
+]},
+{date:'2026-10-02', title:'Родилась Inertia Lab — девятнадцатая', items:[
+  {lab:'inertia', type:'added', text:'<b>Родился репозиторий Inertia Lab</b> и подключён сабмодулем <code>inertia/</code>. Методичка <b>«Inkwell»</b>: блог-платформа на Laravel 13 + Inertia 3 + Vue 3 без starter kit, пять сессий (~16,5 ч) — протокол на проводе и объект страницы, props как публичный API через Resources, формы и валидация без 422, SSR и мета-теги, hydration mismatch и утечка Pinia между посетителями, optional/defer/merge, роли и Policies, typed routes через Wayfinder.', milestone:true},
+  {lab:'site', type:'added', text:'Лаба на сайте: карточка в бэкенде (группа «Фреймворки и API», сложность «Средняя»), страница <code>works/inertia.html</code> с табами «Чему вы научитесь» (6 тем с реальным кодом), картой сессий, интерактивной схемой пути Inertia-визита и FAQ; раздел 19 и строка в таблице корневого README; счётчики лаб — 19.'},
+  {lab:'site', type:'added', text:'В карте маршрутов PHP-дорожка стала на шаг длиннее: php → php-coffee → postgresql → laravel → inertia → rabbitmq → redis; трек «Бэкенд на PHP» — туда же.'},
+  {lab:'site', type:'changed', text:'Первый проход пропустил карту маршрутов на главной (<code>routeLanes</code>/<code>routeEdges</code>/<code>routeTracks</code> жили отдельно от карточки) и отдельный список <code>ORDER</code>/<code>TRACKS</code> в <code>lab-anime.js</code> — без них лаба не появлялась на карте, а шапка страницы показывала «лаба 00 из 18». Плюс не хватало <code>images/thumbs/inertia.webp</code> (это и есть реальный <code>src</code>, PNG — только <code>data-full</code> для лайтбокса) и двоеточия в <code>desc</code>, от которого зависит счётчик «тем внутри». Найдено и исправлено по правкам пользователя, не вычиткой.'},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code>: лаба внесена в <code>_order.md</code> (самостоятельна, но логичнее после Laravel) и в таблицу <code>_proofread.md</code> со статусом ⬜ не начато; <code>_tools/prep.py</code> знает про <code>inertia</code>. Методичка не вычитывалась.'},
+]},
+{date:'2026-10-03', title:'Порядок в репозитории, единые версии и сухие прогоны всех лаб', items:[
+  {lab:'site', type:'changed', text:'<b>Папка <code>fixes/</code> разложена по направлениям</b>: <code>backend/</code>, <code>devops/</code>, <code>frontend/</code> и <code>common/</code> (порядок, статусы вычитки, вопросы по сайту, скрипты); ссылки в README лаб обновлены, README папки короткий — что значит каждая папка и файл.'},
+  {lab:'site', type:'changed', text:'<b>Страницы <code>works/</code>:</b> скрипты переехали в <code>works/js/</code>, стили — в <code>works/css/</code>; HTML-страницы остались в корне, чтобы не сломать ссылки <code>works/&lt;ключ&gt;.html</code>. Все 19 страниц и главная проверены в headless-браузере: ошибок скриптов нет, перетаскивание схем работает, на мобильной ширине нет горизонтального скролла.'},
+  {lab:'site', type:'changed', text:'<b>Единые версии по решению автора:</b> PHP 8.4 везде, Node 24 LTS, Redis 8, <b>PostgreSQL 18 везде</b> (том — <code>/var/lib/postgresql</code>, а не <code>/data</code>), Traefik v3.7, nginx 1.30, kind 0.33 / Kubernetes 1.37, TypeScript 6.0, Vite 7 везде, где его можно закрепить, Prisma 7 везде, NestJS 11. Лаба NestJS переведена с Prisma 6 на 7. Inertia 3 актуальна (релиз 26.03.2026).', milestone:true},
+  {lab:'site', type:'added', text:'<b>Сухие прогоны по живому коду</b> почти всех лаб (Kubernetes на живом кластере, ООП, Чистый PHP, Docker, Traefik, Redis, JS, PostgreSQL и стенд сессии 1 у Laravel, Inertia, RabbitMQ, Nuxt, Angular, CSS, Tailwind, Vue, NestJS и GraphQL). Находки и исправления — в <code>fixes/&lt;направление&gt;/&lt;лаба&gt;.md</code>, раздел «Сухой прогон».', milestone:true},
+  {lab:'kubernetes', type:'changed', text:'Шаг 3.1: Traefik не стартовал — Deployment ссылался на несуществующий ServiceAccount <code>traefik-account</code>; теперь создаётся <code>traefik-ingress-controller</code>. CRD и RBAC — версии v3.7 (были v3.1), kind v0.33 и Kubernetes 1.37.'},
+  {lab:'php', type:'changed', text:'Шесть ошибок стенда и кода: <code>pdo_pgsql</code> не ставился (нет libpq-dev), в контейнере нет <code>psql</code>, <code>fputcsv</code>/<code>str_getcsv</code> дают Deprecated на 8.4, четыре класса в одном файле ломали PSR-4, <code>pdo-vulnerable.php</code> ничего не выводил, схема сессии 8 падала на таблицах сессии 7.'},
+  {lab:'php-coffee', type:'changed', text:'Четыре ошибки: <code>env_file</code> без <code>.env</code> ломал <code>composer create-project</code>, создание проекта в непустой каталог, выравнивание кириллицы в <code>printf</code>, нет <code>use</code> для фасадов Log/Mail. 25 тестов проходят.'},
+  {lab:'docker', type:'changed', text:'Шаг 2.4: утверждение «node как PID 1 получает SIGTERM» было неверным — без обработчика сигнал игнорируется. В <code>server.js</code> добавлен обработчик, проверка через <code>docker kill -s TERM</code>; в <code>node:slim</code> нет <code>ps</code>.'},
+  {lab:'traefik', type:'changed', text:'Две ошибки: метка middlewares без суффикса <code>@file</code> давала 404, canary-роутер с <code>priority: 10</code> не получал трафика (нужен приоритет выше обычного роутера). Проверено на 100 запросах: 90/10.'},
+  {lab:'redis', type:'changed', text:'Четыре ошибки: префикс ключей <code>laravel-database-</code> прятал поток от воркера (нужен <code>REDIS_PREFIX=</code>), <code>xAck</code> требует массив ID, <code>zAdd</code> принимает опцию строкой, а не массивом.'},
+  {lab:'laravel', type:'changed', text:'Шаг 1.1: в <code>php:8.4-cli</code> нет Composer — добавлен Dockerfile; <code>composer require</code> с Reverb требует <code>-W</code> (конфликт guzzlehttp/psr7).'},
+  {lab:'nestjs', type:'changed', text:'Переход на Prisma 7: новый генератор <code>prisma-client</code>, <code>prisma.config.ts</code>, driver adapter, импорты клиента из <code>src/generated</code>, <code>moduleNameMapper</code> и <code>--experimental-vm-modules</code> для jest; <code>@nestjs/cli@11</code> (latest создаёт NestJS 12); fail-fast через <code>SELECT 1</code>, так как <code>$connect()</code> с адаптером ленивый.'},
+  {lab:'graphql', type:'changed', text:'Закреплены версии: <code>@nestjs/cli@11</code>, <code>@nestjs/graphql@13</code>, <code>prisma@7</code> (latest ставил NestJS 12 и Prisma CLI 8 RC), исправлена типизация <code>graphql-ws</code> в <code>onConnect</code>.'},
+  {lab:'inertia', type:'changed', text:'Шаг 1.3: <code>npm install -D typescript</code> ставил TypeScript 7 (ломает <code>vue-tsc</code>), <code>baseUrl</code> в tsconfig запрещён в TS 6, Laravel 13 тянет Vite 8 — закреплены <code>typescript@~6.0</code>, <code>vite@^7</code>, <code>laravel-vite-plugin@^2</code>.'},
+  {lab:'nuxt', type:'changed', text:'Шаг 1.1: <code>typescript@~6.0</code> для <code>nuxi typecheck</code> (иначе ставится TS 7).'},
+  {lab:'js', type:'changed', text:'<code>node --test src/__tests__</code> не работает на Node 24 — заменено на маску <code>src/__tests__/*.test.js</code>.'},
+  {lab:'postgresql', type:'changed', text:'Лаба переведена на PostgreSQL 18: данные из сида идентичны, планы той же структуры; в шаг 1.1 описано, чем отличается формат EXPLAIN на 18.'},
+  {lab:'typescript', type:'changed', text:'TypeScript 6.0 (на 5.9 и 6.0 набор ошибок идентичен), <code>@types/node</code> ^24. В Vue- и Tailwind-лабах закреплён Vite 7.'},
+  {lab:'site', type:'changed', text:'<b>Читаемость красных врезок во всех 19 методичках:</b> подпись и ссылки глоссария были тёмно-красными на красном, инлайн-код — белым на светлом; добавлено CSS-правило в шаблон страницы.'},
+  {lab:'site', type:'added', text:'<b>Инструменты:</b> <code>fixes/common/_tools/bundle.py</code> (чтение и правка сжатых методичек, проверка валидности JSON), починенный <code>prep.py</code>, автопроверка <code>tools/check-site.py</code>; скриншоты модалки «О проекте» пересняты.'}
+]},
+{date:'2026-10-04', title:'Две новые лабы: Laravel Performance и Algorithms PHP — двадцатая и двадцать первая', items:[
+  {lab:'laravel-performance', type:'added', text:'<b>Родился репозиторий Laravel Performance Lab</b> и подключён сабмодулем <code>laravel-performance/</code>. Методичка <b>«CoffeePerf»</b>: приложение Coffee Shop с миллионом заказов и намеренными проблемами; 9 сессий — перцентили и k6, Debugbar и Telescope, SPX и Blackfire, OPcache и JIT, кеш с тегами и блокировками, Octane + FrankenPHP, бюджет p95 в CI. Сложность — «Базовая».'},
+  {lab:'algorithms-php', type:'added', text:'<b>Родился репозиторий Algorithms PHP Lab</b> и подключён сабмодулем <code>algorithms-php/</code>. Методичка <b>«CoffeeAlgo»</b>: алгоритмы и структуры данных на PHP 8.4, 13 сессий — от сложности без формул и класса <code>Bench</code> до графов, динамического программирования и разбора собеседований; у каждой темы тест PHPUnit и замер. Сложность — «Базовая».'},
+  {lab:'site', type:'removed', text:'Папка черновиков <code>plans/</code> с двумя планами убрана: оба плана стали настоящими лабами в собственных репозиториях. Первый заход собрать репозитории чуть не потерял неотслеженные <code>PLAN.md</code> — текст пришлось восстанавливать из журнала прошлой сессии; теперь они в git.'},
+  {lab:'site', type:'added', text:'Обе лабы на сайте: карточки в бэкенде («Основы: PHP и ООП» и «Фреймворки и API»), страницы <code>works/laravel-performance.html</code> и <code>works/algorithms-php.html</code> с табами, картой сессий, схемой и FAQ (код в табах — реальные блоки из методичек), превью <code>.webp</code>, ключи в <code>ORDER</code>/<code>TRACKS</code>; счётчик на главной — 21.'},
+  {lab:'site', type:'changed', text:'Карта маршрутов: PHP-дорожка осталась из семи шагов, а <code>algorithms-php</code> и <code>laravel-performance</code> стоят строкой ниже под своими «родителями» (<code>php-coffee</code> и <code>laravel</code>) и соединены стрелкой вниз — без горизонтальной прокрутки и поехавших прямоугольников; в отрисовку рёбер добавлен тип <code>down</code>, подсветка трека проходит сквозь ответвления. (Первый вариант растягивал дорожку до девяти колонок и ломал вёрстку.)'},
+  {lab:'laravel-performance', type:'changed', text:'<b>Вычитка: 21 находка, все исправлены.</b> Версии приведены к стандарту (PostgreSQL 18 с томом <code>/var/lib/postgresql</code>, Redis 8, nginx 1.30); N+1 в Telescope — 61 запрос, а не 41; результат JIT-цикла 922688 вместо ошибочного 123456 (и ускорение вдвое, а не «в разы» — проверено на <code>php:8.4-cli</code>); после правки <code>opcache.ini</code> нужна пересборка образа, а не <code>restart</code>; в Octane маршруты подхватывает <code>octane:reload</code>; добавлен <code>.dockerignore</code> для prod-образа; <code>git commit -am</code> не добавлял новые файлы.'},
+  {lab:'algorithms-php', type:'changed', text:'<b>Вычитка: 22 находки, все исправлены.</b> Тест <code>PrefixSum</code> ждал 9 вместо 8; <code>fromArray</code> строил список за O(n²) — бенч на 100 000 элементов шёл больше минуты; <code>quick</code> из 7.4 на деле устойчива, а текст утверждал обратное (in-place Ломуто неустойчив — проверено); <code>SplHeap</code> назван красно-чёрным деревом; «куча быстрее» подтверждено замером, а при n = 2 млн <code>rsort</code> упирается в лимит памяти 128 МБ. Числа в «Ожидаемом результате» пересняты запуском.'},
+  {lab:'inertia', type:'changed', text:'<b>Вычитка Inertia Lab: 30 находок</b> (вкладка «Без лишнего визита» на странице лабы приведена в соответствие), исправлены подтверждаемые текстом и кодом: <code>str_word_count</code> на кириллице завышал время чтения в ~5 раз (теперь <code>preg_match_all</code>), в <code>LikeButton</code> пропали символы сердечка, <code>usePoll</code> в скрытой вкладке не «паузится», а замедляется (<code>keepAlive</code>), ссылки на шаги и «Production Hell» (шаг 6.3), два браузера вместо двух вкладок в 5.4. Нужен стенд: сборка SSR в 3.3 против 6.2, нумерация сессий, роль против флагов <code>can</code>.'},
+  {lab:'site', type:'changed', text:'<b>Починка хронологии:</b> блок за 3 октября был вставлен не в <code>DAYS</code>, а внутрь массива <code>stats</code> в <code>renderStats()</code> — пустая плитка статистики и ни одного события за этот день на странице. Блок перенесён на место.'},
+  {lab:'site', type:'changed', text:'<b>Оглавление на страницах лаб снова работает:</b> модалка читала <code>&lt;h2&gt;</code> из HTML методички, а после перехода на сжатый формат их там нет — для всех 21 лаб показывалось «не удалось разобрать оглавление». Теперь оглавление берётся из <code>window.LAB</code> внутри методички (проверено на всех 21 файлах: 13–20 разделов, 14–46 шагов).'},
+  {lab:'algorithms-php', type:'changed', text:'<b>Сухой прогон в Docker (04.10):</b> все 26 файлов тестов зелёные, числа сошлись; найдено и исправлено: <code>Segmentation fault</code> в бенче связного списка (PHP освобождает цепочку из 100 000 узлов рекурсивно) и два класса одним блоком в 4.2 (PSR-4 не находил второй).'},
+  {lab:'laravel-performance', type:'changed', text:'<b>Сухой прогон в Docker — сессии 1–6 и шаги 7.1–7.2 пройдены, остальное впереди.</b> Нашлось: кеш из <code>Collection</code> ломал отчёт (в Laravel 13 <code>serializable_classes = false</code> — на втором запросе 500), в актуальном образе <code>php:8.4-fpm</code> OPcache уже включён (сессия 5 переписана: «ДО» — выключением), <code>route:cache</code> в Laravel 13 кеширует замыкания, нет тега <code>frankenphp:latest-php8.4</code>, в сидере не хватало <code>use DB</code>, формат вывода k6 изменился; результаты Telescope, SPX, CPU-метрики и EXPLAIN приведены к реальным. Не проверены 7.3–9.4 (сравнение с Octane, бюджет в CI, prod-образ).'},
+  {lab:'site', type:'added', text:'<b>Страница «Все работы и прогресс» — <code>works/progress.html</code>:</b> все 21 лаба списком со ссылками на методичку и страницу лабы, процент по каждой (отметки разделов и шагов из <code>localStorage</code>, те же, что ставят методички), общий прогресс, время в методичках. Собирается <code>tools/build-progress.py</code>; у каждой лабы в списке — её картинка; в каждую методичку рядом с «Поиск Ctrl K» и «Тёмная тема» добавлена кнопка «Все работы» (<code>tools/patch-manuals.py</code>; первый вариант — ссылка в самом низу страницы — убран), а пункт «прогресс» — в шапку сайта, в навигацию страниц лаб и хронологии.'},
+  {lab:'site', type:'changed', text:'<b>Методички: на секунду появлялось окно поиска.</b> При запуске страница подменяет документ шаблоном, и пока грузятся скрипты, «сырой» шаблон (с оверлеем поиска) виден. В шаблон всех 21 методичек добавлено <code>x-dc{display:none!important}</code> сразу после <code>&lt;head&gt;</code>.'},
+  {lab:'site', type:'changed', text:'<b>Хронология и «Все работы и прогресс» переехали в <code>works/</code></b> (<code>works/changelog.html</code>, <code>works/progress.html</code>) — к остальным страницам-витринам; ссылка «хронология» на главной и кнопка «Все работы» в каждой методичке обновлены, относительные пути внутри страниц поправлены. Старый адрес <code>/changelog.html</code> больше не отвечает.'},
+  {lab:'site', type:'changed', text:'<b>Оглавление лаб: ссылки не переходили.</b> Ссылки оглавления ведут на <code>методичка.html#sec-3</code> / <code>#step-2-1</code>, URL менялся, но методичка (после перехода на сжатый формат) хэш не читала. Теперь при загрузке и при смене хэша она открывает нужный раздел (<code>tools/patch-manuals.py</code>, метод <code>goHash</code>, все 21 методичек).'},
+  {lab:'site', type:'added', text:'<b>Инструменты и проверки:</b> <code>tools/build-progress.py</code> (собирает страницу прогресса из <code>lab.js</code> и самих методичек), <code>tools/patch-manuals.py</code> (ссылка внизу и защита от мигания поиска; идемпотентный), в <code>check-site.py</code> — проверка, что страница прогресса знает все лабы, а в каждой методичке есть ссылка и правка шаблона; пункт 12 в чек-листе <code>CLAUDE.md</code>. Корневой <code>README.md</code> — разделы 20 и 21 и абзац про страницу прогресса.'},
+  {lab:'site', type:'changed', text:'В <code>fixes/</code>: <code>laravel-performance.md</code> и <code>algorithms-php.md</code> с находками, <code>inertia.md</code> с вычиткой, разделы «Сухой прогон» у обеих новых лаб, строки в <code>_order.md</code> и <code>_proofread.md</code> (все три лабы — «✅ пройдено 04.10»), обе лабы в <code>prep.py</code>.'},
+]},
+];
+
+// ── рендер ───────────────────────────────────────────────────────────────
+var MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+function formatDay(iso) {
+  var p = iso.split('-');
+  return parseInt(p[2], 10) + ' ' + MONTHS[parseInt(p[1], 10) - 1];
+}
+
+function plural(n, one, few, many) {
+  var m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+}
+
+function renderStats() {
+  var totalCommits = DAYS.reduce(function (s, d) { return s + d.items.length; }, 0);
+  var labKeys = {};
+  DAYS.forEach(function (d) { d.items.forEach(function (it) { labKeys[it.lab] = true; }); });
+  var repoCount = Object.keys(labKeys).length - 1; // минус 'site'
+  var stats = [
+    { num: totalCommits, label: 'событий в хронологии' },
+    { num: repoCount, label: 'лаб в работе' },
+    { num: DAYS.length, label: 'дней с изменениями' },
+  ];
+  document.getElementById('cl-stats').innerHTML = stats.map(function (s) {
+    return '<div class="cl-stat"><div class="cl-stat-num display">' + s.num + '</div><div class="cl-stat-label mono">' + s.label + '</div></div>';
+  }).join('');
+
+  document.getElementById('cl-legend').innerHTML = Object.keys(TYPES).map(function (k) {
+    return '<span class="cl-legend-item"><span class="cl-legend-dot" style="background:' + TYPES[k].color + '"></span>' + TYPES[k].label + '</span>';
+  }).join('');
+}
+
+function renderTimeline() {
+  // newest first: days in reverse, and inside each day the latest commit on top
+  document.getElementById('timeline').innerHTML = DAYS.slice().reverse().map(function (day) {
+    var itemsHtml = day.items.slice().reverse().map(function (it) {
+      var lab = LABS[it.lab] || { label: it.lab, color: '#999' };
+      var type = TYPES[it.type] || TYPES.changed;
+      return (
+        '<div class="cl-item' + (it.milestone ? ' milestone' : '') + '" style="--lab-color:' + lab.color + '">' +
+          '<div class="cl-tags">' +
+            '<span class="cl-lab-tag" style="--lab-color:' + lab.color + '"><span class="dot"></span>' + lab.label + '</span>' +
+            '<span class="cl-type-badge" style="--type-color:' + type.color + '; --type-soft:rgba(255,255,255,.05)">' + type.label + '</span>' +
+          '</div>' +
+          '<div class="cl-text">' + it.text + '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    return (
+      '<div class="cl-day">' +
+        '<div class="cl-day-banner">' +
+          '<h2 class="cl-day-date display">' + formatDay(day.date) + '</h2>' +
+          '<div class="cl-day-title">' + day.title + '</div>' +
+          '<div class="cl-day-count mono">' + day.items.length + ' ' + plural(day.items.length, 'событие', 'события', 'событий') + '</div>' +
+        '</div>' +
+        '<div class="cl-items">' + itemsHtml + '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+renderStats();
+renderTimeline();
+document.getElementById('cl-generated').textContent = 'по состоянию на ' + formatDay('2026-09-24') + ' 2026';
+</script>
+</body>
+</html>

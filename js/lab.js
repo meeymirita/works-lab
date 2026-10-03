@@ -8267,6 +8267,7 @@ function renderLabPage(key) {
       '</div>' +
       '<div class="lab-nav-links mono">' +
         '<a href="../index.html#works" data-pl-name="ANITECH" data-pl-color="#ff2e88">← все работы</a>' +
+        '<a href="progress.html" title="Все работы и общий прогресс">прогресс</a>' +
         '<a href="' + lab.repo + '" target="_blank" rel="noopener" class="lab-nav-cta">репозиторий ↗</a>' +
       '</div>' +
     '</nav>' +
