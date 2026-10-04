@@ -15,6 +15,7 @@
   var PREFIX = 'lab-redesign-v1:';
   var TOKEN = 'anitech-sync-token';
   var META = 'anitech-sync-meta:';
+  var BASE = 'anitech-sync-base:';   // время записи на сервере, с которой этот браузер последний раз сверялся
   var GUARD = 'anitech-sync-reloaded';
   var state = { ok: null, text: '', pulled: false };
   var timers = {};
@@ -27,6 +28,22 @@
   function token() { try { return ls.getItem(TOKEN) || ''; } catch (e) { return ''; } }
   function metaGet(slug) { return parseInt(ls.getItem(META + slug) || '0', 10) || 0; }
   function metaSet(slug, t) { origSet.call(ls, META + slug, String(t)); }
+  function baseGet(slug) { return parseInt(ls.getItem(BASE + slug) || '0', 10) || 0; }
+  function baseSet(slug, t) { origSet.call(ls, BASE + slug, String(t)); }
+  // объединение при расхождении: отметки шагов и «проверь себя» — union (ничего не теряем), остальное — от более новой стороны
+  function merge(loc, lt, rem, rt) {
+    var out = {}, newerRemote = rt >= lt, k, src = newerRemote ? rem : loc, other = newerRemote ? loc : rem;
+    for (k in other) out[k] = other[k];
+    for (k in src) out[k] = src[k];
+    ['done', 'quiz'].forEach(function (f) {
+      var m = {}, a = loc && loc[f] || {}, b = rem && rem[f] || {}, x;
+      for (x in a) if (a[x]) m[x] = a[x];
+      for (x in b) if (b[x]) m[x] = b[x];
+      out[f] = m;
+    });
+    ['tSess', 'tTotal'].forEach(function (f) { out[f] = Math.max((loc && loc[f]) || 0, (rem && rem[f]) || 0); });
+    return out;
+  }
   function parse(v) { try { var o = JSON.parse(v); return o && typeof o === 'object' ? o : null; } catch (e) { return null; } }
   function count(d) {
     var n = 0, k;
@@ -54,9 +71,11 @@
     var data = parse(ls.getItem(PREFIX + slug));
     if (!data) return Promise.resolve();
     setStatus(null, 'сохраняю…');
-    return api('PUT', '/api/progress/' + encodeURIComponent(slug), { data: data, t: metaGet(slug) || now() }).then(function (r) {
+    var t = metaGet(slug) || now();
+    return api('PUT', '/api/progress/' + encodeURIComponent(slug), { data: data, t: t }).then(function (r) {
       if (r.status === 401) { try { ls.removeItem(TOKEN); } catch (e) {} setStatus(false, 'неверный пароль'); return; }
       if (!r.ok) { setStatus(false, 'ошибка ' + r.status); return; }
+      baseSet(slug, t);
       setStatus(true, 'сохранено ' + new Date().toLocaleTimeString('ru-RU'));
     }).catch(function () { setStatus(false, 'нет связи с Worker'); });
   }
@@ -90,14 +109,21 @@
       Object.keys(remote).forEach(function (s) { all[s] = 1; });
       localSlugs().forEach(function (s) { all[s] = 1; });
       Object.keys(all).forEach(function (slug) {
-        var rem = remote[slug], loc = parse(ls.getItem(PREFIX + slug)), lt = metaGet(slug);
-        if (rem && (!loc || count(loc) === 0 && count(rem.data) > 0 || (rem.t > lt && !(count(rem.data) === 0 && count(loc) > 0)))) {
-          origSet.call(ls, PREFIX + slug, JSON.stringify(rem.data)); metaSet(slug, rem.t);
-          if (!loc || JSON.stringify(loc) !== JSON.stringify(rem.data)) changed.push(slug);
-        } else if (loc && (!rem || lt > rem.t || count(loc) > 0 && count(rem.data) === 0)) {
-          if (!lt) metaSet(slug, now());
-          toPush.push(slug);
+        var rem = remote[slug], loc = parse(ls.getItem(PREFIX + slug)), lt = metaGet(slug), base = baseGet(slug);
+        function take(data, t) {
+          if (!loc || JSON.stringify(loc) !== JSON.stringify(data)) changed.push(slug);
+          origSet.call(ls, PREFIX + slug, JSON.stringify(data)); metaSet(slug, t); baseSet(slug, rem ? rem.t : t);
         }
+        if (!rem) { if (loc) { if (!lt) metaSet(slug, now()); toPush.push(slug); } return; }
+        if (!loc || count(loc) === 0 && count(rem.data) > 0) { take(rem.data, rem.t); return; }
+        if (count(rem.data) === 0 && count(loc) > 0) { if (!lt) metaSet(slug, now()); toPush.push(slug); return; }
+        if (JSON.stringify(loc) === JSON.stringify(rem.data)) { baseSet(slug, rem.t); if (!lt) metaSet(slug, rem.t); return; }
+        var localChanged = !base || lt > base, remoteChanged = rem.t > base;
+        if (localChanged && remoteChanged) {            // менялось и там и тут: объединяем, ничего не теряя
+          var merged = merge(loc, lt, rem.data, rem.t), t = Math.max(now(), rem.t + 1);
+          take(merged, t); toPush.push(slug);
+        } else if (remoteChanged) take(rem.data, rem.t);
+        else toPush.push(slug);
       });
       state.pulled = true;
       return Promise.all(toPush.map(push)).then(function () {
@@ -135,7 +161,8 @@
   }
 
   // ── интерфейс ──────────────────────────────────────────────────────────
-  var btn, panel, built = false;
+  var btn, panel, nudge, built = false;
+  var NUDGE = 'anitech-sync-nudge-closed';
   function css() {
     return '#as-btn{position:fixed;left:12px;bottom:12px;z-index:9400;width:40px;height:40px;border:2px solid #1b1a19;background:#fff;color:#1b1a19;font:700 18px/1 system-ui;cursor:pointer;box-shadow:3px 3px 0 #1b1a19;display:grid;place-items:center}' +
       'body[data-theme=dark] #as-btn{background:#1c1a19;color:#f1ede8;border-color:#f1ede8;box-shadow:3px 3px 0 #f1ede8}' +
@@ -148,7 +175,11 @@
       '#as-p input[type=password]{width:100%;padding:8px;border:2px solid currentColor;background:transparent;color:inherit;font:inherit;margin-bottom:8px}' +
       '#as-p button{padding:7px 10px;border:2px solid currentColor;background:transparent;color:inherit;font:700 13px system-ui;cursor:pointer;margin:0 6px 6px 0}' +
       '#as-p button.pri{background:#1b1a19;color:#fff}body[data-theme=dark] #as-p button.pri{background:#f1ede8;color:#1c1a19}' +
-      '#as-st{font-size:13px;margin:4px 0 8px;min-height:18px}';
+      '#as-st{font-size:13px;margin:4px 0 8px;min-height:18px}' +
+      '#as-n{position:fixed;left:62px;bottom:14px;z-index:9399;display:none;max-width:min(260px,calc(100vw - 80px));padding:10px 12px;background:#fff;color:#1b1a19;border:2px solid #2965F1;box-shadow:3px 3px 0 #2965F1;font:13px/1.45 system-ui,sans-serif}' +
+      'body[data-theme=dark] #as-n{background:#1c1a19;color:#f1ede8}#as-n.on{display:block}' +
+      '#as-n b{display:block;margin-bottom:4px}#as-n button{margin:6px 6px 0 0;padding:5px 9px;border:2px solid currentColor;background:transparent;color:inherit;font:700 12px system-ui;cursor:pointer}' +
+      '#as-n button.pri{background:#2965F1;border-color:#2965F1;color:#fff}';
   }
   function build() {
     if (built) return; built = true;
@@ -156,7 +187,14 @@
     btn = document.createElement('button'); btn.id = 'as-btn'; btn.type = 'button'; btn.title = 'Синхронизация прогресса';
     btn.innerHTML = '☁<i></i>'; btn.addEventListener('click', function () { panel.classList.toggle('open'); paint(); });
     panel = document.createElement('div'); panel.id = 'as-p';
-    document.body.appendChild(btn); document.body.appendChild(panel);
+    nudge = document.createElement('div'); nudge.id = 'as-n'; nudge.setAttribute('role', 'status');
+    nudge.innerHTML = '<b>Синхронизация не подключена</b>Без неё прогресс пропадёт, если очистить данные сайта.<br><button class="pri" data-n="open">Подключить</button><button data-n="close">Закрыть</button>';
+    nudge.addEventListener('click', function (e) {
+      var a = e.target.getAttribute && e.target.getAttribute('data-n');
+      if (a === 'open') { panel.classList.add('open'); paint(); var i = panel.querySelector('input[type=password]'); if (i) i.focus(); }
+      else if (a === 'close') { try { sessionStorage.setItem(NUDGE, '1'); } catch (er) {} paint(); }
+    });
+    document.body.appendChild(btn); document.body.appendChild(panel); document.body.appendChild(nudge);
     panel.addEventListener('click', function (e) {
       var a = e.target.getAttribute && e.target.getAttribute('data-a');
       if (a === 'sync') { state.pulled = false; pull(); }
@@ -175,6 +213,8 @@
   function paint() {
     if (!built) return;
     var dot = btn.querySelector('i'); dot.className = !WORKER ? '' : !token() ? 'ask' : state.ok === true ? 'ok' : state.ok === false ? 'bad' : 'wait';
+    var closed = false; try { closed = !!sessionStorage.getItem(NUDGE); } catch (e) {}
+    nudge.classList.toggle('on', !!WORKER && !token() && !closed && !panel.classList.contains('open'));
     var html = '<h4>Прогресс</h4>';
     if (!WORKER) {
       html += '<p>Синхронизация с сервером ещё не настроена. Пока можно сохранять прогресс в файл и загружать его обратно.</p>';
