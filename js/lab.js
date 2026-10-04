@@ -452,7 +452,7 @@ var LABS = [
           "Счётчик попыток отдельным ключом",
           "После лимита запись уходит в orders:dlq:stream"
         ],
-        "code": "$claimed = $redis->xautoclaim('orders:stream', 'email-cg', 'reaper', 30000, '0');\n\nforeach ($claimed['entries'] as $id => $entry) {\n    $attempts = $redis->hIncrBy(\"retry:attempts:{$id}\", 'count', 1);\n    if ($attempts > 3) {\n        $redis->xAdd('orders:dlq:stream', '*', $entry);\n        $redis->xAck('orders:stream', 'email-cg', $id);\n    }\n}"
+        "code": "$claimed = $redis->xautoclaim('orders:stream', 'email-cg', 'reaper', $minIdleMs = 30000, '0');\n\nforeach ($claimed['entries'] as $id => $entry) {\n    $attempts = $redis->hIncrBy(\"retry:attempts:{$id}\", 'count', 1);\n    if ($attempts > 3) {\n        $redis->xAdd('orders:dlq:stream', '*', $entry);\n        $redis->xAck('orders:stream', 'email-cg', [$id]);\n    }\n}"
       }
     ],
     sessions: [
@@ -731,7 +731,7 @@ var LABS = [
     title: 'Traefik Lab',
     subtitle: 'Reverse proxy, service discovery, TLS',
     desc: 'Reverse proxy и service discovery для стека из нескольких сервисов без ручной правки конфигов: EntryPoint → Router → Middleware → Service, TLS, canary-деплой.',
-    stack: ['Traefik 3', 'Docker Compose', 'Node.js', 'PostgreSQL'],
+    stack: ['Traefik 3', 'Docker Compose', 'Node.js', 'PostgreSQL', 'mkcert / Let\'s Encrypt'],
     difficulty: 'Низкая–средняя',
     image: '../traefik/traefik.png',
     open: '../traefik/Docker_and_Traefik_Lab_Plan.html',
@@ -752,6 +752,10 @@ var LABS = [
       {
         "tag": "база данных",
         "back": "Хранилище за API и Adminer в составе стека."
+      },
+      {
+        "tag": "TLS",
+        "back": "Локальный HTTPS через mkcert и выпуск сертификатов Let's Encrypt (staging)."
       }
     ],
     learn: [
@@ -786,7 +790,7 @@ var LABS = [
           "rateLimit: average и burst",
           "Порядок в router.middlewares"
         ],
-        "code": "http:\n  middlewares:\n    api-ratelimit:\n      rateLimit:\n        average: 10\n        burst: 20\n\n# label:\n\"traefik.http.routers.api.middlewares=secure-headers,api-ratelimit\""
+        "code": "http:\n  middlewares:\n    api-ratelimit:\n      rateLimit:\n        average: 10\n        burst: 20\n\n# label:\n\"traefik.http.routers.api.middlewares=secure-headers@file,api-ratelimit@file\"  # @file обязателен: без суффикса Traefik ищет middleware в @docker → 404\""
       },
       {
         "tab": "Балансировка",
@@ -813,17 +817,17 @@ var LABS = [
     ],
     sessions: [
       {
-        "h": "",
+        "h": "~3 ч",
         "t": "Базовая инфраструктура и первый маршрут",
         "r": "Traefik с Docker provider, роутер на whoami через labels и дашборд под basicauth"
       },
       {
-        "h": "",
+        "h": "~3,5 ч",
         "t": "API, frontend и БД за прокси",
         "r": "Три реплики API с healthcheck и балансировкой, frontend по /app со StripPrefix, PostgreSQL и Adminer, цепочка middlewares"
       },
       {
-        "h": "",
+        "h": "~3,5 ч",
         "t": "TLS и Production Hell",
         "r": "HTTPS через mkcert и Let's Encrypt staging, canary-деплой 90/10 и починенные сломанные сценарии"
       }
@@ -1531,7 +1535,7 @@ var LABS = [
           "Менять state только через actions",
           "В тестах свежая Pinia на каждый тест"
         ],
-        "code": "export const useTicketsStore = defineStore('tickets', () => {\n  const items = ref([])\n  const open  = computed(() => items.value.filter(t => t.status === 'open'))\n  async function load(params) { items.value = (await api.tickets.list(params)).items }\n  return { items, open, load }\n})\n\nconst { items, open } = storeToRefs(useTicketsStore())"
+        "code": "export const useTicketsStore = defineStore('tickets', () => {\n  const items = ref([])\n  const open  = computed(() => items.value.filter(t => t.status === 'open'))\n  async function load(params) { items.value = (await api.tickets.list(params)).items }\n  return { items, open, load }\n})\n\nconst store = useTicketsStore()\nconst { items, open } = storeToRefs(store)"
       }
     ],
     sessions: [
@@ -2275,7 +2279,7 @@ var LABS = [
           "lock()->block() против get()",
           "RateLimiter и свой ответ 429"
         ],
-        "code": "return Cache::lock(\"invite:{$workspace->id}:{$email}\", seconds: 10)->block(3, function () use ($workspace, $email) {\n    if ($workspace->invitations()->where('email', $email)->whereNull('accepted_at')->exists()) {\n        throw new \\RuntimeException('Приглашение уже отправлено');\n    }\n    // создаём приглашение и ставим письмо в очередь\n});"
+        "code": "return Cache::lock(\"invite:{$workspace->id}:{$email}\", seconds: 10)->block(3, function () use ($workspace, $email) {\n    if ($workspace->invitations()->where('email', $email)->whereNull('accepted_at')->exists()) {\n        throw new \\RuntimeException('Приглашение уже отправлено и ожидает принятия');\n    }\n    // создаём приглашение и ставим письмо в очередь\n});"
       },
       {
         "tab": "Тесты",
@@ -2602,7 +2606,7 @@ var LABS = [
     title: 'Docker Lab',
     subtitle: 'Крепкое владение Docker и Bash с нуля',
     desc: 'Docker и Bash с нуля: образы, контейнеры, docker-compose, сети и тома — через практику в терминале.',
-    stack: ['Docker', 'Docker Compose', 'Bash'],
+    stack: ['Docker', 'Docker Compose', 'Bash', 'Node.js 24', 'PostgreSQL 18'],
     difficulty: 'Базовая',
     image: 'images/docker.png',
     open: '../docker/Docker_Bash_Lab.html',
@@ -2619,6 +2623,14 @@ var LABS = [
       {
         "tag": "скрипты",
         "back": "Entrypoint-скрипты с set -euo pipefail и exec \"$@\"."
+      },
+      {
+        "tag": "приложение",
+        "back": "Маленькое Node.js-приложение — подопытный: упаковывается в образ, ждёт базу и корректно останавливается."
+      },
+      {
+        "tag": "база",
+        "back": "PostgreSQL 18 нужен, чтобы отработать тома, сеть по имени контейнера и ожидание готовности (wait-for-postgres.sh)."
       }
     ],
     learn: [
@@ -2691,17 +2703,17 @@ var LABS = [
     ],
     sessions: [
       {
-        "h": "",
+        "h": "~3 ч",
         "t": "Первый образ и bash-entrypoint",
         "r": "Образ Node-приложения с .dockerignore и entrypoint.sh, который проверяет окружение и передаёт управление через exec"
       },
       {
-        "h": "",
+        "h": "~3,5 ч",
         "t": "Данные, сеть, ожидание БД",
         "r": "PostgreSQL в своей сети с volume; приложение ждёт БД, корректно останавливается по SIGTERM; образ собран multi-stage"
       },
       {
-        "h": "",
+        "h": "~3,5 ч",
         "t": "Compose и Production Hell",
         "r": "Весь стек поднимается одной командой с .env, restart policy и лимитами; сломанный compose починен без подсказок"
       }
@@ -2947,7 +2959,7 @@ var LABS = [
     title: 'Чистый PHP Lab',
     subtitle: 'Фундамент без фреймворка',
     desc: 'Чистый PHP 8.4 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
-    stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)'],
+    stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)', 'PHPUnit'],
     difficulty: 'Базовая',
     image: '../php/php.png',
     open: '../php/PHP_Lab_VanillaCoffee.html',
@@ -2968,6 +2980,10 @@ var LABS = [
       {
         "tag": "автозагрузка",
         "back": "composer.json и PSR-4 заменяют ручные require и лежат в основе роутера и контейнера."
+      },
+      {
+        "tag": "тесты",
+        "back": "Несколько тестов PHPUnit к финальному REST API (сессия 8), например для роутера."
       }
     ],
     learn: [
@@ -3730,7 +3746,7 @@ var LABS = [
     title: 'Kubernetes Lab',
     subtitle: 'От Compose к оркестрации',
     desc: 'Миграция стека из Traefik-лабы в Kubernetes (kind): Pod и Deployment, Service и DNS, ConfigMap/Secret, Volumes и PVC, readiness/liveness-пробы, Traefik как Ingress-контроллер, HorizontalPodAutoscaler.',
-    stack: ['Kubernetes v1.37.0', 'kind v0.33.0', 'kubectl', 'Traefik'],
+    stack: ['Kubernetes v1.37.0', 'kind v0.33.0', 'kubectl', 'Traefik', 'PostgreSQL'],
     difficulty: 'Средняя–высокая',
     image: '../kubernetes/kubernetes.png',
     open: '../kubernetes/Kubernetes_Lab_Plan.html',
@@ -3751,6 +3767,10 @@ var LABS = [
       {
         "tag": "ingress",
         "back": "Тот же роутинг, что в Traefik-лабе, но как Ingress-контроллер."
+      },
+      {
+        "tag": "данные",
+        "back": "База на PersistentVolumeClaim: данные не теряются при пересоздании Pod (шаг 2.2)."
       }
     ],
     learn: [
@@ -3823,17 +3843,17 @@ var LABS = [
     ],
     sessions: [
       {
-        "h": "",
+        "h": "~3 ч",
         "t": "Кластер и первые объекты",
         "r": "kind-кластер, Deployment с самолечением и Service со стабильным адресом для API"
       },
       {
-        "h": "",
+        "h": "~3,5 ч",
         "t": "Полный стек: конфиги, данные, пробы",
         "r": "API с ConfigMap и Secret, PostgreSQL на PVC, пробы готовности и requests/limits"
       },
       {
-        "h": "",
+        "h": "~3,5 ч",
         "t": "Ingress и автоскейлинг",
         "r": "Traefik в кластере с IngressRoute, HPA вместо ручных реплик и финальный Production Hell"
       }
@@ -4194,7 +4214,7 @@ var LABS = [
           "Комнаты user:, ticket:, agents",
           "Подписка через ту же TicketPolicy"
         ],
-        "code": "@SubscribeMessage('ticket:subscribe')\nasync subscribe(@ConnectedSocket() client: Socket, @MessageBody() body: { ticketId?: unknown }) {\n  const user = client.data.user as AuthUser;\n  const ticket = await this.prisma.ticket.findFirst({\n    where: { id: Number(body?.ticketId), ...this.policy.scopeFor(user) },\n  });\n  if (!ticket) throw new WsException('Ticket not found');\n  await client.join(ticketRoom(ticket.id));\n}"
+        "code": "@SubscribeMessage('ticket:subscribe')\nasync subscribe(@ConnectedSocket() client: Socket, @MessageBody() body: { ticketId?: unknown }) {\n  const user = client.data.user as AuthUser;\n  const ticketId = Number(body?.ticketId);\n  if (!Number.isInteger(ticketId)) throw new WsException('ticketId must be an integer');\n  const ticket = await this.prisma.ticket.findFirst({\n    where: { id: ticketId, ...this.policy.scopeFor(user) },\n    select: { id: true },\n  });\n  if (!ticket) throw new WsException(`Ticket #${ticketId} not found`);\n  await client.join(ticketRoom(ticket.id));\n}"
       }
     ],
     sessions: [
@@ -5249,7 +5269,7 @@ var LABS = [
           "NuxtLink предзагружает код страницы",
           "Под капотом всё тот же Vue Router"
         ],
-        "code": "app/pages/\n├── index.vue                  → /\n├── kb/\n│   ├── index.vue              → /kb\n│   └── [category]/\n│       └── [slug].vue         → /kb/network/vpn-setup\n├── tickets/\n│   ├── index.vue              → /tickets\n│   └── [id].vue               → /tickets/42\n└── [...slug].vue              → catch-all (404)"
+        "code": "app/pages/\n├── index.vue                  → /\n├── kb/\n│   ├── index.vue              → /kb\n│   └── [category]/\n│       └── [slug].vue         → /kb/network/vpn-setup\n├── tickets/\n│   ├── index.vue              → /tickets\n│   └── [id].vue               → /tickets/42\n└── [...slug].vue              → всё остальное (catch-all, для 404)"
       },
       {
         "tab": "useFetch и гидрация",
@@ -5618,7 +5638,7 @@ var LABS = [
         title: 'Кто и где создаёт сервисы',
         text: 'Внедрение зависимостей — основа всего приложения. Увидите разницу между сервисом на весь корень и на один компонент и почему стор с состоянием формы нельзя делать синглтоном.',
         points: ['inject() вместо конструкторов', 'providedIn: root и providers компонента', 'InjectionToken для конфигурации (API_BASE_URL)'],
-        code: "export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');\n\n@Injectable({ providedIn: 'root' })\nexport class RoomsApi {\n  private http = inject(HttpClient);\n  private base = inject(API_BASE_URL);\n}",
+        code: "export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {\n  providedIn: 'root',\n  factory: () => '/api',\n});\n\n@Injectable({ providedIn: 'root' })\nexport class RoomsApi {\n  private readonly http = inject(HttpClient);\n  private readonly base = inject(API_BASE_URL);\n}",
       },
       {
         tab: 'HTTP и интерцепторы',
