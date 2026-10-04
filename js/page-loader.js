@@ -1,3 +1,5 @@
+// Страница открыта по http на нашем домене — переходим на https (на случай, если браузер отдал старую копию без редиректа Cloudflare).
+if(location.protocol==='http:'&&location.hostname==='anitech.meeymirita.ru')location.replace('https://'+location.host+location.pathname+location.search+location.hash);
 // Page-transition loader shared by the landing page and every lab page.
 // Based on GSAP's convertToPath() demo: plain SVG shapes (circle/rect/polygon) are converted
 // to <path> with MorphSVGPlugin.convertToPath() so they can morph into one another while the

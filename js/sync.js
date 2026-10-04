@@ -1,3 +1,5 @@
+// Страница открыта по http на нашем домене — переходим на https (на случай, если браузер отдал старую копию без редиректа Cloudflare).
+if(location.protocol==='http:'&&location.hostname==='anitech.meeymirita.ru')location.replace('https://'+location.host+location.pathname+location.search+location.hash);
 /* Синхронизация прогресса с вашим Cloudflare Worker (tools/progress-worker/).
  *
  * Зачем: прогресс методичек лежит в localStorage (ключи lab-redesign-v1:<лаба>) и пропадает при очистке данных сайта.
