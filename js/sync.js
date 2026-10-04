@@ -140,6 +140,7 @@
     return '#as-btn{position:fixed;left:12px;bottom:12px;z-index:9400;width:40px;height:40px;border:2px solid #1b1a19;background:#fff;color:#1b1a19;font:700 18px/1 system-ui;cursor:pointer;box-shadow:3px 3px 0 #1b1a19;display:grid;place-items:center}' +
       'body[data-theme=dark] #as-btn{background:#1c1a19;color:#f1ede8;border-color:#f1ede8;box-shadow:3px 3px 0 #f1ede8}' +
       '#as-btn i{position:absolute;right:-5px;top:-5px;width:12px;height:12px;border-radius:50%;border:2px solid #1b1a19;background:#999}' +
+      '#as-btn i.ask{background:#2965F1;animation:as-pulse 1.4s ease-in-out infinite}@keyframes as-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}' +
       '#as-btn i.ok{background:#2f9e4a}#as-btn i.wait{background:#e0a800}#as-btn i.bad{background:#d64545}' +
       '#as-p{position:fixed;left:12px;bottom:62px;z-index:9400;width:min(320px,calc(100vw - 24px));display:none;padding:14px;background:#fff;color:#1b1a19;border:2px solid #1b1a19;box-shadow:4px 4px 0 #1b1a19;font:14px/1.5 system-ui,sans-serif}' +
       'body[data-theme=dark] #as-p{background:#1c1a19;color:#f1ede8;border-color:#f1ede8;box-shadow:4px 4px 0 #f1ede8}' +
@@ -158,26 +159,30 @@
     document.body.appendChild(btn); document.body.appendChild(panel);
     panel.addEventListener('click', function (e) {
       var a = e.target.getAttribute && e.target.getAttribute('data-a');
-      if (a === 'save') {
-        var v = panel.querySelector('input').value.trim(); if (!v) return;
-        origSet.call(ls, TOKEN, v); state.pulled = false; pull();
-      } else if (a === 'sync') { state.pulled = false; pull(); }
+      if (a === 'sync') { state.pulled = false; pull(); }
       else if (a === 'off') { try { ls.removeItem(TOKEN); } catch (er) {} setStatus(null, 'отключено'); paint(); }
       else if (a === 'export') exportFile();
       else if (a === 'import') panel.querySelector('input[type=file]').click();
+    });
+    panel.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var inp = panel.querySelector('input[type=password]'), v = inp ? inp.value.trim() : '';
+      if (!v) return;
+      origSet.call(ls, TOKEN, v); state.pulled = false; pull();
     });
     panel.addEventListener('change', function (e) { if (e.target.type === 'file' && e.target.files[0]) importFile(e.target.files[0]); });
   }
   function paint() {
     if (!built) return;
-    var dot = btn.querySelector('i'); dot.className = !WORKER || !token() ? '' : state.ok === true ? 'ok' : state.ok === false ? 'bad' : 'wait';
+    var dot = btn.querySelector('i'); dot.className = !WORKER ? '' : !token() ? 'ask' : state.ok === true ? 'ok' : state.ok === false ? 'bad' : 'wait';
     var html = '<h4>Прогресс</h4>';
     if (!WORKER) {
       html += '<p>Синхронизация с сервером ещё не настроена. Пока можно сохранять прогресс в файл и загружать его обратно.</p>';
     } else if (!token()) {
       html += '<p>Введите пароль, и прогресс будет сохраняться на вашем Worker и переживёт очистку браузера.</p>' +
-        '<input type="password" placeholder="Пароль" autocomplete="off"><div id="as-st">' + esc(state.text) + '</div>' +
-        '<button class="pri" data-a="save">Подключить</button>';
+        '<form id="as-f"><input type="text" name="username" value="anitech-progress" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;opacity:0;height:0;width:0;padding:0;border:0">' +
+        '<input type="password" name="password" placeholder="Пароль" autocomplete="current-password"><div id="as-st">' + esc(state.text) + '</div>' +
+        '<button class="pri" type="submit">Подключить</button></form>';
     } else {
       html += '<div id="as-st">' + esc(state.text || 'подключено') + '</div>' +
         '<button class="pri" data-a="sync">Синхронизировать</button><button data-a="off">Отключить</button><br>';
