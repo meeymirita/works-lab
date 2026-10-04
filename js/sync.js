@@ -163,20 +163,59 @@
   // ── интерфейс ──────────────────────────────────────────────────────────
   var btn, panel, nudge, built = false;
   var NUDGE = 'anitech-sync-nudge-closed';
+  var POS = 'anitech-sync-pos';          // положение кнопки в долях экрана {x, y}
+  var SIZE = 40;
+  function readPos() {
+    var o = null; try { o = JSON.parse(ls.getItem(POS) || 'null'); } catch (e) {}
+    return o && typeof o.x === 'number' && typeof o.y === 'number' ? o : { x: 10 / Math.max(innerWidth, 1), y: 0.5 };
+  }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  // ставит кнопку и привязывает к ней окошки так, чтобы они не выходили за экран
+  function place() {
+    if (!btn) return;
+    var W = innerWidth, H = innerHeight, pos = readPos();
+    var x = clamp(pos.x * W, 4, W - SIZE - 4), y = clamp(pos.y * H, 4, H - SIZE - 4);
+    btn.style.left = x + 'px'; btn.style.top = y + 'px';
+    [panel, nudge].forEach(function (el) {
+      if (!el) return;
+      if (x < W / 2) { el.style.left = (x + SIZE + 10) + 'px'; el.style.right = 'auto'; }
+      else { el.style.right = (W - x + 10) + 'px'; el.style.left = 'auto'; }
+      if (y > H / 2) { el.style.bottom = (H - y - SIZE) + 'px'; el.style.top = 'auto'; }
+      else { el.style.top = y + 'px'; el.style.bottom = 'auto'; }
+    });
+  }
+  function enableDrag(el) {
+    var sx, sy, ox, oy, moved = false, down = false;
+    el.addEventListener('pointerdown', function (e) {
+      down = true; moved = false; sx = e.clientX; sy = e.clientY;
+      var r = el.getBoundingClientRect(); ox = r.left; oy = r.top;
+      try { el.setPointerCapture(e.pointerId); } catch (er) {}
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      if (!moved && Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) < 6) return;
+      moved = true;
+      var W = innerWidth, H = innerHeight;
+      var x = clamp(ox + e.clientX - sx, 4, W - SIZE - 4), y = clamp(oy + e.clientY - sy, 4, H - SIZE - 4);
+      origSet.call(ls, POS, JSON.stringify({ x: x / W, y: y / H })); place();
+    });
+    el.addEventListener('pointerup', function () { down = false; });
+    el.addEventListener('click', function (e) { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
+  }
   function css() {
-    return '#as-btn{position:fixed;left:12px;bottom:12px;z-index:9400;width:40px;height:40px;border:2px solid #1b1a19;background:#fff;color:#1b1a19;font:700 18px/1 system-ui;cursor:pointer;box-shadow:3px 3px 0 #1b1a19;display:grid;place-items:center}' +
+    return '#as-btn{position:fixed;left:10px;top:50%;z-index:9400;touch-action:none;width:40px;height:40px;border:2px solid #1b1a19;background:#fff;color:#1b1a19;font:700 18px/1 system-ui;cursor:pointer;box-shadow:3px 3px 0 #1b1a19;display:grid;place-items:center}' +
       'body[data-theme=dark] #as-btn{background:#1c1a19;color:#f1ede8;border-color:#f1ede8;box-shadow:3px 3px 0 #f1ede8}' +
       '#as-btn i{position:absolute;right:-5px;top:-5px;width:12px;height:12px;border-radius:50%;border:2px solid #1b1a19;background:#999}' +
       '#as-btn i.ask{background:#2965F1;animation:as-pulse 1.4s ease-in-out infinite}@keyframes as-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}' +
       '#as-btn i.ok{background:#2f9e4a}#as-btn i.wait{background:#e0a800}#as-btn i.bad{background:#d64545}' +
-      '#as-p{position:fixed;left:12px;bottom:62px;z-index:9400;width:min(320px,calc(100vw - 24px));display:none;padding:14px;background:#fff;color:#1b1a19;border:2px solid #1b1a19;box-shadow:4px 4px 0 #1b1a19;font:14px/1.5 system-ui,sans-serif}' +
+      '#as-p{position:fixed;left:62px;bottom:62px;z-index:9400;width:min(320px,calc(100vw - 24px));display:none;padding:14px;background:#fff;color:#1b1a19;border:2px solid #1b1a19;box-shadow:4px 4px 0 #1b1a19;font:14px/1.5 system-ui,sans-serif}' +
       'body[data-theme=dark] #as-p{background:#1c1a19;color:#f1ede8;border-color:#f1ede8;box-shadow:4px 4px 0 #f1ede8}' +
       '#as-p.open{display:block}#as-p h4{margin:0 0 6px;font:800 14px system-ui}#as-p p{margin:0 0 10px;opacity:.85;font-size:13px}' +
       '#as-p input[type=password]{width:100%;padding:8px;border:2px solid currentColor;background:transparent;color:inherit;font:inherit;margin-bottom:8px}' +
       '#as-p button{padding:7px 10px;border:2px solid currentColor;background:transparent;color:inherit;font:700 13px system-ui;cursor:pointer;margin:0 6px 6px 0}' +
       '#as-p button.pri{background:#1b1a19;color:#fff}body[data-theme=dark] #as-p button.pri{background:#f1ede8;color:#1c1a19}' +
       '#as-st{font-size:13px;margin:4px 0 8px;min-height:18px}' +
-      '#as-n{position:fixed;left:62px;bottom:14px;z-index:9399;display:none;max-width:min(260px,calc(100vw - 80px));padding:10px 12px;background:#fff;color:#1b1a19;border:2px solid #2965F1;box-shadow:3px 3px 0 #2965F1;font:13px/1.45 system-ui,sans-serif}' +
+      '#as-n{position:fixed;left:62px;top:50%;z-index:9399;display:none;max-width:min(260px,calc(100vw - 80px));padding:10px 12px;background:#fff;color:#1b1a19;border:2px solid #2965F1;box-shadow:3px 3px 0 #2965F1;font:13px/1.45 system-ui,sans-serif}' +
       'body[data-theme=dark] #as-n{background:#1c1a19;color:#f1ede8}#as-n.on{display:block}' +
       '#as-n b{display:block;margin-bottom:4px}#as-n button{margin:6px 6px 0 0;padding:5px 9px;border:2px solid currentColor;background:transparent;color:inherit;font:700 12px system-ui;cursor:pointer}' +
       '#as-n button.pri{background:#2965F1;border-color:#2965F1;color:#fff}';
@@ -185,7 +224,7 @@
     if (built) return; built = true;
     var st = document.createElement('style'); st.textContent = css(); document.head.appendChild(st);
     btn = document.createElement('button'); btn.id = 'as-btn'; btn.type = 'button'; btn.title = 'Синхронизация прогресса';
-    btn.innerHTML = '☁<i></i>'; btn.addEventListener('click', function () { panel.classList.toggle('open'); paint(); });
+    btn.title = 'Синхронизация прогресса (можно перетащить)'; btn.innerHTML = '☁<i></i>'; btn.addEventListener('click', function () { panel.classList.toggle('open'); paint(); });
     panel = document.createElement('div'); panel.id = 'as-p';
     nudge = document.createElement('div'); nudge.id = 'as-n'; nudge.setAttribute('role', 'status');
     nudge.innerHTML = '<b>Синхронизация не подключена</b>Без неё прогресс пропадёт, если очистить данные сайта.<br><button class="pri" data-n="open">Подключить</button><button data-n="close">Закрыть</button>';
@@ -195,6 +234,7 @@
       else if (a === 'close') { try { sessionStorage.setItem(NUDGE, '1'); } catch (er) {} paint(); }
     });
     document.body.appendChild(btn); document.body.appendChild(panel); document.body.appendChild(nudge);
+    enableDrag(btn); window.addEventListener('resize', place); place();
     panel.addEventListener('click', function (e) {
       var a = e.target.getAttribute && e.target.getAttribute('data-a');
       if (a === 'sync') { state.pulled = false; pull(); }
