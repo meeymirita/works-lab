@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<script>if(location.protocol==='http:'&&location.hostname==='anitech.meeymirita.ru')location.replace('https://'+location.host+location.pathname+location.search+location.hash);</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Хронология — ANITECH PERFORMANCE</title>
@@ -333,6 +332,7 @@
 <footer class="cl-footer mono">ANITECH · обучающая платформа · <span id="cl-generated"></span></footer>
 
 <script>
+if(location.protocol==='http:'&&location.hostname==='anitech.meeymirita.ru')location.replace('https://'+location.host+location.pathname+location.search+location.hash);
 // ── справочник лаб: цвет + подпись ──────────────────────────────────────
 var LABS = {
   site:        { label: 'Сайт / инфраструктура', color: '#7df9ff' },
@@ -683,6 +683,9 @@ var DAYS = [
   {main:1, lab:'site', type:'added', text:'<b>Во всех 21 методичках у каждого шага теперь есть то же, что в PostgreSQL:</b> плашка «Перед шагом N — Почитать» со ссылкой на документацию (все ссылки проверены запросом), блок «Зачем» и блок «Под капотом». Раньше полностью так было у шести лаб, у остальных не хватало плашек и «Под капотом» (у Чистого PHP — ни одного). Добавлено около 480 блоков «Под капотом» и 480 плашек; блоки написаны так, чтобы не повторять «Зачем». Видео не ставили: ссылку на конкретное видео проверить нельзя.'},
   {proof:1, pk:'read', lab:'laravel', type:'changed', text:'<b>Ошибка в методичке (04.10):</b> в шаге 2.8 было написано, что <code>withCount</code> считает «через JOIN + GROUP BY». На самом деле Eloquent добавляет в <code>SELECT</code> коррелированный подзапрос <code>(select count(*) …)</code>. Исправлено в тексте и объяснено в «Под капотом».'},
   {proof:1, pk:'read', lab:'docker', type:'changed', text:'<b>«Ожидаемый результат» в шагах 1.4 и 2.3:</b> там стоял оторванный от контекста кусок («Значит образ собрался с alpine…», «Если когда-нибудь придётся переносить логику на sh…»). Теперь сначала описано, что должно получиться (вывод <code>docker logs</code>, <code>/proc/1/cmdline</code>, лог ожидания базы), прежняя заметка оставлена ниже.'},
+  {main:1, lab:'site', type:'changed', text:'<b>Хронология переделана на три колонки:</b> слева «Главное» (редизайны, рождение лаб, крупные решения, с фильтрами), в середине «Вычитка и запуск» (карточки по каждой лабе: что нашла вычитка, что показал запуск), справа полный отчёт по дням. У каждого блока кнопки «Свернуть». Добавлены недостающие события вычитки Чистого PHP, JS, Vue, TypeScript, GraphQL и Laravel.'},
+  {main:1, lab:'site', type:'added', text:'<b>Прогресс больше не пропадает при очистке браузера.</b> Отметки шагов, раньше лежавшие только в localStorage, теперь дублируются на личном Cloudflare Worker (хранилище KV, доступ по паролю, пароль только в Cloudflare и у вас). Кнопка ☁ в середине левой панели (её можно перетащить): ввод пароля, статус, экспорт и импорт файла. При подключении прогресс объединяется, а не затирается; пока не подключено, рядом с ☁ появляется напоминание. Код — <code>tools/progress-worker/</code> и <code>works/js/sync.js</code>.'},
+  {main:1, lab:'site', type:'changed', text:'<b>Домен и HTTPS.</b> Сертификат GitHub Pages не выдавался несколько недель (его резолвер падал с <code>Dnsruby::ServFail</code> при верном DNS), поэтому DNS домена перенесён из REG.RU в Cloudflare, а HTTPS отдаёт сам Cloudflare (режим Full, Always Use HTTPS, сертификат продлевается сам). Обычный http перенаправляется на https и самой страницей, если браузер отдал старую копию. Кеш браузера — 5 минут, чтобы новые версии доходили быстро.'},
 ]},
 ];
 
