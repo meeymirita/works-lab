@@ -8648,19 +8648,25 @@ function labVerifyBanner(key) {
   var st = window.LAB_STATUS && window.LAB_STATUS[key];
   if (!st) return '';
   var part = st.level === 'part';
-  return '<aside class="lab-verify lab-verify-' + st.level + '" aria-label="Статус проверки">' +
-    '<div class="lab-verify-badge" aria-hidden="true">' + (part ? '◐' : '✓') + '</div>' +
-    '<div class="lab-verify-main">' +
-      '<div class="lab-verify-kicker mono">@@ / статус проверки</div>' +
-      '<div class="lab-verify-title display">' + escapeHtml(st.head) + '</div>' +
-      '<div class="lab-verify-sub">возможны небольшие недочёты — методичка вычитана построчно, код из неё запускался</div>' +
-      ((st.method && st.method.length) ? '<div class="lab-verify-chips">' + st.method.map(function (m) { return '<span class="lab-verify-chip mono">' + escapeHtml(m) + '</span>'; }).join('') + (part ? '<span class="lab-verify-chip lab-verify-chip-part mono">частично</span>' : '') + '</div>' : '') +
-      (st.rest ? '<div class="lab-verify-rest"><span class="lab-verify-rest-label mono">' + escapeHtml(st.tail) + '</span>' + escapeHtml(st.rest) + '</div>' : '') +
-      '<div class="lab-verify-links">' +
-        '<a class="lab-verify-btn lab-verify-btn-fill mono" href="verification.html">Что чем проверено</a>' +
-        (st.detail ? '<a class="lab-verify-btn lab-verify-btn-line mono" href="' + escapeHtml(st.detail) + '" target="_blank" rel="noopener">Подробности по этой лабе →</a>' : '') +
+  var icon = part
+    ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/></svg>'
+    : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M20 6 9 17l-5-5"/></svg>';
+  return '<section class="lab-verify" aria-label="Статус проверки">' +
+    '<div class="lab-verify__main">' +
+      '<div class="lab-verify__icon" aria-hidden="true">' + icon + '</div>' +
+      '<div class="lab-verify__body">' +
+        '<div class="lab-verify__meta"><span class="lab-verify__kicker">01 / СТАТУС ПРОВЕРКИ</span>' +
+          (st.method || []).map(function (m) { return '<span class="lab-verify__tag">' + escapeHtml(m.charAt(0).toUpperCase() + m.slice(1)) + '</span>'; }).join('') + '</div>' +
+        '<h2 class="lab-verify__title">' + escapeHtml(st.head) + '</h2>' +
+        '<p class="lab-verify__text">возможны небольшие недочёты — методичка вычитана построчно, код из неё запускался</p>' +
       '</div>' +
-    '</div></aside>';
+      '<div class="lab-verify__actions">' +
+        '<a class="lab-verify__btn lab-verify__btn--primary" href="verification.html">Что чем проверено</a>' +
+        (st.detail ? '<a class="lab-verify__btn lab-verify__btn--secondary" href="' + escapeHtml(st.detail) + '" target="_blank" rel="noopener">Подробности →</a>' : '') +
+      '</div>' +
+    '</div>' +
+    (st.rest ? '<div class="lab-verify__note"><span class="lab-verify__kicker">' + escapeHtml(st.tail).toUpperCase() + '</span><span>' + escapeHtml(st.rest) + '</span></div>' : '') +
+  '</section>';
 }
 
 function renderLabPage(key) {
