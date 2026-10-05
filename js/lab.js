@@ -1078,7 +1078,7 @@ var LABS = [
     title: 'Caddy Lab',
     subtitle: 'Edge — веб-сервер и reverse proxy с автоматическим HTTPS',
     desc: 'Один Caddy перед сайтом, API, WebSocket и PHP: Caddyfile вместо nginx + certbot, HTTPS из коробки, балансировка, безопасность, своя сборка через xcaddy.',
-    stack: ['Caddy 2.11.7', 'Docker Compose', 'Node.js 22', 'PHP 8.4-FPM', 'xcaddy / Go'],
+    stack: ['Caddy 2.11.7', 'Docker Compose', 'Node.js 24', 'PHP 8.4-FPM', 'xcaddy / Go'],
     difficulty: 'Средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/caddy/caddy-server.png',
     open: 'https://meeymirita-files.storage.yandexcloud.net/caddy/caddy.html',
@@ -1094,7 +1094,7 @@ var LABS = [
       },
       {
         "tag": "бэкенды",
-        "back": "Проект Edge: два экземпляра API на Node 22, WebSocket-эхо (RFC 6455), поток событий SSE и отдельный сервис для forward_auth."
+        "back": "Проект Edge: два экземпляра API на Node 24, WebSocket-эхо (RFC 6455), поток событий SSE и отдельный сервис для forward_auth."
       },
       {
         "tag": "PHP",
@@ -1187,7 +1187,7 @@ var LABS = [
       {
         "h": "~6 ч",
         "t": "Reverse proxy",
-        "r": "Бэкенды проекта Edge на Node 22, handle /api/* и handle_path, заголовки X-Forwarded, WebSocket и SSE без спецнастроек, 502 и его починка"
+        "r": "Бэкенды проекта Edge на Node 24, handle /api/* и handle_path, заголовки X-Forwarded, WebSocket и SSE без спецнастроек, 502 и его починка"
       },
       {
         "h": "~6 ч",
@@ -1267,7 +1267,7 @@ var LABS = [
         {
           "label": "Бэкенды Edge",
           "boxes": [
-            "API ×2 (Node 22): round_robin",
+            "API ×2 (Node 24): round_robin",
             "WebSocket-эхо + поток SSE"
           ]
         },
@@ -1344,7 +1344,7 @@ var LABS = [
           {
             "id": "api",
             "t": "API ×2",
-            "s": "Node 22 :3001 :3002",
+            "s": "Node 24 :3001 :3002",
             "x": 800,
             "y": 120,
             "d": "Два «говорящих» экземпляра — заголовок X-Backend показывает, кто ответил."
@@ -1352,7 +1352,7 @@ var LABS = [
           {
             "id": "ws",
             "t": "WebSocket + SSE",
-            "s": "Node 22 :3100",
+            "s": "Node 24 :3100",
             "x": 800,
             "y": 260,
             "d": "Эхо по RFC 6455 и поток событий — без отдельной директивы в Caddyfile."
