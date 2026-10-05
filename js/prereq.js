@@ -241,6 +241,9 @@
   // ── определяем лабу по адресу страницы ─────────────────────────────────
   var script = document.currentScript;
   var root = script && script.src ? script.src.replace(/works\/js\/prereq\.js.*$/, '') : '../';
+  // методички лежат не на сайте, а в бакете Object Storage — ссылки на НИХ (другие лабы в
+  // "Сначала пройдите"/"Порядок"/"Дальше") строим от бакета, а не от root (сайта)
+  var BUCKET = 'https://meeymirita-files.storage.yandexcloud.net/';
   var path = decodeURIComponent(location.pathname);
   var key = null;
   Object.keys(LABS).forEach(function (k) { if (path.slice(-LABS[k].file.length) === LABS[k].file) key = k; });
@@ -300,15 +303,15 @@
   function html() {
     var pre = lab.before.map(function (b) {
       var t = LABS[b.key];
-      return '<a class="pq-lab" href="' + root + t.file + '"><b>' + esc(t.name) + '</b><span class="pq-k ' + b.kind + '">' + KIND[b.kind] + '</span><span>' + esc(b.why) + '</span></a>';
+      return '<a class="pq-lab" href="' + BUCKET + t.file + '"><b>' + esc(t.name) + '</b><span class="pq-k ' + b.kind + '">' + KIND[b.kind] + '</span><span>' + esc(b.why) + '</span></a>';
     }).join('');
     var path = route(key);
     var order = path.map(function (k, i) {
       var t = LABS[k];
-      return '<li><a class="' + (k === key ? 'cur' : '') + '" href="' + root + t.file + '"' + (k === key ? ' aria-current="page"' : '') + '><em>' + (i + 1) + '</em><i style="background:' + t.accent + '"></i>' + esc(t.name.replace(/ Lab$/, '')) + (k === key ? ' · эта работа' : '') + '</a></li>';
+      return '<li><a class="' + (k === key ? 'cur' : '') + '" href="' + BUCKET + t.file + '"' + (k === key ? ' aria-current="page"' : '') + '><em>' + (i + 1) + '</em><i style="background:' + t.accent + '"></i>' + esc(t.name.replace(/ Lab$/, '')) + (k === key ? ' · эта работа' : '') + '</a></li>';
     }).join('');
     var next = ORDER[ORDER.indexOf(key) + 1];
-    var nextHtml = next ? '<p style="margin:10px 0 0;opacity:.85">Дальше по общему порядку: <a href="' + root + LABS[next].file + '">' + esc(LABS[next].name) + '</a>.</p>' : '';
+    var nextHtml = next ? '<p style="margin:10px 0 0;opacity:.85">Дальше по общему порядку: <a href="' + BUCKET + LABS[next].file + '">' + esc(LABS[next].name) + '</a>.</p>' : '';
     var routeHtml = path.length > 1
       ? '<section><h3>Порядок: что пройти до этой работы</h3><ol class="pq-ord">' + order + '</ol>' + nextHtml + '</section>'
       : '<section><h3>Порядок</h3><p style="margin:0">Предыдущих работ проходить не нужно: можно начинать сразу.</p>' + nextHtml + '</section>';
