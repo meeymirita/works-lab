@@ -8,7 +8,7 @@ var LABS = [
     stack: ['Laravel 13', 'PostgreSQL 18', 'RabbitMQ', 'Mailpit'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/rabbitmq/rabbitmq.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/rabbitmq/RabbitMQ_Lab_Plan_v1_pro_max.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/rabbitmq/rabbitmq.html',
     repo: 'https://github.com/meeymirita/rabbitmq-lab',
     stackInfo: [
       {
@@ -371,7 +371,7 @@ var LABS = [
     stack: ['Laravel 13', 'PostgreSQL 18', 'Redis 8'],
     difficulty: 'Средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/redis/redis.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/redis/Redis_Lab_Plan.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/redis/redis.html',
     repo: 'https://github.com/meeymirita/redis-lab',
     stackInfo: [
       {
@@ -734,7 +734,7 @@ var LABS = [
     stack: ['Traefik 3', 'Docker Compose', 'Node.js', 'PostgreSQL', 'mkcert / Let\'s Encrypt'],
     difficulty: 'Низкая–средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/traefik/traefik.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/traefik/Docker_and_Traefik_Lab_Plan.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/traefik/traefik.html',
     repo: 'https://github.com/meeymirita/traefik-lab',
     stackInfo: [
       {
@@ -1081,7 +1081,7 @@ var LABS = [
     stack: ['Caddy 2.11.7', 'Docker Compose', 'Node.js 22', 'PHP 8.4-FPM', 'xcaddy / Go'],
     difficulty: 'Средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/caddy/caddy-server.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/caddy/Caddy_Lab_Edge.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/caddy/caddy.html',
     repo: 'https://github.com/meeymirita/caddy-lab',
     stackInfo: [
       {
@@ -1468,7 +1468,7 @@ var LABS = [
     stack: ['PHP 8.4', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/php-coffee/php.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/php-coffee/OOP_Lab_CoffeeShop.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/php-coffee/php-coffee.html',
     repo: 'https://github.com/meeymirita/oop-lab',
     stackInfo: [
       {
@@ -1833,7 +1833,7 @@ var LABS = [
     stack: ['Vue 3.5', 'Vite 7', 'Pinia 2+', 'Vue Router', 'Node'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/vue/vue-anime.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/vue/Vue_Lab_Helpdesk.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/vue/vue.html',
     repo: 'https://github.com/meeymirita/vue-lab',
     stackInfo: [
       {
@@ -2209,7 +2209,7 @@ var LABS = [
     stack: ['TypeScript 6', 'Node 24+', 'Zod', 'Vitest'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/typescript/typescript.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/typescript/TypeScript_Lab_Warehouse.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/typescript/typescript.html',
     repo: 'https://github.com/meeymirita/typescript-lab',
     stackInfo: [
       {
@@ -2588,7 +2588,7 @@ var LABS = [
     stack: ['Laravel 13', 'PostgreSQL 18', 'Redis', 'RabbitMQ', 'Reverb'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/laravel/laravel.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/laravel/Laravel_Lab_TaskFlow.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/laravel/laravel.html',
     repo: 'https://github.com/meeymirita/laravel-lab',
     stackInfo: [
       {
@@ -2996,7 +2996,7 @@ var LABS = [
     stack: ['Docker', 'Docker Compose', 'Bash', 'Node.js 24', 'PostgreSQL 18'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/docker/docker.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/docker/Docker_Bash_Lab.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/docker/docker.html',
     repo: 'https://github.com/meeymirita/docker-lab',
     stackInfo: [
       {
@@ -3349,7 +3349,7 @@ var LABS = [
     stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)', 'PHPUnit'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/php/php.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/php/PHP_Lab_VanillaCoffee.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/php/php.html',
     repo: 'https://github.com/meeymirita/php-lab',
     stackInfo: [
       {
@@ -3736,7 +3736,7 @@ var LABS = [
     stack: ['JavaScript ES2022', 'Node.js 24+', 'json-server', 'node:test', 'Docker'],
     difficulty: 'Средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/js/JavaScript.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/js/JS_Lab_VanillaHelpdesk.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/js/js.html',
     repo: 'https://github.com/meeymirita/js-lab',
     stackInfo: [
       {
@@ -4136,7 +4136,7 @@ var LABS = [
     stack: ['Kubernetes v1.37.0', 'kind v0.33.0', 'kubectl', 'Traefik', 'PostgreSQL'],
     difficulty: 'Средняя–высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/kubernetes.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/Kubernetes_Lab_Plan.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/kubernetes.html',
     repo: 'https://github.com/meeymirita/kubernetes-lab',
     stackInfo: [
       {
@@ -4512,7 +4512,7 @@ var LABS = [
     stack: ['NestJS 11', 'Prisma 7', 'PostgreSQL 18', 'JWT + argon2', 'Socket.IO'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/nestjs/nest.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/nestjs/NestJS_Lab_Plan.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/nestjs/nestjs.html',
     repo: 'https://github.com/meeymirita/nestjs-lab',
     stackInfo: [
       {
@@ -4883,7 +4883,7 @@ var LABS = [
     stack: ['NestJS + Apollo Server', 'Prisma 7', 'PostgreSQL 18', 'DataLoader', 'Redis'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/graphql/GraphQL.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/graphql/GraphQL_Lab_Plan.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/graphql/graphql.html',
     repo: 'https://github.com/meeymirita/graphql-lab',
     stackInfo: [
       {
@@ -5247,7 +5247,7 @@ var LABS = [
     stack: ['PostgreSQL 18', 'psql', 'pgbench', 'Docker'],
     difficulty: 'Средняя–высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/postgresql/PostgreSQL.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/postgresql/PostgreSQL_Lab_CoffeeShop.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/postgresql/postgresql.html',
     repo: 'https://github.com/meeymirita/postgresql-lab',
     stackInfo: [
       {
@@ -5622,7 +5622,7 @@ var LABS = [
     stack: ['Nuxt 4', 'TypeScript', 'Nitro', 'Drizzle', 'Nuxt Content'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/nuxt/Nuxt.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/nuxt/Nuxt_Lab_HelpCenter.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/nuxt/nuxt.html',
     repo: 'https://github.com/meeymirita/nuxt-lab',
     stackInfo: [
       {
@@ -6010,7 +6010,7 @@ var LABS = [
     ],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/angular/Angular.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/angular/Angular_Lab_RoomBook.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/angular/angular.html',
     repo: 'https://github.com/meeymirita/angular-lab',
     learn: [
       {
@@ -6267,7 +6267,7 @@ var LABS = [
     stack: ['CSS', '@layer', 'Grid', 'Container Queries', 'oklch'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/css/css.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/css/CSS_Lab_FrontFest.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/css/css.html',
     repo: 'https://github.com/meeymirita/css-lab',
     stackInfo: [
       {
@@ -6629,7 +6629,7 @@ var LABS = [
     stack: ['Tailwind CSS 4', '@theme', 'Vite', 'Container Queries', 'Dark mode'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/tailwind/tailwind.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/tailwind/Tailwind_Lab_Pulse.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/tailwind/tailwind.html',
     repo: 'https://github.com/meeymirita/tailwind-lab',
     stackInfo: [
       {
@@ -7002,7 +7002,7 @@ var LABS = [
     stack: ['Laravel 13', 'Inertia 3', 'Vue 3', 'TypeScript', 'Pinia'],
     difficulty: 'Средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/inertia/inertia.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/inertia/Inertia_Lab_Inkwell.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/inertia/inertia.html',
     repo: 'https://github.com/meeymirita/inertia-lab',
     stackInfo: [
       {
@@ -7340,7 +7340,7 @@ var LABS = [
     stack: ['Laravel 13', 'k6', 'SPX', 'OPcache', 'Octane + FrankenPHP'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/laravel-performance/laravel-performance.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/laravel-performance/Perf_Lab_LaravelCoffeePerf.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/laravel-performance/laravel-performance.html',
     repo: 'https://github.com/meeymirita/laravel-performance-lab',
     stackInfo: [
       {
@@ -7682,7 +7682,7 @@ var LABS = [
     stack: ['PHP 8.4', 'SPL', 'PHPUnit', 'Docker'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/algorithms-php/algorithms-php.png',
-    open: 'https://meeymirita-files.storage.yandexcloud.net/algorithms-php/Algo_Lab_CoffeeAlgo.html',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/algorithms-php/algorithms-php.html',
     repo: 'https://github.com/meeymirita/algorithms-php-lab',
     stackInfo: [
       {

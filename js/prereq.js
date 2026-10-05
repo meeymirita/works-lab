@@ -27,7 +27,7 @@
   // Сила связи в «before»: need — без неё шаги не выполнить; know — методичка опирается на её знания; help — полезно.
   var LABS = {
     docker: {
-      name: 'Docker Lab', file: 'docker/Docker_Bash_Lab.html', accent: '#2496ED', level: 'zero',
+      name: 'Docker Lab', file: 'docker/docker.html', accent: '#2496ED', level: 'zero',
       headline: 'Ничего знать не нужно — лаба идёт с нуля',
       know: ['Уметь открыть терминал и запустить команду',
              'Про контейнеры, образы и Bash заранее знать не нужно: оба объясняются с нуля, Bash идёт параллельным треком'],
@@ -35,7 +35,7 @@
       before: [], tip: 'Нужен установленный Docker.'
     },
     'php-coffee': {
-      name: 'OOP Lab', file: 'php-coffee/docs/OOP_Lab_CoffeeShop.html', accent: '#777BB4', level: 'light',
+      name: 'OOP Lab', file: 'php-coffee/php-coffee.html', accent: '#777BB4', level: 'light',
       headline: 'Нужен только синтаксис PHP',
       know: ['Синтаксис PHP: переменные, функции, массивы, циклы',
              'Терминал и Docker на уровне «запустить и посмотреть вывод»'],
@@ -44,7 +44,7 @@
       before: [], tip: 'Если ООП даётся тяжело — не спешите: это фундамент для большинства следующих лаб.'
     },
     php: {
-      name: 'Чистый PHP Lab', file: 'php/PHP_Lab_VanillaCoffee.html', accent: '#C9A876', level: 'light',
+      name: 'Чистый PHP Lab', file: 'php/php.html', accent: '#C9A876', level: 'light',
       headline: 'Синтаксис PHP и принципы ООП',
       know: ['Синтаксис PHP и работа в терминале',
              'ООП-принципы (инкапсуляция, полиморфизм, Value Object) — на уровне OOP-лабы: здесь они используются без объяснений'],
@@ -53,7 +53,7 @@
       tip: 'Laravel знать не нужно: сравнения с ним даются по ходу.'
     },
     'algorithms-php': {
-      name: 'Algorithms PHP Lab', file: 'algorithms-php/Algo_Lab_CoffeeAlgo.html', accent: '#b45f06', level: 'light',
+      name: 'Algorithms PHP Lab', file: 'algorithms-php/algorithms-php.html', accent: '#b45f06', level: 'light',
       headline: 'Нужен только синтаксис PHP',
       know: ['Циклы, массивы и функции в PHP — первые сессии используют только их',
              'Формулы сложности знать не нужно: она объясняется без формул и проверяется замером'],
@@ -61,7 +61,7 @@
       before: [], tip: 'Нужен Docker. Лаба самостоятельна, её удобно проходить рядом с «Чистым PHP».'
     },
     postgresql: {
-      name: 'PostgreSQL Lab', file: 'postgresql/PostgreSQL_Lab_CoffeeShop.html', accent: '#4A90D9', level: 'solid',
+      name: 'PostgreSQL Lab', file: 'postgresql/postgresql.html', accent: '#4A90D9', level: 'solid',
       headline: 'Уровень «умею SELECT и INSERT»',
       know: ['SELECT и INSERT; если JOIN пока «тёмный лес» — начните с сессии 0, там он разобран с нуля',
              'Docker Compose на уровне «поднять базу и подключиться»',
@@ -70,7 +70,7 @@
       before: [], tip: 'Лаба самостоятельна: ничего не берёт из других.'
     },
     rabbitmq: {
-      name: 'RabbitMQ Lab', file: 'rabbitmq/docs/RabbitMQ_Lab_Plan_v1_pro_max.html', accent: '#FF6600', level: 'heavy',
+      name: 'RabbitMQ Lab', file: 'rabbitmq/rabbitmq.html', accent: '#FF6600', level: 'heavy',
       headline: 'Нужен уверенный Laravel и понимание очередей',
       know: ['Уверенный Laravel/PHP: транзакции, Artisan-команды',
              'Очереди хотя бы на уровне концепции: что такое job и воркер',
@@ -81,7 +81,7 @@
       tip: 'Пройдена пользователем; методичка вычитана и проверена.'
     },
     redis: {
-      name: 'Redis Lab', file: 'redis/Redis_Lab_Plan.html', accent: '#DC382D', level: 'solid',
+      name: 'Redis Lab', file: 'redis/redis.html', accent: '#DC382D', level: 'solid',
       headline: 'Laravel и Docker плюс RabbitMQ-лаба',
       know: ['Laravel и Docker на уровне RabbitMQ-лабы: домен заказов переиспользуется',
              'Идея очередей и воркеров — методичка постоянно сравнивает Streams с брокером'],
@@ -90,7 +90,7 @@
       tip: 'Задания 3.5 («Production Hell») идут без подсказок.'
     },
     laravel: {
-      name: 'Laravel Lab', file: 'laravel/Laravel_Lab_TaskFlow.html', accent: '#FF2D20', level: 'heavy',
+      name: 'Laravel Lab', file: 'laravel/laravel.html', accent: '#FF2D20', level: 'heavy',
       headline: 'Много технологий в одном проекте — нужна база',
       know: ['Базовый Laravel: роутинг, контроллеры, миграции, Blade — они даны ссылками на документацию, без разбора',
              'ООП на PHP: интерфейсы, внедрение зависимостей',
@@ -104,7 +104,7 @@
       tip: 'Десять сессий; весь стек (PostgreSQL, Redis, RabbitMQ, Mailpit, Reverb) поднимается в Docker.'
     },
     'laravel-performance': {
-      name: 'Laravel Performance Lab', file: 'laravel-performance/Perf_Lab_LaravelCoffeePerf.html', accent: '#0e7490', level: 'light',
+      name: 'Laravel Performance Lab', file: 'laravel-performance/laravel-performance.html', accent: '#0e7490', level: 'light',
       headline: 'Нужен базовый Laravel',
       know: ['Базовый Laravel: маршруты, контроллеры, Eloquent',
              'Docker Compose на уровне «поднять и посмотреть логи»',
@@ -114,7 +114,7 @@
       tip: 'Тяжёлые прогоны (миллион заказов, k6): ноутбук греется.'
     },
     css: {
-      name: 'CSS Lab', file: 'css/CSS_Lab_FrontFest.html', accent: '#2965F1', level: 'zero',
+      name: 'CSS Lab', file: 'css/css.html', accent: '#2965F1', level: 'zero',
       headline: 'Нужны только HTML и браузер',
       know: ['Минимум HTML и умение открыть страницу в браузере',
              'Разметка уже готова: вы пишете только стили, без фреймворков и препроцессоров'],
@@ -122,7 +122,7 @@
       before: [], tip: 'Нужен Docker (nginx) и браузер с современным CSS. Во фронтенд-треке идёт первой.'
     },
     tailwind: {
-      name: 'Tailwind Lab', file: 'tailwind/Tailwind_Lab_Pulse.html', accent: '#38BDF8', level: 'light',
+      name: 'Tailwind Lab', file: 'tailwind/tailwind.html', accent: '#38BDF8', level: 'light',
       headline: 'Нужен уверенный CSS',
       know: ['Каскад, flex, grid, container queries и :has() — Tailwind их не заменяет, а записывает классами',
              'HTML: разметку пишете сами'],
@@ -130,7 +130,7 @@
       before: [{ key: 'css', kind: 'know', why: 'Tailwind строится на каскаде и box model' }], tip: ''
     },
     js: {
-      name: 'Чистый JS Lab', file: 'js/JS_Lab_VanillaHelpdesk.html', accent: '#F4D35E', level: 'light',
+      name: 'Чистый JS Lab', file: 'js/js.html', accent: '#F4D35E', level: 'light',
       headline: 'Нужен базовый синтаксис JavaScript',
       know: ['Базовый синтаксис JS: переменные, функции, условия, циклы',
              'Терминал и браузер с консолью разработчика — больше лаба ничего не требует'],
@@ -138,7 +138,7 @@
       before: [], tip: 'Общий фундамент для Vue и TypeScript: логично проходить первой из трёх.'
     },
     vue: {
-      name: 'Vue Lab', file: 'vue/Vue_Lab_Helpdesk.html', accent: '#42B883', level: 'heavy',
+      name: 'Vue Lab', file: 'vue/vue.html', accent: '#42B883', level: 'heavy',
       headline: 'Нужен уверенный JavaScript',
       know: ['Уверенный JavaScript: ES6+, async/await, деструктуризация',
              'Опыт с фреймворками не нужен. Бэкенд (мини-сервис на Node) дан готовым'],
@@ -146,7 +146,7 @@
       before: [{ key: 'js', kind: 'help', why: 'если сомневаетесь в фундаменте JS' }], tip: 'Нужен Docker; свободны порты 5173 и 3000.'
     },
     inertia: {
-      name: 'Inertia Lab', file: 'inertia/Inertia_Lab_Inkwell.html', accent: '#8B5CF6', level: 'solid',
+      name: 'Inertia Lab', file: 'inertia/inertia.html', accent: '#8B5CF6', level: 'solid',
       headline: 'Нужны Laravel и Vue 3',
       know: ['Laravel на уровне Laravel Lab: контроллеры, Eloquent, FormRequest, Policies',
              'Vue 3 (Composition API) на уровне Vue Lab',
@@ -157,7 +157,7 @@
       tip: 'В общем маршруте Vue идёт раньше Inertia; без Vue лучше сначала пройти его.'
     },
     typescript: {
-      name: 'TypeScript Lab', file: 'typescript/TypeScript_Lab_Warehouse.html', accent: '#3178C6', level: 'heavy',
+      name: 'TypeScript Lab', file: 'typescript/typescript.html', accent: '#3178C6', level: 'heavy',
       headline: 'JavaScript, ООП и готовность к абстрактному мышлению',
       know: ['JavaScript на уровне «писал на нём»',
              'ООП-концепции — из OOP-лабы, ссылки по тексту',
@@ -168,7 +168,7 @@
       tip: 'Можно идти после Vue или параллельно с ней.'
     },
     nuxt: {
-      name: 'Nuxt Lab', file: 'nuxt/Nuxt_Lab_HelpCenter.html', accent: '#00DC82', level: 'heavy',
+      name: 'Nuxt Lab', file: 'nuxt/nuxt.html', accent: '#00DC82', level: 'heavy',
       headline: 'Нужны Vue и TypeScript',
       know: ['Vue на уровне Vue Lab: ref, computed, props/emits, Pinia, Router — заново не объясняются',
              'TypeScript на уровне сессий 1–3 TS-лабы'],
@@ -177,7 +177,7 @@
       tip: 'Код из других лаб не берёт.'
     },
     angular: {
-      name: 'Angular Lab', file: 'angular/Angular_Lab_RoomBook.html', accent: '#CC26D5', level: 'heavy',
+      name: 'Angular Lab', file: 'angular/angular.html', accent: '#CC26D5', level: 'heavy',
       headline: 'Нужен TypeScript',
       know: ['TypeScript на уровне сессий 1–3 TS-лабы',
              'Всё, что специфично для Angular (декораторы, DI, сигналы), объясняется внутри лабы',
@@ -187,7 +187,7 @@
       tip: 'Бэкенд готовый (api/server.mjs), лаба целиком про фронтенд.'
     },
     nestjs: {
-      name: 'NestJS Lab', file: 'nestjs/NestJS_Lab_Plan.html', accent: '#E0234E', level: 'heavy',
+      name: 'NestJS Lab', file: 'nestjs/nestjs.html', accent: '#E0234E', level: 'heavy',
       headline: 'Самостоятельная, но объёмная: TypeScript идёт по ходу',
       know: ['Основы JavaScript и Node: функции, async/await, npm',
              'TypeScript-минимум, нужный для Nest, объясняется в сессии 1: отдельно учить его не обязательно',
@@ -197,7 +197,7 @@
       tip: 'Это не лаба на один вечер: по словам самой методички, за один присест к середине начинается копипаст без понимания.'
     },
     graphql: {
-      name: 'GraphQL Lab', file: 'graphql/GraphQL_Lab_Plan.html', accent: '#E535AB', level: 'heavy',
+      name: 'GraphQL Lab', file: 'graphql/graphql.html', accent: '#E535AB', level: 'heavy',
       headline: 'Нужны основы NestJS и TypeScript',
       know: ['Основы NestJS: модули, DI, декораторы',
              'TypeScript: классы, интерфейсы, async/await',
@@ -207,7 +207,7 @@
       tip: 'Проект самостоятельный: свой домен (каталог фильмов).'
     },
     traefik: {
-      name: 'Traefik Lab', file: 'traefik/Docker_and_Traefik_Lab_Plan.html', accent: '#14B8A6', level: 'light',
+      name: 'Traefik Lab', file: 'traefik/traefik.html', accent: '#14B8A6', level: 'light',
       headline: 'Нужен Docker Compose на уровне «поднять и читать логи»',
       know: ['Docker Compose: поднять сервис, прочитать логи',
              'Новичкам в контейнерах — вводный раздел 0 «Docker с нуля» внутри лабы'],
@@ -216,7 +216,7 @@
       tip: 'Let\'s Encrypt требует публичный домен; локально — mkcert.'
     },
     caddy: {
-      name: 'Caddy Lab', file: 'caddy/Caddy_Lab_Edge.html', accent: '#0a8f6a', level: 'zero',
+      name: 'Caddy Lab', file: 'caddy/caddy.html', accent: '#0a8f6a', level: 'zero',
       headline: 'Ничего знать не нужно — лаба идёт с нуля',
       know: ['Уметь открыть терминал и запустить команду',
              'Про HTTP, TLS и reverse proxy заранее знать не нужно: объясняется с нуля в разделах 1–7'],
@@ -224,7 +224,7 @@
       before: [], tip: 'Нужен установленный Caddy; для сессии 7 — Docker, для сессии 12 — Go.'
     },
     kubernetes: {
-      name: 'Kubernetes Lab', file: 'kubernetes/Kubernetes_Lab_Plan.html', accent: '#326CE5', level: 'heavy',
+      name: 'Kubernetes Lab', file: 'kubernetes/kubernetes.html', accent: '#326CE5', level: 'heavy',
       headline: 'Нужны пройденные Docker и Traefik',
       know: ['Образ, контейнер, сеть, volume, healthcheck — по Docker-лабе',
              'Модель Traefik EntryPoint → Router → Middleware → Service — по Traefik-лабе',
