@@ -8643,6 +8643,26 @@ function initTiles() {
   });
 }
 
+// Статус вычитки и проверки (works/js/status.js собирается из fixes/common/_verification.md — tools/build-verification.py)
+function labVerifyBanner(key) {
+  var st = window.LAB_STATUS && window.LAB_STATUS[key];
+  if (!st) return '';
+  var part = st.level === 'part';
+  return '<aside class="lab-verify lab-verify-' + st.level + '" aria-label="Статус проверки">' +
+    '<div class="lab-verify-badge" aria-hidden="true">' + (part ? '◐' : '✓') + '</div>' +
+    '<div class="lab-verify-main">' +
+      '<div class="lab-verify-kicker mono">@@ / статус проверки</div>' +
+      '<div class="lab-verify-title display">' + escapeHtml(st.head) + '</div>' +
+      '<div class="lab-verify-sub">возможны небольшие недочёты — методичка вычитана построчно, код из неё запускался</div>' +
+      ((st.method && st.method.length) ? '<div class="lab-verify-chips">' + st.method.map(function (m) { return '<span class="lab-verify-chip mono">' + escapeHtml(m) + '</span>'; }).join('') + (part ? '<span class="lab-verify-chip lab-verify-chip-part mono">частично</span>' : '') + '</div>' : '') +
+      (st.rest ? '<div class="lab-verify-rest"><span class="lab-verify-rest-label mono">' + escapeHtml(st.tail) + '</span>' + escapeHtml(st.rest) + '</div>' : '') +
+      '<div class="lab-verify-links">' +
+        '<a class="lab-verify-btn lab-verify-btn-fill mono" href="verification.html">Что чем проверено</a>' +
+        (st.detail ? '<a class="lab-verify-btn lab-verify-btn-line mono" href="' + escapeHtml(st.detail) + '" target="_blank" rel="noopener">Подробности по этой лабе →</a>' : '') +
+      '</div>' +
+    '</div></aside>';
+}
+
 function renderLabPage(key) {
   var i = LABS.findIndex(function (l) { return l.key === key; });
   if (i < 0) i = 0;
@@ -8719,6 +8739,7 @@ function renderLabPage(key) {
       '<div class="lab-stat"><div class="lab-stat-label mono">формат</div><div class="lab-stat-value display">git submodule</div></div>' +
     '</div>' +
 
+    labVerifyBanner(lab.key) +
     '<section id="inside" class="lab-section">' +
       '<div class="lab-inside-grid">' +
         '<div>' +
