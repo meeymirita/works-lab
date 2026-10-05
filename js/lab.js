@@ -7,8 +7,8 @@ var LABS = [
     desc: 'Асинхронная обработка заказов через очереди: Transactional Outbox, идемпотентный consumer, prefetch, crash-тесты, retry с TTL→DLX, priority queues, fanout.',
     stack: ['Laravel 13', 'PostgreSQL 18', 'RabbitMQ', 'Mailpit'],
     difficulty: 'Высокая',
-    image: 'images/rabbitmq.png',
-    open: '../rabbitmq/docs/RabbitMQ_Lab_Plan_v1_pro_max.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/rabbitmq/rabbitmq.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/rabbitmq/RabbitMQ_Lab_Plan_v1_pro_max.html',
     repo: 'https://github.com/meeymirita/rabbitmq-lab',
     stackInfo: [
       {
@@ -370,8 +370,8 @@ var LABS = [
     desc: 'Redis как кэш, хранилище сессий, примитив синхронизации и брокер событий: cache-aside, distributed lock, rate limiter, Streams, XAUTOCLAIM, Pub/Sub-дашборд.',
     stack: ['Laravel 13', 'PostgreSQL 18', 'Redis 8'],
     difficulty: 'Средняя',
-    image: 'images/redis.png',
-    open: '../redis/Redis_Lab_Plan.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/redis/redis.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/redis/Redis_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/redis-lab',
     stackInfo: [
       {
@@ -733,8 +733,8 @@ var LABS = [
     desc: 'Reverse proxy и service discovery для стека из нескольких сервисов без ручной правки конфигов: EntryPoint → Router → Middleware → Service, TLS, canary-деплой.',
     stack: ['Traefik 3', 'Docker Compose', 'Node.js', 'PostgreSQL', 'mkcert / Let\'s Encrypt'],
     difficulty: 'Низкая–средняя',
-    image: '../traefik/traefik.png',
-    open: '../traefik/Docker_and_Traefik_Lab_Plan.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/traefik/traefik.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/traefik/Docker_and_Traefik_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/traefik-lab',
     stackInfo: [
       {
@@ -1080,8 +1080,8 @@ var LABS = [
     desc: 'ООП на PHP 8.4 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
     stack: ['PHP 8.4', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
     difficulty: 'Базовая',
-    image: 'images/php.png',
-    open: '../php-coffee/docs/OOP_Lab_CoffeeShop.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/php-coffee/php.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/php-coffee/OOP_Lab_CoffeeShop.html',
     repo: 'https://github.com/meeymirita/oop-lab',
     stackInfo: [
       {
@@ -1445,8 +1445,8 @@ var LABS = [
     desc: 'Система тикетов на Vue 3 с нуля: реактивность, компоненты, слоты, Pinia, Vue Router с guard-ами, WebSocket, канбан-доска, тесты на Vitest.',
     stack: ['Vue 3.5', 'Vite 7', 'Pinia 2+', 'Vue Router', 'Node'],
     difficulty: 'Высокая',
-    image: 'images/vue.png',
-    open: '../vue/Vue_Lab_Helpdesk.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/vue/vue-anime.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/vue/Vue_Lab_Helpdesk.html',
     repo: 'https://github.com/meeymirita/vue-lab',
     stackInfo: [
       {
@@ -1821,8 +1821,8 @@ var LABS = [
     desc: 'Типизация домена складского учёта с нуля: generics, размеченные объединения, mapped/conditional types, CLI на Zod, сквозная типизация API + Vue.',
     stack: ['TypeScript 6', 'Node 24+', 'Zod', 'Vitest'],
     difficulty: 'Высокая',
-    image: 'images/typescript.png',
-    open: '../typescript/TypeScript_Lab_Warehouse.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/typescript/typescript.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/typescript/TypeScript_Lab_Warehouse.html',
     repo: 'https://github.com/meeymirita/typescript-lab',
     stackInfo: [
       {
@@ -2200,8 +2200,8 @@ var LABS = [
     desc: 'Laravel 13 «изнутри»: ~30 компонентов illuminate/*, Eloquent-связи, Service Container, Auth/Policy, Observer, очереди, Mailable, кэш, Broadcasting, тесты.',
     stack: ['Laravel 13', 'PostgreSQL 18', 'Redis', 'RabbitMQ', 'Reverb'],
     difficulty: 'Высокая',
-    image: 'images/laravel.png',
-    open: '../laravel/Laravel_Lab_TaskFlow.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/laravel/laravel.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/laravel/Laravel_Lab_TaskFlow.html',
     repo: 'https://github.com/meeymirita/laravel-lab',
     stackInfo: [
       {
@@ -2608,8 +2608,8 @@ var LABS = [
     desc: 'Docker и Bash с нуля: образы, контейнеры, docker-compose, сети и тома — через практику в терминале.',
     stack: ['Docker', 'Docker Compose', 'Bash', 'Node.js 24', 'PostgreSQL 18'],
     difficulty: 'Базовая',
-    image: 'images/docker.png',
-    open: '../docker/Docker_Bash_Lab.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/docker/docker.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/docker/Docker_Bash_Lab.html',
     repo: 'https://github.com/meeymirita/docker-lab',
     stackInfo: [
       {
@@ -2961,8 +2961,8 @@ var LABS = [
     desc: 'Чистый PHP 8.4 без фреймворка: strict_types и copy-on-write массивы, суперглобалы, замыкания и генераторы, магические методы — и своими руками роутер, DI-контейнер, PDO-слой, сессии и CSRF.',
     stack: ['PHP 8.4', 'PDO', 'PostgreSQL', 'Composer (PSR-4)', 'PHPUnit'],
     difficulty: 'Базовая',
-    image: '../php/php.png',
-    open: '../php/PHP_Lab_VanillaCoffee.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/php/php.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/php/PHP_Lab_VanillaCoffee.html',
     repo: 'https://github.com/meeymirita/php-lab',
     stackInfo: [
       {
@@ -3348,8 +3348,8 @@ var LABS = [
     desc: 'Чистый JavaScript с нуля — общий фундамент для Vue и TypeScript: var/let/const и hoisting, this и замыкания, прототипы и class, event loop и async/await, DOM без фреймворка, ESM-модули, своя реактивность на Proxy, финальное мини-SPA с явным сравнением с Vue.',
     stack: ['JavaScript ES2022', 'Node.js 24+', 'json-server', 'node:test', 'Docker'],
     difficulty: 'Средняя',
-    image: '../js/JavaScript.png',
-    open: '../js/JS_Lab_VanillaHelpdesk.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/js/JavaScript.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/js/JS_Lab_VanillaHelpdesk.html',
     repo: 'https://github.com/meeymirita/js-lab',
     stackInfo: [
       {
@@ -3748,8 +3748,8 @@ var LABS = [
     desc: 'Миграция стека из Traefik-лабы в Kubernetes (kind): Pod и Deployment, Service и DNS, ConfigMap/Secret, Volumes и PVC, readiness/liveness-пробы, Traefik как Ingress-контроллер, HorizontalPodAutoscaler.',
     stack: ['Kubernetes v1.37.0', 'kind v0.33.0', 'kubectl', 'Traefik', 'PostgreSQL'],
     difficulty: 'Средняя–высокая',
-    image: '../kubernetes/kubernetes.png',
-    open: '../kubernetes/Kubernetes_Lab_Plan.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/kubernetes.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/Kubernetes_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/kubernetes-lab',
     stackInfo: [
       {
@@ -4124,8 +4124,8 @@ var LABS = [
     desc: 'Helpdesk API собран с нуля слой за слоем: свой мини-DI контейнер, границы модулей и provider scopes, Prisma и транзакции, JWT-ротация refresh-токенов с reuse-detection, RBAC через TicketPolicy, доменные события и WebSocket-шлюз, свой динамический модуль, unit и e2e тесты.',
     stack: ['NestJS 11', 'Prisma 7', 'PostgreSQL 18', 'JWT + argon2', 'Socket.IO'],
     difficulty: 'Высокая',
-    image: '../nestjs/nest.png',
-    open: '../nestjs/NestJS_Lab_Plan.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/nestjs/nest.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/nestjs/NestJS_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/nestjs-lab',
     stackInfo: [
       {
@@ -4495,8 +4495,8 @@ var LABS = [
     desc: 'Самостоятельный проект CineGraph с нуля: язык запросов и жизненный цикл запроса, N+1 в резолверах и DataLoader, JWT и права на уровне полей, интерфейсы и юнионы, курсорная пагинация, подписки через Redis, защита от тяжёлых запросов, unit и e2e тесты.',
     stack: ['NestJS + Apollo Server', 'Prisma 7', 'PostgreSQL 18', 'DataLoader', 'Redis'],
     difficulty: 'Высокая',
-    image: '../graphql/GraphQL.png',
-    open: '../graphql/GraphQL_Lab_Plan.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/graphql/GraphQL.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/graphql/GraphQL_Lab_Plan.html',
     repo: 'https://github.com/meeymirita/graphql-lab',
     stackInfo: [
       {
@@ -4859,8 +4859,8 @@ var LABS = [
     desc: 'Что происходит под ORM на миллионе заказов кофейни: JOIN с нуля, EXPLAIN и индексы B-tree/GIN/BRIN под конкретный запрос, статистика, N+1 глазами базы, уровни изоляции и аномалии, блокировки и дедлоки, SKIP LOCKED, MVCC и VACUUM, партиционирование.',
     stack: ['PostgreSQL 18', 'psql', 'pgbench', 'Docker'],
     difficulty: 'Средняя–высокая',
-    image: '../postgresql/PostgreSQL.png',
-    open: '../postgresql/PostgreSQL_Lab_CoffeeShop.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/postgresql/PostgreSQL.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/postgresql/PostgreSQL_Lab_CoffeeShop.html',
     repo: 'https://github.com/meeymirita/postgresql-lab',
     stackInfo: [
       {
@@ -5234,8 +5234,8 @@ var LABS = [
     desc: 'Публичный центр поддержки на Nuxt 4 и TypeScript: файловый роутинг, useFetch и гидрация, Nitro server routes, Drizzle + SQLite, общие Zod-схемы в shared/, сессии и защита страниц, Nuxt Content, routeRules (SSG, SWR, SPA), SEO, тесты и сборка в Docker.',
     stack: ['Nuxt 4', 'TypeScript', 'Nitro', 'Drizzle', 'Nuxt Content'],
     difficulty: 'Высокая',
-    image: '../nuxt/Nuxt.png',
-    open: '../nuxt/Nuxt_Lab_HelpCenter.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/nuxt/Nuxt.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/nuxt/Nuxt_Lab_HelpCenter.html',
     repo: 'https://github.com/meeymirita/nuxt-lab',
     stackInfo: [
       {
@@ -5622,8 +5622,8 @@ var LABS = [
       { tag: 'потоки', back: 'Поиск с debounce и живое расписание через SSE.' },
     ],
     difficulty: 'Высокая',
-    image: '../angular/Angular.png',
-    open: '../angular/Angular_Lab_RoomBook.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/angular/Angular.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/angular/Angular_Lab_RoomBook.html',
     repo: 'https://github.com/meeymirita/angular-lab',
     learn: [
       {
@@ -5879,8 +5879,8 @@ var LABS = [
     desc: 'Современный CSS с нуля на сайте фронтенд-конференции: каскад и @layer, токены, oklch и тёмная тема через light-dark(), Flexbox, Grid и subgrid, адаптив и container queries, :has() и формы, sticky, анимации и view transitions. Разметка готовая — вы пишете только стили, без фреймворков и препроцессоров.',
     stack: ['CSS', '@layer', 'Grid', 'Container Queries', 'oklch'],
     difficulty: 'Базовая',
-    image: '../css/css.png',
-    open: '../css/CSS_Lab_FrontFest.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/css/css.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/css/CSS_Lab_FrontFest.html',
     repo: 'https://github.com/meeymirita/css-lab',
     stackInfo: [
       {
@@ -6241,8 +6241,8 @@ var LABS = [
     desc: 'Tailwind CSS v4 с нуля на сервисе аналитики «Pulse»: лендинг, дашборд и настройки. Утилиты и шкалы, тема через @theme, варианты и состояния (group, peer, has-*), адаптив и container queries, тёмная тема, формы, @layer components и @apply, сборка на Vite и nginx. Разметку пишете сами.',
     stack: ['Tailwind CSS 4', '@theme', 'Vite', 'Container Queries', 'Dark mode'],
     difficulty: 'Базовая',
-    image: '../tailwind/tailwind.png',
-    open: '../tailwind/Tailwind_Lab_Pulse.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/tailwind/tailwind.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/tailwind/Tailwind_Lab_Pulse.html',
     repo: 'https://github.com/meeymirita/tailwind-lab',
     stackInfo: [
       {
@@ -6614,8 +6614,8 @@ var LABS = [
     desc: 'Laravel 13 + Inertia 3 + Vue 3 без starter kit, на блог-платформе «Inkwell»: протокол на проводе и объект страницы, props как публичный API через Resources, формы и валидация без 422, SSR и мета-теги, hydration mismatch и утечка Pinia между посетителями, optional/defer/merge для отложенных props, роли и Policies без дублирования прав на фронте, typed routes через Wayfinder.',
     stack: ['Laravel 13', 'Inertia 3', 'Vue 3', 'TypeScript', 'Pinia'],
     difficulty: 'Средняя',
-    image: '../inertia/inertia.png',
-    open: '../inertia/Inertia_Lab_Inkwell.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/inertia/inertia.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/inertia/Inertia_Lab_Inkwell.html',
     repo: 'https://github.com/meeymirita/inertia-lab',
     stackInfo: [
       {
@@ -6952,8 +6952,8 @@ var LABS = [
     desc: 'Измерять, а не гадать, на приложении Coffee Shop с 1 млн заказов: перцентили и k6, Debugbar и Telescope, профилирование SPX и Blackfire, OPcache и JIT, кеш с тегами и блокировками, Octane + FrankenPHP, бюджет p95 в CI.',
     stack: ['Laravel 13', 'k6', 'SPX', 'OPcache', 'Octane + FrankenPHP'],
     difficulty: 'Базовая',
-    image: '../laravel-performance/laravel-performance.png',
-    open: '../laravel-performance/Perf_Lab_LaravelCoffeePerf.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/laravel-performance/laravel-performance.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/laravel-performance/Perf_Lab_LaravelCoffeePerf.html',
     repo: 'https://github.com/meeymirita/laravel-performance-lab',
     stackInfo: [
       {
@@ -7294,8 +7294,8 @@ var LABS = [
     desc: 'Алгоритмы и структуры данных на задачах кофейни, каждое утверждение — замером: сложность без формул, массивы и хеш-таблицы, стек и очередь, связные списки, рекурсия, бинарный поиск и сортировки, два указателя, деревья, кучи, графы, динамическое программирование, разбор собеседований.',
     stack: ['PHP 8.4', 'SPL', 'PHPUnit', 'Docker'],
     difficulty: 'Базовая',
-    image: '../algorithms-php/algorithms-php.png',
-    open: '../algorithms-php/Algo_Lab_CoffeeAlgo.html',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/algorithms-php/algorithms-php.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/algorithms-php/Algo_Lab_CoffeeAlgo.html',
     repo: 'https://github.com/meeymirita/algorithms-php-lab',
     stackInfo: [
       {
@@ -8310,7 +8310,7 @@ function renderLabPage(key) {
           '</div>' +
         '</div>' +
         '<div class="lab-hero-image">' +
-          '<img src="images/thumbs/' + lab.key + '.webp" data-full="' + lab.image + '" alt="' + escapeHtml(lab.title) + '" decoding="async" width="1200" height="1200">' +
+          '<img src="https://meeymirita-files.storage.yandexcloud.net/' + lab.key + '/thumb.webp" data-full="' + lab.image + '" alt="' + escapeHtml(lab.title) + '" decoding="async" width="1200" height="1200">' +
         '</div>' +
       '</div>' +
     '</section>' +

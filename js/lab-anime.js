@@ -93,7 +93,7 @@
       // обе соседние лабы — карточками с обложкой: предыдущая слева, следующая справа
       var neighbour = function (l, dir) {
         var isNext = dir === 'next';
-        var img = '<span class="ep-nb-img"><img src="images/thumbs/' + l.key + '.webp" alt="" loading="lazy" width="1200" height="1200"></span>';
+        var img = '<span class="ep-nb-img"><img src="https://meeymirita-files.storage.yandexcloud.net/' + l.key + '/thumb.webp" alt="" loading="lazy" width="1200" height="1200"></span>';
         var text =
           '<span class="ep-nb-text">' +
             '<span class="lab-pager-kicker mono">' + (isNext ? 'Следующая лаба · ' : '← Предыдущая лаба · ') + pad(ORDER.indexOf(l.key) + 1) + '</span>' +
