@@ -22,7 +22,7 @@
   // Рекомендуемый порядок прохождения (зависимости из fixes/common/_order.md).
   var ORDER = ['docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
     'laravel-performance', 'css', 'tailwind', 'js', 'vue', 'inertia', 'typescript', 'nuxt', 'angular',
-    'nestjs', 'graphql', 'traefik', 'kubernetes'];
+    'nestjs', 'graphql', 'traefik', 'caddy', 'kubernetes'];
 
   // Сила связи в «before»: need — без неё шаги не выполнить; know — методичка опирается на её знания; help — полезно.
   var LABS = {
@@ -214,6 +214,14 @@
       meet: ['Traefik 3: EntryPoint → Router → Middleware → Service', 'Docker provider и labels', 'API, frontend, PostgreSQL, Adminer', 'Балансировка и canary', 'TLS: mkcert, Let\'s Encrypt'],
       before: [{ key: 'docker', kind: 'know', why: 'контейнеры, сети, volume и compose' }],
       tip: 'Let\'s Encrypt требует публичный домен; локально — mkcert.'
+    },
+    caddy: {
+      name: 'Caddy Lab', file: 'caddy/Caddy_Lab_Edge.html', accent: '#0a8f6a', level: 'zero',
+      headline: 'Ничего знать не нужно — лаба идёт с нуля',
+      know: ['Уметь открыть терминал и запустить команду',
+             'Про HTTP, TLS и reverse proxy заранее знать не нужно: объясняется с нуля в разделах 1–7'],
+      meet: ['Caddy 2: Caddyfile и JSON, Admin API', 'Reverse proxy, WebSocket, SSE', 'Автоматический HTTPS: локальный CA, Let\'s Encrypt, On-Demand TLS', 'Балансировка, безопасность, Docker, PHP-FPM', 'Расширение через xcaddy и модуль на Go'],
+      before: [], tip: 'Нужен установленный Caddy; для сессии 7 — Docker, для сессии 12 — Go.'
     },
     kubernetes: {
       name: 'Kubernetes Lab', file: 'kubernetes/Kubernetes_Lab_Plan.html', accent: '#326CE5', level: 'heavy',

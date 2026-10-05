@@ -1073,6 +1073,393 @@ var LABS = [
     accent: '#14B8A6',
   },
   {
+    key: 'caddy',
+    titleMain: 'caddy',
+    title: 'Caddy Lab',
+    subtitle: 'Edge — веб-сервер и reverse proxy с автоматическим HTTPS',
+    desc: 'Один Caddy перед сайтом, API, WebSocket и PHP: Caddyfile вместо nginx + certbot, HTTPS из коробки, балансировка, безопасность, своя сборка через xcaddy.',
+    stack: ['Caddy 2.11.7', 'Docker Compose', 'Node.js 22', 'PHP 8.4-FPM', 'xcaddy / Go'],
+    difficulty: 'Средняя',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/caddy/caddy-server.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/caddy/Caddy_Lab_Edge.html',
+    repo: 'https://github.com/meeymirita/caddy-lab',
+    stackInfo: [
+      {
+        "tag": "прокси",
+        "back": "Caddy 2.11.7: Caddyfile и JSON-конфиг, Admin API, метрики и логи — один бинарник вместо nginx + certbot."
+      },
+      {
+        "tag": "HTTPS",
+        "back": "Автоматический TLS из коробки: локальный CA, Let's Encrypt, ZeroSSL, On-Demand TLS и DNS-01 через плагин Cloudflare."
+      },
+      {
+        "tag": "бэкенды",
+        "back": "Проект Edge: два экземпляра API на Node 22, WebSocket-эхо (RFC 6455), поток событий SSE и отдельный сервис для forward_auth."
+      },
+      {
+        "tag": "PHP",
+        "back": "PHP 8.4-FPM через FastCGI (php_fastcgi); в теории разобраны ещё Laravel и FrankenPHP."
+      },
+      {
+        "tag": "модули",
+        "back": "Caddy собирается под себя через xcaddy — свои и сторонние плагины на Go."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Caddyfile",
+        "title": "Один файл вместо nginx + certbot",
+        "text": "Caddyfile без расширения в текущей папке caddy run подхватывает сам. admin off отключает Admin API, если он не нужен прямо сейчас — иначе через него же идут start/stop.",
+        "points": [
+          "caddy run — без аргументов, Caddyfile из текущей папки",
+          "admin off, если Admin API не нужен",
+          "caddy start/stop — фон, управление через Admin API"
+        ],
+        "code": ":8080 {\n\trespond \"Hello from Caddyfile\"\n}\n\ncaddy run\ncurl localhost:8080"
+      },
+      {
+        "tab": "Reverse proxy",
+        "title": "handle: часть путей на бэкенд, остальное — статика",
+        "text": "handle /api/* перехватывает только свой префикс, второй handle без пути — всё остальное отдаёт file_server. Порядок блоков handle друг друга не перекрывает, в отличие от route.",
+        "points": [
+          "handle /api/* { reverse_proxy ... }",
+          "handle { file_server } — всё остальное",
+          "root * задаёт корень для статики"
+        ],
+        "code": ":8080 {\n\troot * site\n\thandle /api/* {\n\t\treverse_proxy localhost:3001\n\t}\n\thandle {\n\t\tfile_server\n\t}\n}"
+      },
+      {
+        "tab": "WebSocket",
+        "title": "Проксируется без единой спецнастройки",
+        "text": "reverse_proxy сам распознаёт заголовки Upgrade/Connection и держит двусторонний поток — отдельной директивы под WebSocket в Caddy нет.",
+        "points": [
+          "Тот же reverse_proxy, что и для HTTP",
+          "Upgrade/Connection подхватываются автоматически",
+          "Проверяется обычным WebSocket-клиентом"
+        ],
+        "code": "handle /ws {\n\treverse_proxy localhost:3100\n}"
+      },
+      {
+        "tab": "Автоматический HTTPS",
+        "title": "Домены .localhost без единой настройки TLS",
+        "text": "Без единой строчки про сертификаты app.localhost и api.localhost уже на HTTPS — Caddy сам решает, локальный CA это или настоящий ACME, по имени домена.",
+        "points": [
+          "auto_https включён по умолчанию",
+          "80/443 требуют прав — sudo или setcap",
+          ".localhost резолвится в локальный CA"
+        ],
+        "code": "app.localhost {\n\troot * site\n\tfile_server\n}\n\napi.localhost {\n\treverse_proxy localhost:3001\n}"
+      },
+      {
+        "tab": "Балансировка",
+        "title": "round_robin между несколькими адресами",
+        "text": "reverse_proxy принимает несколько адресов сразу — lb_policy задаёт стратегию. Без неё уже работает round robin по умолчанию.",
+        "points": [
+          "Несколько адресов в одном reverse_proxy",
+          "lb_policy: round_robin, weighted, ip_hash, cookie",
+          "X-Backend в ответе показывает, кто ответил"
+        ],
+        "code": "reverse_proxy localhost:3001 localhost:3002 {\n\tlb_policy round_robin\n}"
+      },
+      {
+        "tab": "Admin API",
+        "title": "Применить конфиг, не перезапуская процесс",
+        "text": "localhost:2019 по умолчанию — HTTP-интерфейс самого Caddy: читает текущий конфиг, переводит Caddyfile в JSON не применяя и накатывает новый конфиг без простоя.",
+        "points": [
+          "GET /config/... — чтение текущей конфигурации",
+          "POST /adapt — Caddyfile → JSON, без применения",
+          "caddy reload — тот же API под капотом"
+        ],
+        "code": "curl -s localhost:2019/config/apps/http/servers\n\nprintf ':9999 {\\n\\trespond \"x\"\\n}\\n' | caddy adapt"
+      }
+    ],
+    sessions: [
+      {
+        "h": "~4 ч",
+        "t": "Первый запуск",
+        "r": "Установка, caddy respond и file-server без конфига, первый Caddyfile, validate/fmt/adapt, сломать → починить, reload без остановки"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Статический сайт",
+        "r": "Сайт Bean & Co на root и file_server, сжатие, заголовки и кеш, редиректы и rewrite, SPA через try_files, свои страницы ошибок"
+      },
+      {
+        "h": "~6 ч",
+        "t": "Reverse proxy",
+        "r": "Бэкенды проекта Edge на Node 22, handle /api/* и handle_path, заголовки X-Forwarded, WebSocket и SSE без спецнастроек, 502 и его починка"
+      },
+      {
+        "h": "~6 ч",
+        "t": "Автоматический HTTPS",
+        "r": "Локальный HTTPS без единой настройки, что именно отдаёт Caddy (редирект, сертификат, HTTP/3), публичный домен и Let's Encrypt staging, On-Demand TLS, где лежат сертификаты"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Балансировка и отказоустойчивость",
+        "r": "round_robin между двумя бэкендами, весовая/по IP/по заголовку/по куке, активные health-проверки, канареечная маршрутизация и резервный бэкенд"
+      },
+      {
+        "h": "~6 ч",
+        "t": "Безопасность",
+        "r": "Защитные заголовки, basic_auth, forward_auth на отдельный сервис, лимит тела запроса и доступ по IP, подделка X-Forwarded-For и обход allowlist"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Caddy в Docker и Compose",
+        "r": "Образ caddy:2 и три тома, docker-compose.yml для Edge, перезагрузка конфига в контейнере, пересозданный контейнер без сертификатов, секреты и «двойной доллар»"
+      },
+      {
+        "h": "~4 ч",
+        "t": "PHP и FastCGI",
+        "r": "php_fastcgi, «File not found.» из-за разных путей, Laravel за Caddy — pretty URLs и закрытые файлы"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Логи, метрики, отладка",
+        "r": "JSON-журнал доступа, секреты в логах, метрики Prometheus, отладка через debug/adapt/config/environ"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Caddyfile для профи",
+        "r": "Именованные матчеры, сниппеты с аргументами и import, плейсхолдеры и map, условия на CEL, пустая переменная и значения по умолчанию"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Admin API и JSON",
+        "r": "Admin API для чтения и применения конфига, родной JSON-формат и @id, автосохранение конфигурации и --resume, конфиг-адаптеры"
+      },
+      {
+        "h": "~6 ч",
+        "t": "Расширение Caddy: xcaddy и модули",
+        "r": "Что такое модуль Caddy, сборка с плагином через xcaddy, свой модуль с заголовком X-Hello, «unrecognized directive»"
+      },
+      {
+        "h": "~6 ч",
+        "t": "Продакшн: служба, кластер, чек-лист",
+        "r": "systemd вместо caddy run, сеть и порты для HTTP/3, итоговый Caddyfile Edge целиком, несколько экземпляров с общим хранилищем, восстановление из бэкапа, финальный аудит"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса через Caddy",
+      "rows": [
+        {
+          "label": "Клиент",
+          "boxes": [
+            "браузер https://app.localhost",
+            "HTTPS: автоматически, без настройки"
+          ]
+        },
+        {
+          "label": "Caddy 2.11.7",
+          "boxes": [
+            "Caddyfile → JSON на лету",
+            "Admin API :2019"
+          ]
+        },
+        {
+          "label": "Маршрутизация",
+          "boxes": [
+            "handle /api/*, /ws, /events",
+            "handle { file_server } — остальное"
+          ]
+        },
+        {
+          "label": "Бэкенды Edge",
+          "boxes": [
+            "API ×2 (Node 22): round_robin",
+            "WebSocket-эхо + поток SSE"
+          ]
+        },
+        {
+          "label": "Статика и PHP",
+          "boxes": [
+            "root * site — Bean & Co",
+            "php_fastcgi → PHP-FPM"
+          ]
+        }
+      ],
+      "note": "Один процесс вместо связки nginx + certbot + отдельный балансировщик: TLS, роутинг и реверс-прокси — внутри одного Caddyfile.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "снаружи",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "Caddy 2.11.7",
+            "x": 250,
+            "w": 430
+          },
+          {
+            "t": "бэкенды Edge",
+            "x": 710,
+            "w": 276
+          }
+        ],
+        "nodes": [
+          {
+            "id": "browser",
+            "t": "Браузер",
+            "s": "https://app.localhost",
+            "x": 110,
+            "y": 150,
+            "d": "Запрос на домен .localhost — HTTPS уже включён, настраивать нечего."
+          },
+          {
+            "id": "tls",
+            "t": "Локальный CA / ACME",
+            "s": "auto_https",
+            "x": 110,
+            "y": 350,
+            "d": "Для .localhost — встроенный локальный CA, для публичного домена — Let's Encrypt или ZeroSSL."
+          },
+          {
+            "id": "admin",
+            "t": "Admin API",
+            "s": "localhost:2019",
+            "x": 350,
+            "y": 110,
+            "d": "HTTP-интерфейс самого Caddy: чтение конфига, adapt, применение без перезапуска."
+          },
+          {
+            "id": "handle",
+            "t": "handle-блоки",
+            "s": "/api/*, /ws, /events, остальное",
+            "x": 350,
+            "y": 270,
+            "d": "Каждый путь — свой handle; блоки не перекрываются, порядок не важен так, как в route."
+          },
+          {
+            "id": "rp",
+            "t": "reverse_proxy",
+            "s": "lb_policy round_robin",
+            "x": 570,
+            "y": 190,
+            "d": "Тот же reverse_proxy обслуживает HTTP, WebSocket (Upgrade подхватывается сам) и SSE."
+          },
+          {
+            "id": "api",
+            "t": "API ×2",
+            "s": "Node 22 :3001 :3002",
+            "x": 800,
+            "y": 120,
+            "d": "Два «говорящих» экземпляра — заголовок X-Backend показывает, кто ответил."
+          },
+          {
+            "id": "ws",
+            "t": "WebSocket + SSE",
+            "s": "Node 22 :3100",
+            "x": 800,
+            "y": 260,
+            "d": "Эхо по RFC 6455 и поток событий — без отдельной директивы в Caddyfile."
+          },
+          {
+            "id": "php",
+            "t": "PHP-FPM",
+            "s": "php_fastcgi",
+            "x": 800,
+            "y": 400,
+            "d": "FastCGI напрямую, без отдельного nginx перед php-fpm."
+          }
+        ],
+        "edges": [
+          {
+            "a": "browser",
+            "b": "admin"
+          },
+          {
+            "a": "tls",
+            "b": "admin"
+          },
+          {
+            "a": "admin",
+            "b": "handle"
+          },
+          {
+            "a": "handle",
+            "b": "rp"
+          },
+          {
+            "a": "rp",
+            "b": "api"
+          },
+          {
+            "a": "rp",
+            "b": "ws"
+          },
+          {
+            "a": "rp",
+            "b": "php"
+          },
+          {
+            "a": "rp",
+            "b": "admin",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "browser",
+            "txt": "GET https://app.localhost/api/orders."
+          },
+          {
+            "n": "admin",
+            "txt": "TLS уже завершён — auto_https сделал это без настройки."
+          },
+          {
+            "n": "handle",
+            "txt": "Путь /api/* попадает в свой handle-блок."
+          },
+          {
+            "n": "rp",
+            "txt": "reverse_proxy выбирает бэкенд по round_robin."
+          },
+          {
+            "n": "api",
+            "txt": "Один из двух экземпляров API отвечает, добавляя X-Backend."
+          },
+          {
+            "n": "rp",
+            "txt": "Ответ возвращается через reverse_proxy.",
+            "back": true
+          },
+          {
+            "n": "browser",
+            "txt": "Браузер получает ответ по HTTPS.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Чем один Caddyfile лучше связки nginx + certbot?",
+        "a": "TLS, роутинг и reverse proxy описаны в одном файле и одном процессе: auto_https сам решает, когда нужен локальный CA, а когда настоящий ACME, без отдельного крон-задания на обновление сертификатов."
+      },
+      {
+        "q": "Что происходит с WebSocket, если для него нет отдельной настройки?",
+        "a": "Ничего особенного — reverse_proxy и так распознаёт заголовки Upgrade/Connection и держит двусторонний поток. Отдельной директивы под WebSocket в Caddy просто нет."
+      },
+      {
+        "q": "Чем Admin API отличается от caddy reload?",
+        "a": "caddy reload внутри сам обращается к тому же Admin API (по умолчанию localhost:2019) — это не отдельный механизм, а то же самое применение нового конфига без перезапуска процесса и обрыва соединений."
+      },
+      {
+        "q": "Зачем xcaddy, если есть официальный образ caddy:2?",
+        "a": "Плагины (например DNS-провайдер для DNS-01) не входят в стандартную сборку. xcaddy компилирует свой бинарник с нужными модулями на Go — тот же подход, что в caddy:2-builder для Docker."
+      },
+      {
+        "q": "Всё ли в методичке проверено на реальном Caddy?",
+        "a": "Нет, честно: сессии 1–6 и 9–11 проверены на Caddy v2.11.7 (45 из 49 конфигов проходят caddy validate, остальные 4 — намеренные ошибки из «сломать → починить»). Docker/Compose, PHP-FPM, сборка через xcaddy, systemd-служба и кластер не запускались — в тексте помечены «сверьтесь»."
+      }
+    ],
+    accent: '#0a8f6a',
+  },
+  {
     key: 'php-coffee',
     titleMain: 'oop',
     title: 'OOP Lab',
