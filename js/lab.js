@@ -8298,12 +8298,19 @@ function tocItemsFromHtml(html) {
 function loadToc(lab, panel) {
   panel.innerHTML = '<div class="lab-toc-status mono">загрузка…</div>';
 
-  fetch(lab.open)
-    .then(function (res) { return res.text(); })
-    .then(function (html) {
-      var items = tocItemsFromHtml(html);                       // старый формат методичек: обычные <h2>
-      if (items.length) return items;
-      return readBundleLab(html).then(tocItemsFromLab);         // новый формат: оглавление из window.LAB
+  // Основной путь — готовый js/toc.json рядом со страницей (tools/build-toc.py): без сети до бакета и CORS.
+  // Запасной — разобрать саму методичку, скачав её (работает только там, где бакет разрешает запросы с этого адреса).
+  fetch('js/toc.json')
+    .then(function (res) { if (!res.ok) throw new Error('toc.json'); return res.json(); })
+    .then(function (all) { if (!all[lab.key]) throw new Error('нет ' + lab.key); return all[lab.key]; })
+    .catch(function () {
+      return fetch(lab.open)
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+          var items = tocItemsFromHtml(html);                   // старый формат методичек: обычные <h2>
+          if (items.length) return items;
+          return readBundleLab(html).then(tocItemsFromLab);     // новый формат: оглавление из window.LAB
+        });
     })
     .then(function (items) {
       panel.dataset.loaded = '1';
