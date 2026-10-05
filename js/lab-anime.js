@@ -48,6 +48,7 @@
     // первый экран: номер лабы, направление, заголовок без «lab»
     var eyebrow = document.querySelector('.lab-eyebrow');
     if (eyebrow) {
+      eyebrow.title = 'Номер в витрине (по направлениям). Учебный порядок — в окне «Что нужно знать до старта».';
       eyebrow.innerHTML =
         '<span class="ep-tag"><span>лаба</span><b>' + pad(ep) + '</b></span>' +
         '<span class="ep-of">из ' + ORDER.length + '</span>' +

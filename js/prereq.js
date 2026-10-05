@@ -316,7 +316,7 @@
       ? '<section><h3>Порядок: что пройти до этой работы</h3><ol class="pq-ord">' + order + '</ol>' + nextHtml + '</section>'
       : '<section><h3>Порядок</h3><p style="margin:0">Предыдущих работ проходить не нужно: можно начинать сразу.</p>' + nextHtml + '</section>';
     return '<div id="pq" role="dialog" aria-modal="true" aria-labelledby="pq-t">' +
-      '<div id="pq-head"><div><small>Перед стартом · лаба ' + pos + ' из ' + ORDER.length + ' в общем порядке</small>' +
+      '<div id="pq-head"><div><small>Перед стартом · место в учебном порядке: ' + pos + ' из ' + ORDER.length + '</small>' +
       '<h2 id="pq-t">' + esc(lab.name) + ': что нужно знать</h2><p><span class="pq-lvl">' + esc(lvl.label) + '</span>' + esc(lab.headline) + '</p></div>' +
       '<button id="pq-x" type="button" aria-label="Закрыть">✕</button></div>' +
       '<div id="pq-body">' +
