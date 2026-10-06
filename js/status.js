@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 9c06c45edcb56811 */
+/* verification-md-hash: 129dc38c11834eac */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -85,13 +85,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/traefik.md"
  },
  "caddy": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "systemd-служба (13.1), кластер с общим хранилищем (13.4), Laravel за Caddy (8.3), FrankenPHP; публичный домен/Let's Encrypt (4.4, 13.2)",
+  "rest": "не запускались: systemd-служба 13.1, кластер с общим хранилищем 13.4, Laravel за Caddy 8.3, FrankenPHP; публичный домен/Let's Encrypt 4.4, 13.2 — проверите сами при реальном прохождении",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/caddy.md"
  },
  "php-coffee": {
