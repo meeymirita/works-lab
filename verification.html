@@ -3,10 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Что чем проверено — ANITECH</title>
+<title>Что чем проверено — ANITECH PERFORMANCE</title>
+<meta name="description" content="Таблица проверок: какие лабы вычитаны построчно и проверены запуском в Docker и браузере, что проверить не удалось и почему.">
+<!-- seo:start -->
+<link rel="canonical" href="https://anitech.meeymirita.ru/works/verification.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ANITECH PERFORMANCE">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Что чем проверено — ANITECH PERFORMANCE">
+<meta property="og:description" content="Таблица проверок: какие лабы вычитаны построчно и проверены запуском в Docker и браузере, что проверить не удалось и почему.">
+<meta property="og:url" content="https://anitech.meeymirita.ru/works/verification.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Что чем проверено — ANITECH PERFORMANCE">
+<meta name="twitter:description" content="Таблица проверок: какие лабы вычитаны построчно и проверены запуском в Docker и браузере, что проверить не удалось и почему.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Что чем проверено — ANITECH PERFORMANCE", "url": "https://anitech.meeymirita.ru/works/verification.html", "inLanguage": "ru"}</script>
+<!-- seo:end -->
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <!-- АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py). Менять .md и пересобирать; правка здесь — внести и в .md. -->
-<!-- verification-md-hash: 3c51d751d2a087e4 -->
+<!-- verification-md-hash: 20bf78e6a92c94f8 -->
 <style>
 :root { --bg:#faf9f5; --ink:#17140f; --muted:#5d584f; --hair:#d9d4c8; --card:#fff; --accent:#ec3013; }
 @media (prefers-color-scheme: dark) { :root { --bg:#12110f; --ink:#f1ede4; --muted:#a39d90; --hair:#2f2c26; --card:#1a1815; } }
@@ -78,6 +92,7 @@ td.warn { background:rgba(236,48,19,.12); } td.todo { background:rgba(128,128,12
 <p>Весь стек: whoami, dashboard с basic-auth, API ×3 с балансировкой и healthcheck (6 запросов → 2/2/2), frontend со StripPrefix, PostgreSQL 18 + Adminer, цепочка middlewares, weighted canary, TLS <code>*.localhost</code> через mkcert. Подробности — <a href="https://github.com/meeymirita/lab-fixes/blob/main/devops/traefik.md" target="_blank" rel="noopener">fixes/devops/traefik.md</a>.</p>
 <div class="tw"><table><thead><tr><th>Что проверено</th><th>Статус</th><th>Примечание</th></tr></thead><tbody><tr><td>Сессии 1–2: роутеры, dashboard, балансировка, StripPrefix, Adminer, middlewares</td><td class="ok">✅</td><td>03.10</td></tr><tr><td>2.5 цепочка middlewares</td><td class="ok">✅</td><td>правка: <code>secure-headers@file,api-ratelimit@file</code> (без суффикса Traefik ищет среди Docker-labels → 404)</td></tr><tr><td>3.3 canary (weighted)</td><td class="ok">✅</td><td>правка: <code>priority: 100</code> (при 10 — 100 v1 / 0 v2; при 100 — 90/10, как в тексте)</td></tr><tr><td>3.1 TLS через mkcert</td><td class="ok">✅</td><td><code>https://whoami.localhost</code> → 200, issuer <code>mkcert development CA</code>; <code>mkcert -install</code> (пароль администратора) не запускался — <code>curl -k</code></td></tr><tr><td>3.2 Let's Encrypt</td><td>—</td><td>нужен публичный домен — проверите сами</td></tr></tbody></table></div>
 <h2>Caddy — D: сессии 1–6 и 9–11 локально, 7, 8, 12 и 13.5 в Docker</h2>
+<p>07.10: после сессии 2 владельца — правки по её замечаниям (убран <code>admin off</code> из примеров сессий 2–10 и 12, блок 2.4 проще, подсказки по <code>caddy reload</code>); видимый текст проверен в Chromium.</p>
 <p>05.10: сессии 1–6 и 9–11 запущены локально (Caddy v2.11.7, Node 24, macOS), сессии 7, 8, 12 и шаг 13.5 — в Docker Desktop (<code>caddy:2</code>, <code>node:24-slim</code>, <code>php:8.4-fpm</code>, <code>caddy:2-builder</code>). Найдено и исправлено 31 неточность. Подробности — <a href="https://github.com/meeymirita/lab-fixes/blob/main/devops/caddy.md" target="_blank" rel="noopener">fixes/devops/caddy.md</a>.</p>
 <div class="tw"><table><thead><tr><th>Что проверено</th><th>Статус</th><th>Примечание</th></tr></thead><tbody><tr><td>Сессии 1–6 (запуск, статика, прокси, HTTPS, балансировка, безопасность)</td><td class="ok">✅</td><td>локально; тексты ошибок, заголовки и числа совпали, кроме отмеченных правок (macOS: порт занят, <code>timeout</code>, LibreSSL, <code>::1</code>)</td></tr><tr><td>Сессии 9–11 (логи, метрики, Caddyfile «как профи», Admin API, <code>@id</code>, <code>--resume</code>)</td><td class="ok">✅</td><td>локально</td></tr><tr><td>7.1–7.5 Docker и Compose (стенд Edge, тома, <code>.env</code> с хешем)</td><td class="ok">✅</td><td>правки: <code>reload</code> при <code>admin off</code>, пропавший после <code>sed -i</code> файл, потеря <code>/data</code></td></tr><tr><td>8.1–8.2 PHP-FPM, «File not found»</td><td class="ok">✅</td><td>правка: <code>/srv/php</code> не монтируется (read-only) → <code>/opt/php</code>; в логе php нет «Primary script unknown»</td></tr><tr><td>12.2–12.4 xcaddy, свой модуль на Go, две ошибки</td><td class="ok">✅</td><td>правки: версия Caddy в <code>go.mod</code> и у <code>xcaddy</code>, формат токена Cloudflare, текст «not an ordered HTTP handler»</td></tr><tr><td>13.5 восстановление из бэкапа</td><td class="ok">✅</td><td>отпечаток корневого сертификата до и после совпал</td></tr><tr><td>13.1 systemd-служба, 13.4 кластер с общим хранилищем</td><td>—</td><td>не запускались (unit-файл сверен с официальным)</td></tr><tr><td>8.3 Laravel за Caddy, FrankenPHP</td><td>—</td><td>не запускались (Laravel не разворачивался)</td></tr><tr><td>4.4 публичный домен, Let's Encrypt, 13.2 сеть</td><td>—</td><td>нужен домен и открытые порты — проверите сами</td></tr></tbody></table></div>
 <h2>ООП (php-coffee) — D: шаги 1.1–5.3, 25 тестов, HTTP + RabbitMQ</h2>
