@@ -22,6 +22,9 @@
     sessionStorage.removeItem(STORE_KEY);
   } catch (e) {}
 
+  // slide.js (слайд-переход) ставит {slide:true}: заставку не показываем, переход рисует сам браузер
+  var slide = !!(carried && carried.slide);
+
   var css =
     '.pl{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;' +
       'background:#08070a;color:var(--pl-color,#ff2e88);clip-path:inset(0% 0% 0% 0%);padding:24px;text-align:center}' +
@@ -52,10 +55,11 @@
     '<div class="pl-label">загрузка</div>' +
     '<div class="pl-bar"></div>';
   document.body.insertBefore(el, document.body.firstChild);
+  if (slide) el.classList.add('is-off');
 
   var nameEl = el.querySelector('.pl-name');
   var barEl = el.querySelector('.pl-bar');
-  if (carried) setContent(carried.name, carried.color);
+  if (carried && !slide) setContent(carried.name, carried.color);
 
   var loop = null;
   var shapes = null;
@@ -99,6 +103,7 @@
 
   function enter(name, color) {
     if (leaving) return;
+    if (slide) { hide(); return; }
     setContent(name, color);
 
     if (!ready()) {

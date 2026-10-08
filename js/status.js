@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: a7fbf6610faf5ff7 */
+/* verification-md-hash: fb60289727af25ce */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
