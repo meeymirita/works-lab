@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bash Lab — CoffeeOps — shell и bash с нуля · ANITECH</title>
+<meta name="description" content="Командная строка и bash с нуля: терминал и оболочка, переменные и кавычки, условия и циклы, функции и shellcheck, потоки и конвейеры, массивы и строки, grep / sed / awk, cron и деплой-скрипт с…">
+<!-- seo:start -->
+<link rel="canonical" href="https://anitech.meeymirita.ru/works/bash.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ANITECH PERFORMANCE">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Bash Lab — CoffeeOps — shell и bash с нуля · ANITECH">
+<meta property="og:description" content="Командная строка и bash с нуля: терминал и оболочка, переменные и кавычки, условия и циклы, функции и shellcheck, потоки и конвейеры, массивы и строки, grep / sed / awk, cron и деплой-скрипт с…">
+<meta property="og:url" content="https://anitech.meeymirita.ru/works/bash.html">
+<meta property="og:image" content="https://meeymirita-files.storage.yandexcloud.net/bash/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1200">
+<meta property="og:image:alt" content="Bash Lab — CoffeeOps — shell и bash с нуля · ANITECH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bash Lab — CoffeeOps — shell и bash с нуля · ANITECH">
+<meta name="twitter:description" content="Командная строка и bash с нуля: терминал и оболочка, переменные и кавычки, условия и циклы, функции и shellcheck, потоки и конвейеры, массивы и строки, grep / sed / awk, cron и деплой-скрипт с…">
+<meta name="twitter:image" content="https://meeymirita-files.storage.yandexcloud.net/bash/og.jpg">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Course", "name": "Bash Lab", "description": "Командная строка и bash с нуля: терминал и оболочка, переменные и кавычки, условия и циклы, функции и shellcheck, потоки и конвейеры, массивы и строки, grep / sed / awk, cron и деплой-скрипт с…", "url": "https://anitech.meeymirita.ru/works/bash.html", "inLanguage": "ru", "educationalLevel": "Базовая", "author": {"@type": "Person", "name": "meeymirita", "url": "https://github.com/meeymirita"}, "image": "https://meeymirita-files.storage.yandexcloud.net/bash/og.jpg", "provider": {"@type": "Organization", "name": "ANITECH PERFORMANCE", "url": "https://anitech.meeymirita.ru/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "ANITECH PERFORMANCE", "item": "https://anitech.meeymirita.ru/"}, {"@type": "ListItem", "position": 2, "name": "Bash Lab", "item": "https://anitech.meeymirita.ru/works/bash.html"}]}</script>
+<!-- seo:end -->
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+KR:wght@400;700;900&family=Space+Mono:wght@400;700&family=Dela+Gothic+One&family=Onest:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/lab.css">
+<link rel="stylesheet" href="css/lab-anime.css">
+<script src="js/slide.js"></script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113510962', 'ym');
+
+    ym(113510962, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113510962" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+<script src="js/page-loader.js"></script>
+<div id="lab-root"><!-- seo-static:start --><main class="seo-static"><nav aria-label="Навигация"><a href="/">ANITECH PERFORMANCE</a> › <a href="/#projects">Лабораторные</a></nav><h1>Bash Lab</h1><p>CoffeeOps — shell и bash с нуля</p><p>Командная строка и bash с нуля: терминал и оболочка, переменные и кавычки, условия и циклы, функции и shellcheck, потоки и конвейеры, массивы и строки, grep / sed / awk, cron и деплой-скрипт с откатом.</p><p>Стек: Bash 5, Docker, grep / sed / awk, shellcheck. Уровень: Базовая.</p><section><h2>Оболочка делит строку на слова</h2><p>Главное правило bash: строка режется по пробелам. Кавычки решают, сколько слов получится и что раскроется. Переменные всегда берём в двойные кавычки.</p><ul><li>без кавычек — слова делятся</li><li>&quot;…&quot; — переменные раскрываются, слова целые</li><li>&#x27;…&#x27; — всё буквально</li></ul></section><section><h2>Скрипт должен падать громко</h2><p>По умолчанию bash идёт дальше после ошибки и может «успешно» закончить сломанную работу. Три настройки и ловушка EXIT делают провал заметным и убирают за собой.</p><ul><li>set -e — остановиться на ошибке</li><li>set -u — ошибка на пустой переменной</li><li>trap … EXIT — уборка при любом выходе</li></ul></section><section><h2>Маленькие программы собираются в цепочку</h2><p>Конвейер соединяет вывод одной команды со вводом следующей. Так за минуту строится отчёт: берём столбец, сортируем, считаем повторы, показываем лидеров.</p><ul><li>cut — взять столбец</li><li>sort | uniq -c — посчитать повторы</li><li>head — оставить первые строки</li></ul></section><section><h2>Счётчик без внешних утилит</h2><p>Ассоциативный массив работает как словарь «ключ → значение». Им считают заказы по товарам прямо в bash: ключ — название, значение — сумма.</p><ul><li>declare -A — объявление (bash 4+)</li><li>${m[$k]:-0} — значение или 0</li><li>${!m[@]} — все ключи</li></ul></section><section><h2>Содержание методички</h2><ol><li>1. Как проходить и среда</li><li>2. Шпаргалка: команды и конструкции</li><li>3. Справочник ошибок: симптом → причина → что делать</li><li>4. Глоссарий</li><li>5. Вопросы на понимание и собеседование</li><li>6. Что дальше</li><li>Шаги по сессиям</li></ol></section><p><a href="https://github.com/meeymirita/bash-lab">Репозиторий лабы на GitHub</a></p><p><a href="centrifugo.html">← Centrifugo Lab</a> · <a href="php-coffee.html">OOP Lab →</a></p></main><!-- seo-static:end --></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/MorphSVGPlugin.min.js"></script>
+<script src="js/status.js"></script>
+<script src="js/flip-gallery.js"></script>
+<script src="js/lab.js"></script>
+<script src="js/lab-anime.js"></script>
+<script>renderLabPage('bash'); animeEnhance('bash');</script>
+</body>
+</html>

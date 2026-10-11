@@ -20,7 +20,7 @@
   };
 
   // Рекомендуемый порядок прохождения (зависимости из fixes/common/_order.md).
-  var ORDER = ['docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
+  var ORDER = ['bash', 'docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
     'laravel-performance', 'css', 'tailwind', 'js', 'vue', 'inertia', 'typescript', 'nuxt', 'angular',
     'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
 
@@ -214,6 +214,14 @@
       meet: ['Traefik 3: EntryPoint → Router → Middleware → Service', 'Docker provider и labels', 'API, frontend, PostgreSQL, Adminer', 'Балансировка и canary', 'TLS: mkcert, Let\'s Encrypt'],
       before: [{ key: 'docker', kind: 'know', why: 'контейнеры, сети, volume и compose' }],
       tip: 'Let\'s Encrypt требует публичный домен; локально — mkcert.'
+    },
+    bash: {
+      name: 'Bash Lab', file: 'bash/bash.html', accent: '#4EAA25', level: 'zero',
+      headline: 'Самостоятельная лаба: ничего знать заранее не нужно',
+      know: ['Уметь пользоваться компьютером и текстовым редактором'],
+      meet: ['Терминал, оболочка, файлы и права', 'Скрипты: переменные, кавычки, аргументы', 'Условия, циклы, функции, коды завершения', 'Потоки, конвейеры, grep / sed / awk', 'Массивы, cron и деплой-скрипт'],
+      before: [{ key: 'docker', kind: 'help', why: 'скрипты запускаются в контейнере bash 5 (шаг 1.2 объясняет Docker с нуля)' }],
+      tip: 'Методичка не вычитана: команды выполнены в Docker при сборке, но человеком лаба ещё не пройдена. Нужен Docker Desktop.'
     },
     centrifugo: {
       name: 'Centrifugo Lab', file: 'centrifugo/centrifugo.html', accent: '#EF2D4F', level: 'solid',
