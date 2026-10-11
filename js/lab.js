@@ -1460,6 +1460,377 @@ var LABS = [
     accent: '#0a8f6a',
   },
   {
+    key: 'centrifugo',
+    titleMain: 'centrifugo',
+    title: 'Centrifugo Lab',
+    subtitle: 'Realtime Workspace — Centrifugo с нуля',
+    desc: 'Realtime-сервер Centrifugo для Laravel + Vue: каналы и namespaces, centrifuge-js, публикация из Laravel, JWT и subscription tokens, proxy, presence и history, recovery, Outbox, тесты, production и нагрузка.',
+    stack: ['Centrifugo 6', 'Laravel 13', 'Vue', 'Docker', 'Redis'],
+    difficulty: 'Средняя–высокая',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/centrifugo/centrifugo.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/centrifugo/centrifugo.html',
+    repo: 'https://github.com/meeymirita/centrifugo-lab',
+    stackInfo: [
+      {
+        "tag": "сервер",
+        "back": "Centrifugo 6: каналы и namespaces, HTTP API для публикации, WebSocket-соединения клиентов, конфиг в JSON."
+      },
+      {
+        "tag": "клиент",
+        "back": "centrifuge-js в Vue: состояния клиента, подписки и их события, токены, переподключение с recovery."
+      },
+      {
+        "tag": "Laravel",
+        "back": "Публикация из Laravel через HTTP API, Event → Listener → Queue, выдача JWT и subscription-токенов, Policy, proxy-эндпоинты."
+      },
+      {
+        "tag": "надёжность",
+        "back": "Presence и history, recovery позиции в потоке, Transactional Outbox, дедупликация по event_id, сценарии аварий."
+      },
+      {
+        "tag": "production",
+        "back": "Docker Compose, nginx, Redis engine, две ноды Centrifugo, лимиты дескрипторов, нагрузочный тест k6."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Конфиг",
+        "title": "Origin и каналы — в одном JSON",
+        "text": "Centrifugo настраивается файлом config.json. allowed_origins защищает от подключений с чужих страниц: браузер с другого origin получит отказ.",
+        "points": [
+          "client.allowed_origins — список разрешённых адресов страниц",
+          "namespaces делят каналы по правилам",
+          "http_api.key — ключ для публикации с бэкенда"
+        ],
+        "code": "{\n  \"client\": {\n    \"allowed_origins\": [\"http://localhost:5173\"]\n  }\n}"
+      },
+      {
+        "tab": "Клиент",
+        "title": "Подписка на канал и её события",
+        "text": "В centrifuge-js подписка — отдельный объект со своими состояниями: subscribing, subscribed, unsubscribed. Приходящие сообщения — событие publication.",
+        "points": [
+          "client.newSubscription(channel) создаёт подписку",
+          "sub.on('state') — переходы состояний",
+          "sub.on('publication') — входящие сообщения"
+        ],
+        "code": "const sub = client.newSubscription(channel);\nsub.on('state', ctx => console.log(ctx.oldState, '→', ctx.newState));\nsub.on('publication', ctx => console.log(ctx.data));\nsub.subscribe();"
+      },
+      {
+        "tab": "JWT",
+        "title": "Laravel выдаёт connection-токен",
+        "text": "Клиент не знает секрета: Laravel подписывает короткоживущий JWT, а Centrifugo его проверяет. sub — строка с id пользователя, exp — срок жизни.",
+        "points": [
+          "HS256 и общий hmac_secret_key",
+          "sub — строкой, не числом",
+          "короткий exp + getToken на клиенте"
+        ],
+        "code": "JWT::encode([\n    'sub' => (string) $user->id,\n    'iat' => $now,\n    'exp' => $now + $ttl,\n    'info' => ['name' => $user->name],\n], config('services.centrifugo.hmac_secret'), 'HS256');"
+      },
+      {
+        "tab": "Proxy",
+        "title": "Laravel решает, кого пускать в канал",
+        "text": "Subscribe proxy: Centrifugo при каждой подписке спрашивает у Laravel, можно ли. Ответ — result или error с кодом.",
+        "points": [
+          "endpoint и timeout в channel.proxy.subscribe",
+          "proxy включается на namespace",
+          "403 — отказ, result.info — данные пользователя"
+        ],
+        "code": "Route::post('/centrifugo/subscribe', function (Request $request, ChannelAccess $access) {\n    $user = \\App\\Models\\User::find((int) $request->input('user'));\n    $channel = (string) $request->input('channel');\n\n    if (! $user || ! $access->canSubscribe($user, $channel)) {\n        return ['error' => ['code' => 403, 'message' => 'forbidden']];\n    }\n\n    return ['result' => ['info' => ['name' => $user->name]]];\n});"
+      }
+    ],
+    sessions: [
+      {
+        "h": "~2.5 ч",
+        "t": "Что такое realtime",
+        "r": "Одна лента четырьмя способами: polling, long polling, SSE, WebSocket; Минимальный WebSocket-чат на Node и в браузере; Сломать → починить: закрыть сервер и наблюдать close; Два сервера и три клиента: кто хранит подписчиков; Centrifugo в Docker и админка"
+      },
+      {
+        "h": "~3.5 ч",
+        "t": "Конфиг, API, каналы, namespaces",
+        "r": "Свой конфиг: genconfig, defaultconfig, defaultenv, configdoc; allowed_origins: чужой origin отклоняется; Первый publish через HTTP API и первый подписчик; Publish в несуществующий namespace: 200 с ошибкой внутри; Namespace chat: что он решает…"
+      },
+      {
+        "h": "~3 ч",
+        "t": "centrifuge-js и Vue",
+        "r": "Ставим centrifuge и читаем types.ts; Клиент и его состояния; Подписка и её события; Токены руками: gentoken, gensubtoken, разбор JWT; Компонент RealtimeChat.vue без утечек…"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Laravel → Centrifugo через HTTP API",
+        "r": "Laravel-проект и сервис RealtimePublisher на «голом» HTTP; Ошибка внутри 200: проверяем тело ответа; События Laravel и таблица «trait → что делает»; Artisan-команда realtime:test: десять сообщений; broadcast и batch: несколько публикаций одним запросом…"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Event → Listener → Queue",
+        "r": "Модель Task и три события; Listener публикует в канал задачи; ShouldQueue: публикация из очереди; Схема: три разных «Redis»-слова; Остановить worker: события приходят позже"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Надёжная публикация",
+        "r": "Dispatch внутри транзакции, потом rollback; ShouldDispatchAfterCommit: событие только после commit; tries, backoff и failed_jobs: повтор при сбое Centrifugo; idempotency_key в собственном сервисе; Предпросмотр: outbox вместо «dispatch после commit»"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Протокол сообщений",
+        "r": "Конверт сообщения: event_id, type, version, occurred_at, data; Именование типов и реестр; Fat против thin: что класть в data; Дедупликация на клиенте по event_id; version и version_epoch: устаревшая публикация игнорируется…"
+      },
+      {
+        "h": "~3.5 ч",
+        "t": "Аутентификация: connection JWT",
+        "r": "Authentication против authorization; Разбор JWT: sub, exp, iat, info, meta, channels, subs; Laravel выдаёт connection-токен; Короткий exp, getToken и UnauthorizedError; Аноним или пользователь: два флага…"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Subscription tokens и private channels",
+        "r": "Публичный namespace: allow_subscribe_for_client; Убрать опцию: 103 permission denied; Laravel выдаёт subscription JWT; Policy: чужой задачи токена не будет; info в токене подписки и presence…"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Proxy, user-limited, выбор механизма",
+        "r": "User-limited канал notify:#42; Connect proxy: аутентификация без JWT; http_headers и emulated_headers: cookie и Authorization; Subscribe proxy: Laravel решает по каждой подписке; Ответ proxy: error и disconnect…"
+      },
+      {
+        "h": "~3.5 ч",
+        "t": "Presence и History",
+        "r": "presence: сначала 103, потом список; presenceStats(): только счётчики; info и chan_info: что видно в ответе; join_leave; UI «Online: N»: два client ID у одного user…"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Recovery и reconnect",
+        "r": "Lifecycle клиента и backoff с jitter; epoch и offset: позиция в потоке; force_recovery: Wi-Fi off/on; wasRecovering и recovered; Вытеснение истории: recovered false…"
+      },
+      {
+        "h": "~3.5 ч",
+        "t": "HTTP API вглубь и Laravel-пакет",
+        "r": "Установка пакета и smoke-тест (E4); Что пакет умеет и чего нет; Ошибки: send() глотает, broadcast() не видит (E2); PrivateChannel → $-канал (E3); broadcasting/auth: токен подписки через Laravel…"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Паттерны: уведомления, прогресс, server-side подписки",
+        "r": "Автоканал notify:#42; Приём через client.on('publication'); Другие способы оформить server-side подписку; single_connection; Прогресс job: 25/50/75/100…"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Паттерны: typing, client publish, доска",
+        "r": "Typing: client publish в $typing; Debounce / throttle и авто-таймаут; Publish proxy: Laravel валидирует публикацию клиента; Server-side publish против client-side publish; Сборка доски"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Reliability: аварии",
+        "r": "Остановить Centrifugo; Остановить Laravel; Остановить queue worker; Остановить Redis; Потеря сети у клиента…"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Reliability: outbox, дубликаты, порядок",
+        "r": "Таблица centrifugo_outbox; Конфиг consumers: Centrifugo читает таблицу сам; Транзакция: задача + запись в outbox; LISTEN/NOTIFY: меньше задержка; broadcast в outbox: дубли без ключа…"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Тестирование и безопасность",
+        "r": "Http::fake(): публикация в тесте; Тесты токенов и Policy; afterCommit и rollback; Чек-лист безопасности конфигурации; XSS, лимиты размера, channel_regex…"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Production: compose, прокси, engine",
+        "r": "Docker Compose: полный стенд; Nginx по конфигу приложения D; Sticky sessions не нужны; Redis engine: история переживает рестарт; health, prometheus, shutdown, SIGHUP…"
+      },
+      {
+        "h": "~3.5 ч",
+        "t": "Масштаб и нагрузка",
+        "r": "Две ноды Centrifugo + Redis engine; Лимиты файловых дескрипторов; Ephemeral ports, TIME_WAIT, conntrack; Реальные кадры клиента (E5); k6-скрипт на k6/websockets…"
+      },
+      {
+        "h": "~5 ч",
+        "t": "Финальный проект",
+        "r": "ТЗ и план: Realtime Task Workspace; Реализация: Laravel; Реализация: Centrifugo и Vue; Шесть приёмочных сценариев; Сдача: тесты, отчёт, протокол, схема, таблица аварий"
+      }
+    ],
+    arch: {
+      "title": "Путь сообщения через Centrifugo",
+      "rows": [
+        {
+          "label": "Браузер",
+          "boxes": [
+            "Vue + centrifuge-js",
+            "подписка на канал tasks:42"
+          ]
+        },
+        {
+          "label": "Centrifugo",
+          "boxes": [
+            "WebSocket-соединения, каналы, namespaces",
+            "presence, history, recovery"
+          ]
+        },
+        {
+          "label": "Laravel",
+          "boxes": [
+            "HTTP API: publish из Listener",
+            "JWT, Policy, proxy-эндпоинты"
+          ]
+        },
+        {
+          "label": "Очередь",
+          "boxes": [
+            "queue worker, Outbox",
+            "идемпотентность, повторы"
+          ]
+        },
+        {
+          "label": "Хранилища",
+          "boxes": [
+            "PostgreSQL (задачи, outbox)",
+            "Redis (очереди, engine Centrifugo)"
+          ]
+        }
+      ],
+      "note": "Laravel — источник правды и единственный, кто публикует; Centrifugo только доставляет сообщения клиентам и хранит короткую историю.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "клиент",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "Centrifugo",
+            "x": 250,
+            "w": 330
+          },
+          {
+            "t": "бэкенд",
+            "x": 620,
+            "w": 366
+          }
+        ],
+        "nodes": [
+          {
+            "id": "vue",
+            "t": "Vue-клиент",
+            "s": "centrifuge-js",
+            "x": 110,
+            "y": 150,
+            "d": "Подключается по WebSocket с connection-токеном и подписывается на каналы."
+          },
+          {
+            "id": "cf",
+            "t": "Centrifugo",
+            "s": "каналы, history",
+            "x": 415,
+            "y": 150,
+            "d": "Держит соединения, раздаёт публикации подписчикам, хранит историю для recovery."
+          },
+          {
+            "id": "api",
+            "t": "HTTP API",
+            "s": "POST /api/publish",
+            "x": 415,
+            "y": 330,
+            "d": "Вход для бэкенда: публикация, presence, history, disconnect."
+          },
+          {
+            "id": "laravel",
+            "t": "Laravel",
+            "s": "Listener, JWT, proxy",
+            "x": 800,
+            "y": 150,
+            "d": "Бизнес-логика, права доступа, выдача токенов; публикует события после коммита."
+          },
+          {
+            "id": "queue",
+            "t": "Queue worker",
+            "s": "ShouldQueue, retry",
+            "x": 800,
+            "y": 300,
+            "d": "Публикует из очереди с повторами и backoff, чтобы не терять сообщения."
+          },
+          {
+            "id": "db",
+            "t": "PostgreSQL + Redis",
+            "s": "outbox, engine",
+            "x": 800,
+            "y": 440,
+            "d": "Задачи и таблица outbox в PostgreSQL; Redis — очереди и engine для нескольких нод."
+          }
+        ],
+        "edges": [
+          {
+            "a": "vue",
+            "b": "cf"
+          },
+          {
+            "a": "laravel",
+            "b": "api"
+          },
+          {
+            "a": "api",
+            "b": "cf"
+          },
+          {
+            "a": "laravel",
+            "b": "queue"
+          },
+          {
+            "a": "queue",
+            "b": "db"
+          },
+          {
+            "a": "cf",
+            "b": "laravel",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "laravel",
+            "txt": "Задача изменилась — Listener ставит публикацию в очередь."
+          },
+          {
+            "n": "queue",
+            "txt": "Воркер отправляет publish в HTTP API Centrifugo."
+          },
+          {
+            "n": "api",
+            "txt": "API принимает запрос и находит канал tasks:42."
+          },
+          {
+            "n": "cf",
+            "txt": "Centrifugo записывает сообщение в историю и рассылает подписчикам."
+          },
+          {
+            "n": "vue",
+            "txt": "Клиент получает publication и обновляет интерфейс."
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Чем Centrifugo отличается от Laravel Reverb или Pusher?",
+        "a": "Centrifugo — отдельный сервер на Go, не привязанный к Laravel: каналы, presence, history и recovery встроены, клиенты на разных языках, масштабирование через Redis. Laravel лишь публикует в него по HTTP API."
+      },
+      {
+        "q": "Зачем нужен Outbox, если есть очередь?",
+        "a": "Очередь и база — два разных хранилища: если запись в БД прошла, а публикация упала, сообщение теряется. Outbox пишет сообщение в ту же транзакцию, откуда его надёжно забирает Centrifugo или воркер."
+      },
+      {
+        "q": "Чем connection-токен отличается от subscription-токена?",
+        "a": "Connection-токен подтверждает, кто подключается (sub). Subscription-токен разрешает подписку на конкретный канал — Laravel выдаёт его только тем, у кого есть право на этот канал."
+      },
+      {
+        "q": "Что делает recovery при потере связи?",
+        "a": "Клиент помнит позицию (epoch и offset) в потоке канала. При переподключении Centrifugo досылает пропущенные сообщения из истории, если они ещё хранятся."
+      },
+      {
+        "q": "Всё ли в методичке проверено на реальном Centrifugo?",
+        "a": "Нет. Методичка получена из отдельного чата 11.10.2026 и ещё не вычитана и не проверена запуском: код сессий 8B, 12B, 13B, 15 и пример k6 не запускались, часть имён опций написана по памяти, пакет denis660/laravel-centrifugo не читали в исходниках."
+      }
+    ],
+    accent: '#EF2D4F',
+  },
+  {
     key: 'php-coffee',
     titleMain: 'oop',
     title: 'OOP Lab',
@@ -8647,8 +9018,10 @@ function initTiles() {
 function labVerifyBanner(key) {
   var st = window.LAB_STATUS && window.LAB_STATUS[key];
   if (!st) return '';
-  var part = st.level === 'part';
-  var icon = part
+  var part = st.level === 'part', none = st.level === 'none';
+  var icon = none
+    ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M12 4v10M12 19v1"/></svg>'
+    : part
     ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/></svg>'
     : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M20 6 9 17l-5-5"/></svg>';
   return '<section class="lab-verify" aria-label="Статус проверки">' +
@@ -8658,7 +9031,7 @@ function labVerifyBanner(key) {
         '<div class="lab-verify__meta"><span class="lab-verify__kicker">01 / СТАТУС ПРОВЕРКИ</span>' +
           (st.method || []).map(function (m) { return '<span class="lab-verify__tag">' + escapeHtml(m.charAt(0).toUpperCase() + m.slice(1)) + '</span>'; }).join('') + '</div>' +
         '<h2 class="lab-verify__title">' + escapeHtml(st.head) + '</h2>' +
-        '<p class="lab-verify__text">возможны небольшие недочёты — методичка вычитана построчно, код из неё запускался</p>' +
+        '<p class="lab-verify__text">' + (none ? 'методичка написана, но ещё не вычитана и код из неё не запускался — возможны ошибки в тексте, командах и именах опций; проверяется при прохождении' : 'возможны небольшие недочёты — методичка вычитана построчно, код из неё запускался') + '</p>' +
       '</div>' +
       '<div class="lab-verify__actions">' +
         '<a class="lab-verify__btn lab-verify__btn--primary" href="verification.html">Что чем проверено</a>' +

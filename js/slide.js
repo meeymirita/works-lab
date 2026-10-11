@@ -8,7 +8,7 @@
     js: 'up', typescript: 'right', vue: 'down', nuxt: 'left', angular: 'up', css: 'left', tailwind: 'right',
     php: 'down', 'php-coffee': 'up', 'algorithms-php': 'left', nestjs: 'right', graphql: 'down',
     laravel: 'left', 'laravel-performance': 'up', inertia: 'right', redis: 'down', rabbitmq: 'left',
-    postgresql: 'up', docker: 'right', traefik: 'down', caddy: 'left', kubernetes: 'up'
+    postgresql: 'up', docker: 'right', traefik: 'down', caddy: 'left', kubernetes: 'up', centrifugo: 'down'
   };
   var OPP = { left: 'right', right: 'left', up: 'down', down: 'up' };
   var STORE_KEY = 'page-loader-next';           // тот же ключ, что у page-loader.js: флаг slide гасит его заставку

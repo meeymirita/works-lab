@@ -22,7 +22,7 @@
   // Рекомендуемый порядок прохождения (зависимости из fixes/common/_order.md).
   var ORDER = ['docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
     'laravel-performance', 'css', 'tailwind', 'js', 'vue', 'inertia', 'typescript', 'nuxt', 'angular',
-    'nestjs', 'graphql', 'traefik', 'caddy', 'kubernetes'];
+    'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
 
   // Сила связи в «before»: need — без неё шаги не выполнить; know — методичка опирается на её знания; help — полезно.
   var LABS = {
@@ -214,6 +214,14 @@
       meet: ['Traefik 3: EntryPoint → Router → Middleware → Service', 'Docker provider и labels', 'API, frontend, PostgreSQL, Adminer', 'Балансировка и canary', 'TLS: mkcert, Let\'s Encrypt'],
       before: [{ key: 'docker', kind: 'know', why: 'контейнеры, сети, volume и compose' }],
       tip: 'Let\'s Encrypt требует публичный домен; локально — mkcert.'
+    },
+    centrifugo: {
+      name: 'Centrifugo Lab', file: 'centrifugo/centrifugo.html', accent: '#EF2D4F', level: 'solid',
+      headline: 'Standalone-лаба: нужны основы Docker, Laravel и Vue',
+      know: ['HTTP и JSON, JavaScript (async/await)', 'Основы Laravel: маршруты, модели, очереди', 'Docker: compose up, порты, переменные окружения, логи', 'Vue — только ref и onMounted', 'SQL: транзакции (сессии 5B и 13B)'],
+      meet: ['Centrifugo 6: каналы, namespaces, HTTP API', 'centrifuge-js: клиент, подписки, токены', 'Публикация из Laravel: Event → Listener → Queue', 'JWT, subscription tokens, proxy, user-limited каналы', 'Presence, history, recovery', 'Outbox, тесты, production, нагрузка'],
+      before: [{ key: 'docker', kind: 'know', why: 'compose up, порты, переменные окружения, логи' }, { key: 'laravel', kind: 'know', why: 'сквозной проект на Laravel 13' }, { key: 'vue', kind: 'help', why: 'клиент на Vue: ref и onMounted' }],
+      tip: 'Методичка не вычитана и не проверена запуском; нужен Docker, Node и PHP 8.4 с Composer.'
     },
     caddy: {
       name: 'Caddy Lab', file: 'caddy/caddy.html', accent: '#0a8f6a', level: 'zero',
