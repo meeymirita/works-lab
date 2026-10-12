@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: fb778738d2d4c300 */
+/* verification-md-hash: c7873482806e8f74 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -247,11 +247,11 @@ window.LAB_STATUS = {
  "express": {
   "level": "ok",
   "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "владелец лабу ещё не проходила; не проверялись: реальный Mac без Docker, сессия 11.5 (Compose+Caddy) и 11.6 (Production Hell) — текстовые/конфигурационные шаги без run-блоков",
+  "rest": "прохождение владельцем, реальный Mac без Docker, сессия 11.5 (Compose+Caddy) и 11.6 (Production Hell, текстовые/конфигурационные шаги без run-блоков) — проверите сами при реальном прохождении",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/express.md"
  }
 };
