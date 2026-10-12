@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: a05567052c6656d0 */
+/* verification-md-hash: fb778738d2d4c300 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -243,5 +243,15 @@ window.LAB_STATUS = {
   "method": [],
   "rest": "всё: код и команды всех 21 сессий (авторы чата отдельно отметили: 8B, 12B, 13B, 15 и пример k6 не запускались; имена опций consumers, channel_regex, лимитов соединений, emulated_headers, internal_port — по памяти, сверить через centrifugo defaultenv; пакет denis660/laravel-centrifugo не читали в исходниках)",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/common/_verification.md"
+ },
+ "express": {
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
+  "method": [
+   "запуск в Docker"
+  ],
+  "rest": "владелец лабу ещё не проходила; не проверялись: реальный Mac без Docker, сессия 11.5 (Compose+Caddy) и 11.6 (Production Hell) — текстовые/конфигурационные шаги без run-блоков",
+  "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/express.md"
  }
 };

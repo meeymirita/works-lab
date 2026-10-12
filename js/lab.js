@@ -8716,6 +8716,326 @@ var LABS = [
       }
     ],
     accent: '#b45f06',
+  },  {
+    key: 'express',
+    titleMain: 'express',
+    title: 'Express Lab',
+    subtitle: 'ShareBox — файлообменник со ссылками',
+    desc: 'Node.js и Express с нуля перед TypeScript и NestJS: event loop, модули, роутер и middleware, единый обработчик ошибок и zod, PostgreSQL и Prisma 7, JWT-аутентификация с ротацией refresh, загрузка файлов потоком до 200 МБ, share-ссылки с паролем и сроком жизни, тесты и Docker.',
+    stack: ['Node 24', 'Express 5', 'PostgreSQL 18', 'Prisma 7', 'Docker'],
+    difficulty: 'Низкая–средняя',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/express/express.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/express/express.html',
+    repo: 'https://github.com/meeymirita/express-lab',
+    stackInfo: [
+      {
+        "tag": "среда",
+        "back": "Node 24 на Mac с первой сессии; PostgreSQL 18 — в Docker Compose с сессии 5, только с согласия."
+      },
+      {
+        "tag": "фреймворк",
+        "back": "Express 5: роутер, middleware, единый обработчик ошибок, слои routes → controllers → services."
+      },
+      {
+        "tag": "база данных",
+        "back": "Сначала сырой SQL через pg и транзакции, потом Prisma 7 с адаптером драйвера и миграциями."
+      },
+      {
+        "tag": "безопасность",
+        "back": "argon2 для паролей, JWT access/refresh с ротацией, владение ресурсом, path traversal."
+      },
+      {
+        "tag": "файлы и ссылки",
+        "back": "multer, лимит 200 МБ потоком, Range и докачка, share-код с паролем и сроком жизни."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Слои",
+        "title": "routes → controllers → services",
+        "text": "Роут знает про req/res, контроллер связывает роут и логику, сервис не знает про Express вообще — его можно вызвать и из теста, и из консоли. Стрелка зависимости — в одну сторону.",
+        "points": [
+          "routes: какой адрес к какой функции",
+          "controllers: разобрать req, собрать res",
+          "services: чистая логика, без HTTP"
+        ],
+        "code": "export function getFile(req, res) {\n  res.json(await getFileOrThrow(req.params.id))\n}\n// сервис ничего не знает про req/res:\nexport async function getFileOrThrow(id) {\n  const file = await prisma.file.findUnique({ where: { id: Number(id) } })\n  if (!file) throw new NotFoundError(`файл ${id} не найден`)\n  return file\n}"
+      },
+      {
+        "tab": "Ошибки",
+        "title": "Один обработчик на всё приложение",
+        "text": "Четырёхаргументный middleware (err, req, res, next) — Express находит его по сигнатуре и зовёт при любой брошенной или переданной через next(err) ошибке. Свои классы ошибок несут HTTP-статус с собой.",
+        "points": [
+          "class AppError extends Error { status }",
+          "throw — поймано один раз, не в каждом роуте",
+          "404 и 500 без утечки деталей клиенту"
+        ],
+        "code": "app.use((err, req, res, next) => {\n  console.error('поймано:', err.message)\n  res.status(err.status || 500).json({ error: err.message || 'internal' })\n})"
+      },
+      {
+        "tab": "JWT",
+        "title": "Access живёт минуты, refresh — дни",
+        "text": "Короткий access летает в каждом запросе; долгий refresh хранится отдельно и только обновляет пару токенов. Ротация — каждый refresh выдаёт новую пару взамен старой, а не продлевает прежнюю.",
+        "points": [
+          "jwt.sign({ sub, type }, secret, { expiresIn })",
+          "requireAuth — middleware, кладёт req.user",
+          "403 (чужое) ≠ 401 (не вошла)"
+        ],
+        "code": "const access = jwt.sign({ sub: userId, type: 'access' }, secret, { expiresIn: '15m' })\nconst refresh = jwt.sign({ sub: userId, type: 'refresh' }, secret, { expiresIn: '7d' })"
+      },
+      {
+        "tab": "Потоки",
+        "title": "Файл до 200 МБ без роста памяти",
+        "text": "createReadStream(...).pipe(res) отдаёт файл кусками, не читая целиком в память — тот же приём, которым в сессии 2 копировали файл. Range-запрос просит только часть файла — так устроена докачка.",
+        "points": [
+          "multer пишет на диск потоком, с лимитом",
+          "случайное имя на диске — защита от path traversal",
+          "Range → 206 Partial Content"
+        ],
+        "code": "export async function downloadFile(req, res) {\n  const file = await getFileOrThrow(req.params.id)\n  res.setHeader('Content-Disposition', `attachment; filename=\"${file.name}\"`)\n  createReadStream(file.storedPath).pipe(res)\n}"
+      }
+    ],
+    sessions: [
+      {
+        "h": "~4 ч",
+        "t": "Node с нуля",
+        "r": "Что такое Node и V8; REPL и первый файл; модули CommonJS; модули ES Modules; process и npm-скрипты; Сломать → починить: забытое расширение и первый сервер на node:http"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Асинхронность и потоки",
+        "r": "Event loop на примерах; callbacks и колбэк-ад; Promise; async/await; EventEmitter; Buffer и потоки — копируем файл без роста памяти"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Express 5",
+        "r": "Зачем Express, если есть node:http; роутер, параметры и query; express.json(); middleware и порядок; статика; каркас ShareBox с GET /health"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Ошибки, валидация, структура",
+        "r": "Единый обработчик ошибок; свои классы ошибок; валидация с zod; слои routes → controllers → services; .env; Сломать → починить: ошибка без обработчика"
+      },
+      {
+        "h": "~4 ч",
+        "t": "PostgreSQL и SQL",
+        "r": "Docker Compose с базой; pg и пул соединений; таблицы ShareBox; параметризованные запросы и SQL-инъекции; транзакции; перенос ShareBox на базу"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Prisma 7",
+        "r": "Зачем ORM, если есть pg; схема, конфиг и генератор; клиент с адаптером; сравнение pg vs Prisma; миграции при изменении схемы; перевод ShareBox на Prisma"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Аутентификация",
+        "r": "Регистрация и хеширование пароля (argon2); роут регистрации; JWT access/refresh; вход и middleware авторизации; ротация refresh-токена; владение ресурсом"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Файлы",
+        "r": "multer: приём файла; лимит 200 МБ и 413; случайные имена, MIME, path traversal; роут загрузки; скачивание потоком и Content-Disposition; Range и докачка"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Share-ссылки и консоль",
+        "r": "Код ссылки и создание share; срок жизни, лимит скачиваний, 410 Gone; пароль на ссылку; HTML-страница скачивания; сборка всех шагов; скачивание из консоли (curl, wget, докачка, sha256)"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Админ и надёжность",
+        "r": "Роль admin и middleware по роли; админ-роуты; rate limit на публичные ссылки; helmet, CORS, pino-логи; graceful shutdown и /ready; чистка просроченных ссылок"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Тесты, Docker, финал",
+        "r": "node:test: первый тест сервиса; supertest: тест HTTP-роута; тест с базой; Dockerfile для ShareBox; Compose всего ShareBox и Caddy перед ним; Production Hell и финал: Express → NestJS"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса от клиента до базы",
+      "rows": [
+        {
+          "label": "Клиент",
+          "boxes": [
+            "curl / браузер / wget",
+            "Authorization: Bearer <токен>"
+          ]
+        },
+        {
+          "label": "Middleware",
+          "boxes": [
+            "helmet, cors, pino, rate limit",
+            "express.json(), requireAuth"
+          ]
+        },
+        {
+          "label": "Роуты и контроллеры",
+          "boxes": [
+            "routes → controllers",
+            "валидация zod, req.user, req.file"
+          ]
+        },
+        {
+          "label": "Сервисы",
+          "boxes": [
+            "чистая логика, без Express",
+            "вызываются и из тестов"
+          ]
+        },
+        {
+          "label": "Данные",
+          "boxes": [
+            "PostgreSQL через Prisma",
+            "файлы — потоком на диск"
+          ]
+        }
+      ],
+      "note": "Каждый слой знает только про соседний: контроллер не трогает SQL, сервис не видел req/res — поэтому смена pg → Prisma в сессии 6 не задела ни один контроллер.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "клиент",
+            "x": 14,
+            "w": 190
+          },
+          {
+            "t": "express-приложение",
+            "x": 250,
+            "w": 400
+          },
+          {
+            "t": "данные",
+            "x": 696,
+            "w": 290
+          }
+        ],
+        "nodes": [
+          {
+            "id": "client",
+            "t": "Клиент",
+            "s": "curl, браузер",
+            "x": 110,
+            "y": 280,
+            "d": "Запрос с токеном в заголовке Authorization: Bearer, иногда с файлом в multipart/form-data."
+          },
+          {
+            "id": "mw",
+            "t": "Middleware",
+            "s": "helmet, requireAuth",
+            "x": 420,
+            "y": 150,
+            "d": "Заголовки безопасности, JSON-тело, проверка JWT, rate limit на публичных роутах — до того, как запрос дойдёт до роута."
+          },
+          {
+            "id": "routes",
+            "t": "Routes / Controllers",
+            "s": "req → res",
+            "x": 420,
+            "y": 330,
+            "d": "Роут сопоставляет метод и путь, контроллер разбирает req (параметры, тело, req.user) и вызывает сервис."
+          },
+          {
+            "id": "services",
+            "t": "Services",
+            "s": "без req/res",
+            "x": 420,
+            "y": 470,
+            "d": "Вся бизнес-логика: создать share-ссылку, проверить пароль, посчитать скачивания — чистые функции."
+          },
+          {
+            "id": "db",
+            "t": "PostgreSQL",
+            "s": "через Prisma",
+            "x": 800,
+            "y": 300,
+            "d": "Таблицы users, files, shares; транзакции и внешние ключи следят за целостностью."
+          },
+          {
+            "id": "disk",
+            "t": "Файлы на диске",
+            "s": "uploads/, потоком",
+            "x": 800,
+            "y": 450,
+            "d": "Загруженные файлы — под случайным именем, отдаются обратно потоком через createReadStream.pipe(res)."
+          }
+        ],
+        "edges": [
+          {
+            "a": "client",
+            "b": "mw"
+          },
+          {
+            "a": "mw",
+            "b": "routes"
+          },
+          {
+            "a": "routes",
+            "b": "services"
+          },
+          {
+            "a": "services",
+            "b": "db"
+          },
+          {
+            "a": "services",
+            "b": "disk"
+          },
+          {
+            "a": "db",
+            "b": "client",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "client",
+            "txt": "Клиент шлёт запрос с токеном (и, может быть, файлом)."
+          },
+          {
+            "n": "mw",
+            "txt": "Middleware проверяет токен, разбирает тело, применяет лимиты и заголовки безопасности."
+          },
+          {
+            "n": "routes",
+            "txt": "Контроллер собирает входные данные и вызывает нужный сервис."
+          },
+          {
+            "n": "services",
+            "txt": "Сервис выполняет логику — читает/пишет в базу и, если нужно, на диск."
+          },
+          {
+            "n": "db",
+            "txt": "Результат возвращается обратно по той же цепочке клиенту уже как JSON или поток файла."
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Зачем эта лаба, если дальше всё равно NestJS?",
+        "a": "NestJS стоит на Express и берёт на себя ровно то, что здесь написано руками: роутинг, middleware, DI, обработку ошибок. Без этой лабы в NestJS декораторы вроде @Controller() или @UseGuards() выглядят магией; после неё видно, что они автоматизируют."
+      },
+      {
+        "q": "Нужно ли знать TypeScript или Vue заранее?",
+        "a": "Нет. Лаба на чистом JavaScript (ESM) и не трогает фронтенд вообще — ShareBox отдаёт голый HTML только для одной страницы скачивания."
+      },
+      {
+        "q": "Обязателен ли Docker?",
+        "a": "Node нужен на Mac с первой сессии. PostgreSQL в Docker Compose подключается только с сессии 5, и только с согласия — до этого можно пройти первые четыре сессии вообще без Docker."
+      },
+      {
+        "q": "Что после этой лабы?",
+        "a": "TypeScript — тот же код, но с типами, затем NestJS. Если хочется остаться на чистом Node — Redis (тот же rate limit, но в общем месте для нескольких инстансов) или RabbitMQ (фоновые задачи вместо setInterval)."
+      },
+      {
+        "q": "Всё ли в методичке проверено?",
+        "a": "Методичка написана и вычитана ассистентом 12.10.2026 (13 находок, все исправлены), весь вывод в блоках «Ожидаемый результат» — из настоящего прогона в Docker с реальным PostgreSQL. Прохождения человеком пока не было."
+      }
+    ],
+    accent: '#2563eb',
   },
 ];
 

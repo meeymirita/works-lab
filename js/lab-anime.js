@@ -4,10 +4,10 @@
 // Подключается ко всем страницам works/*.html после lab.js.
 (function () {
   // тот же порядок и те же направления, что на главной: номер лабы совпадает с карточкой
-  var ORDER = ['css', 'tailwind', 'js', 'typescript', 'vue', 'nuxt', 'angular', 'php', 'php-coffee', 'algorithms-php', 'postgresql', 'redis', 'rabbitmq', 'laravel', 'laravel-performance', 'inertia', 'nestjs', 'graphql', 'centrifugo', 'bash', 'docker', 'traefik', 'caddy', 'kubernetes'];
+  var ORDER = ['css', 'tailwind', 'js', 'typescript', 'vue', 'nuxt', 'angular', 'php', 'php-coffee', 'algorithms-php', 'postgresql', 'redis', 'rabbitmq', 'laravel', 'laravel-performance', 'inertia', 'express', 'nestjs', 'graphql', 'centrifugo', 'bash', 'docker', 'traefik', 'caddy', 'kubernetes'];
   var TRACKS = [
     { n: 1, title: 'Фронтенд', keys: ['css', 'tailwind', 'js', 'typescript', 'vue', 'nuxt', 'angular'] },
-    { n: 2, title: 'Бэкенд', keys: ['php', 'php-coffee', 'algorithms-php', 'postgresql', 'redis', 'rabbitmq', 'laravel', 'laravel-performance', 'inertia', 'nestjs', 'graphql', 'centrifugo'] },
+    { n: 2, title: 'Бэкенд', keys: ['php', 'php-coffee', 'algorithms-php', 'postgresql', 'redis', 'rabbitmq', 'laravel', 'laravel-performance', 'inertia', 'express', 'nestjs', 'graphql', 'centrifugo'] },
     { n: 3, title: 'Инфраструктура', keys: ['bash', 'docker', 'traefik', 'caddy', 'kubernetes'] }
   ];
 

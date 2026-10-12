@@ -22,7 +22,7 @@
   // Рекомендуемый порядок прохождения (зависимости из fixes/common/_order.md).
   var ORDER = ['bash', 'docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
     'laravel-performance', 'css', 'tailwind', 'js', 'vue', 'inertia', 'typescript', 'nuxt', 'angular',
-    'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
+    'express', 'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
 
   // Сила связи в «before»: need — без неё шаги не выполнить; know — методичка опирается на её знания; help — полезно.
   var LABS = {
@@ -164,7 +164,8 @@
              'Типы (generics, conditional и mapped types) непривычны после динамического PHP и JS — это нормально'],
       meet: ['TypeScript 6 и Node 24', 'Generics, размеченные объединения, template literal types', 'Zod и Vitest', 'Express и typed client', 'Vue + TS (сессия 5)'],
       before: [{ key: 'vue', kind: 'know', why: 'сессия 5 использует Vue-приложение' },
-               { key: 'js', kind: 'help', why: 'фундамент JavaScript' }],
+               { key: 'js', kind: 'help', why: 'фундамент JavaScript' },
+               { key: 'express', kind: 'help', why: 'Node и Express своими словами, пригодится в сессии про typed client' }],
       tip: 'Можно идти после Vue или параллельно с ней.'
     },
     nuxt: {
@@ -186,6 +187,16 @@
       before: [{ key: 'typescript', kind: 'know', why: 'сессии 1–3' }, { key: 'nuxt', kind: 'help', why: 'теория сравнивает с Vue и Nuxt' }],
       tip: 'Бэкенд готовый (api/server.mjs), лаба целиком про фронтенд.'
     },
+    express: {
+      name: 'Express Lab', file: 'express/express.html', accent: '#2563eb', level: 'zero',
+      headline: 'С нуля: ничего про Node и Express знать не нужно',
+      know: ['Самостоятельная лаба — не требует других лаб',
+             'JavaScript на базовом уровне (переменные, функции) — остальное объясняется по ходу',
+             'Node нужен на Mac с первой сессии; PostgreSQL в Docker — только с сессии 5, с согласия'],
+      meet: ['Node 24: event loop, модули, streams', 'Express 5: роутер, middleware, слои', 'PostgreSQL и Prisma 7', 'JWT-аутентификация с ротацией refresh', 'Файлы потоком до 200 МБ, share-ссылки', 'node:test, supertest, Docker'],
+      before: [],
+      tip: 'Введение перед TypeScript и NestJS: объясняет сам Node и Express, которых в NestJS-лабе уже нет.'
+    },
     nestjs: {
       name: 'NestJS Lab', file: 'nestjs/nestjs.html', accent: '#E0234E', level: 'heavy',
       headline: 'Самостоятельная, но объёмная: TypeScript идёт по ходу',
@@ -193,7 +204,8 @@
              'TypeScript-минимум, нужный для Nest, объясняется в сессии 1: отдельно учить его не обязательно',
              'Лаба полностью самостоятельна: других лаб проходить не требуется'],
       meet: ['NestJS 11: DI, модули, scopes', 'Prisma 7 и PostgreSQL 18', 'JWT с ротацией refresh-токенов, argon2', 'RBAC, события, WebSocket (Socket.IO)', 'Swagger, helmet, rate limit', 'Unit- и e2e-тесты, Docker'],
-      before: [{ key: 'typescript', kind: 'help', why: 'TS-минимум есть и в сессии 1, но с типами проще' }],
+      before: [{ key: 'typescript', kind: 'help', why: 'TS-минимум есть и в сессии 1, но с типами проще' },
+               { key: 'express', kind: 'help', why: 'сам Node и Express — то, что в NestJS уже не объясняется' }],
       tip: 'Это не лаба на один вечер: по словам самой методички, за один присест к середине начинается копипаст без понимания.'
     },
     graphql: {
