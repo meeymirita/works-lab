@@ -385,7 +385,7 @@ var LABS = {
   caddy:       { label: 'Caddy Lab',              color: '#0a8f6a' },
   centrifugo:  { label: 'Centrifugo Lab',         color: '#EF2D4F' },
   bash:        { label: 'Bash Lab',               color: '#4EAA25' },
-  express:     { label: 'Express Lab',            color: '#2563eb' },
+  express:     { label: 'Express Lab',            color: '#52D12E' },
 };
 
 var TYPES = {
@@ -815,6 +815,12 @@ var DAYS = [
   {lab:'docker', type:'added', text:'<b>Production Hell 1 (сессия 9) и 2 (сессия 11)</b> — по пять поломок без подсказок, разбор под спойлером; <b>сессия 11</b> — образы без root и без уязвимостей, prod с <code>read_only</code>, чек-лист релиза скриптом, запуск из registry и <code>starter/</code> для Traefik, Kubernetes и Ansible; <b>сессия 12</b> — итоговое ТЗ (сервисы <code>report</code> и <code>backup</code>) без готового ответа.'},
   {lab:'docker', type:'changed', text:'<b>Как проверено:</b> все 229 блоков выполнены в изолированном Docker-в-Docker (Docker 29, Compose v5, PostgreSQL 18), настоящий Docker Desktop не затронут. Найдено при прогоне и исправлено: поле <code>.NetworkSettings.IPAddress</code> в Docker 29 исчезло; BuildKit не передаёт ненужные файлы контекста; <code>tmpfs</code> переживает <code>restart</code>; PostgreSQL 18 отвергает старый путь тома; в Alpine 3.22 клиент только <code>postgresql17-client</code>. <b>Не проверялось (помечено «самостоятельно»):</b> токен и GHCR, запуск workflow на GitHub, <code>--platform</code>. <b>Вычитана ассистентом (сверка ссылок между шагами и выводов прогона), владелец лабу ещё не проходила.</b>'},
   {lab:'site', type:'changed', text:'В сборщике методичек <code>tools/build-manual.py</code> появился режим «изолированный Docker-в-Docker» (<code>src/run.json</code>), схемы <code>```svg</code> и ключи <code>--sessions</code> для частичного прогона.'}
+]},
+{date:'2026-10-13', title:'Аудит записей, обновлённые страницы лаб, вкладка «Порядок и содержание»', items:[
+  {lab:'site', type:'added', text:'<b>Вкладка «Порядок и содержание»</b> на странице <a href="progress.html#order">«Все работы и прогресс»</a>: путь из 25 лаб в рекомендуемом порядке с накопленными часами, зависимостями («нужна / нужно знать / полезна»), сессиями и справочными разделами каждой методички; Go Start, Go Pro и Ansible — в блоке «в плане».'},
+  {lab:'site', type:'fixed', text:'<b>Страницы лаб отстали от методичек:</b> у php, js, postgresql, nuxt, css, laravel-performance, bash не было новых сессий 7–10 в списках, а у nestjs был устаревший порядок. Списки и описания обновлены; в корневом README и окне «что знать до старта» поправлены числа сессий и «сессия 0».'},
+  {lab:'express', type:'changed', text:'<b>Express Lab перекрашена в зелёный</b> по обложке (<code>#52D12E</code>): карточка, страница лабы, окно «что знать до старта», методичка и хронология.'},
+  {lab:'docker', type:'fixed', text:'Запись о проверке больше не утверждает, что вычитки не было, а на странице лабы исчезли лишние символы разметки.'}
 ]},
 ];
 

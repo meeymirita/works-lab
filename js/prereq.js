@@ -48,7 +48,7 @@
       headline: 'Синтаксис PHP и принципы ООП',
       know: ['Синтаксис PHP и работа в терминале',
              'ООП-принципы (инкапсуляция, полиморфизм, Value Object) — на уровне OOP-лабы: здесь они используются без объяснений'],
-      meet: ['PHP 8.4 без фреймворка', 'PDO и PostgreSQL', 'Composer и автозагрузка PSR-4', 'Свой роутер, DI-контейнер, сессии и CSRF', 'PHPUnit (сессия 8)'],
+      meet: ['PHP 8.4 без фреймворка', 'PDO и PostgreSQL', 'Composer и автозагрузка PSR-4', 'Свой роутер, DI-контейнер, сессии и CSRF', 'PHPUnit (сессия 8)', 'Валидация, пагинация и идемпотентные запросы (сессия 9)', 'Итоговое ТЗ без решения (сессия 10)'],
       before: [{ key: 'php-coffee', kind: 'know', why: 'принципы ООП здесь используются без повторного объяснения' }],
       tip: 'Laravel знать не нужно: сравнения с ним даются по ходу.'
     },
@@ -63,10 +63,10 @@
     postgresql: {
       name: 'PostgreSQL Lab', file: 'postgresql/postgresql.html', accent: '#4A90D9', level: 'solid',
       headline: 'Уровень «умею SELECT и INSERT»',
-      know: ['SELECT и INSERT; если JOIN пока «тёмный лес» — начните с сессии 0, там он разобран с нуля',
+      know: ['SELECT и INSERT; если JOIN пока «тёмный лес» — начните с сессии 1, там он разобран с нуля',
              'Docker Compose на уровне «поднять базу и подключиться»',
              'ORM и Laravel знать не нужно — это лаба про то, что происходит под ними'],
-      meet: ['PostgreSQL 18 и psql', 'EXPLAIN, индексы, статистика', 'Транзакции, блокировки, MVCC, VACUUM', 'pgbench и миллион заказов (около 1 ГБ диска)'],
+      meet: ['PostgreSQL 18 и psql', 'EXPLAIN, индексы, статистика', 'Транзакции, блокировки, MVCC, VACUUM', 'pgbench и миллион заказов (около 1 ГБ диска)', 'Роли, GRANT и Row Level Security (сессия 8)', 'pg_dump, PITR и потоковая репликация (сессия 9)', 'Итоговое ТЗ без решения (сессия 10)'],
       before: [], tip: 'Лаба самостоятельна: ничего не берёт из других.'
     },
     rabbitmq: {
@@ -118,7 +118,7 @@
       headline: 'Нужны только HTML и браузер',
       know: ['Минимум HTML и умение открыть страницу в браузере',
              'Разметка уже готова: вы пишете только стили, без фреймворков и препроцессоров'],
-      meet: ['Каскад и @layer', 'Flexbox, Grid и subgrid', 'Container queries и :has()', 'oklch и тёмная тема через light-dark()', 'Анимации и view transitions'],
+      meet: ['Каскад и @layer', 'Flexbox, Grid и subgrid', 'Container queries и :has()', 'oklch и тёмная тема через light-dark()', 'Анимации и view transitions', 'Печать, scroll-snap, scroll-driven animations, anchor positioning', 'stylelint и производительность', 'Итоговое ТЗ без решения (сессия 10)'],
       before: [], tip: 'Нужен Docker (nginx) и браузер с современным CSS. Во фронтенд-треке идёт первой.'
     },
     tailwind: {
@@ -134,7 +134,7 @@
       headline: 'Нужен базовый синтаксис JavaScript',
       know: ['Базовый синтаксис JS: переменные, функции, условия, циклы',
              'Терминал и браузер с консолью разработчика — больше лаба ничего не требует'],
-      meet: ['var/let/const, this, замыкания', 'Прототипы и class', 'Event loop и async/await', 'DOM без фреймворка', 'ESM-модули и реактивность на Proxy', 'node:test'],
+      meet: ['var/let/const, this, замыкания', 'Прототипы и class', 'Event loop и async/await', 'DOM без фреймворка', 'ESM-модули и реактивность на Proxy', 'node:test', 'Promise.all/allSettled, повторы и пул (сессия 9)', 'Итоговое ТЗ без решения (сессия 10)'],
       before: [], tip: 'Общий фундамент для Vue и TypeScript: логично проходить первой из трёх.'
     },
     vue: {
@@ -173,7 +173,7 @@
       headline: 'Нужны Vue и TypeScript',
       know: ['Vue на уровне Vue Lab: ref, computed, props/emits, Pinia, Router — заново не объясняются',
              'TypeScript на уровне сессий 1–3 TS-лабы'],
-      meet: ['Nuxt 4, SSR и гидрация', 'Nitro и server routes', 'Drizzle + SQLite, Zod', 'Сессии и middleware', 'Nuxt Content, routeRules (SSG, SWR, SPA), SEO', 'Тесты и Docker'],
+      meet: ['Nuxt 4, SSR и гидрация', 'Nitro и server routes', 'Drizzle + SQLite, Zod', 'Сессии и middleware', 'Nuxt Content, routeRules (SSG, SWR, SPA), SEO', 'Тесты и Docker', 'SSE, WebSocket, i18n, заголовки безопасности (сессии 7–9)', 'Итоговое ТЗ без решения (сессия 10)'],
       before: [{ key: 'vue', kind: 'know', why: 'без разбора' }, { key: 'typescript', kind: 'know', why: 'сессии 1–3' }],
       tip: 'Код из других лаб не берёт.'
     },
@@ -188,7 +188,7 @@
       tip: 'Бэкенд готовый (api/server.mjs), лаба целиком про фронтенд.'
     },
     express: {
-      name: 'Express Lab', file: 'express/express.html', accent: '#2563eb', level: 'zero',
+      name: 'Express Lab', file: 'express/express.html', accent: '#52D12E', level: 'zero',
       headline: 'С нуля: ничего про Node и Express знать не нужно',
       know: ['Самостоятельная лаба — не требует других лаб',
              'JavaScript на базовом уровне (переменные, функции) — остальное объясняется по ходу',

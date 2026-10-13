@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 008d093144e4e55b */
+/* verification-md-hash: 0d9d47f4ab019521 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -71,7 +71,7 @@ window.LAB_STATUS = {
   "method": [
    "запуск в Docker"
   ],
-  "rest": "GHCR и токен GitHub, запуск workflow на GitHub, --platform, настройки Docker Desktop, поведение bind mount/host на Mac (помечено «самостоятельно»); **вычитки человеком не было**",
+  "rest": "GHCR и токен GitHub, запуск workflow на GitHub, --platform, настройки Docker Desktop, поведение bind mount/host на Mac (помечено «самостоятельно»); прохождения человеком не было",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/docker.md"
  },
  "traefik": {
