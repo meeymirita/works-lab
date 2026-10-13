@@ -3673,9 +3673,9 @@ var LABS = [
     key: 'docker',
     titleMain: 'docker',
     title: 'Docker Lab',
-    subtitle: 'Крепкое владение Docker и Bash с нуля',
-    desc: 'Docker и Bash с нуля: образы, контейнеры, docker-compose, сети и тома — через практику в терминале.',
-    stack: ['Docker', 'Docker Compose', 'Bash', 'Node.js 24', 'PostgreSQL 18'],
+    subtitle: 'Контейнеры, образы, Compose, registry и CI — от первого docker run до релиза',
+    desc: 'Docker с нуля до релиза: контейнеры и их жизненный цикл, образы и слои, Dockerfile, multi-stage и безопасность, сети, тома, Compose, registry, GitHub Actions, итоговый стек CoffeeShop.',
+    stack: ['Docker 29', 'Docker Compose', 'GitHub Actions', 'Node.js 24', 'PostgreSQL 18', 'nginx 1.30'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/docker/docker.png',
     open: 'https://meeymirita-files.storage.yandexcloud.net/docker/docker.html',
@@ -3683,150 +3683,197 @@ var LABS = [
     stackInfo: [
       {
         "tag": "контейнеры",
-        "back": "Образы, слои, тома и сети: основа всей лабы."
+        "back": "Контейнеры, образы, слои, сети и тома: основа всей лабы, с наглядными схемами в каждом шаге."
       },
       {
-        "tag": "оркестрация",
-        "back": "Описание многосервисного стека одним файлом с healthcheck и depends_on."
+        "tag": "Dockerfile",
+        "back": "Кэш слоёв, exec-форма и exec \"$@\", multi-stage, BuildKit, не-root, distroless, сканер Trivy."
       },
       {
-        "tag": "скрипты",
-        "back": "Entrypoint-скрипты с set -euo pipefail и exec \"$@\"."
+        "tag": "Compose",
+        "back": "Весь стек одним файлом: healthcheck и depends_on, профили, override, watch, лимиты, dev и prod."
       },
       {
-        "tag": "приложение",
-        "back": "Маленькое Node.js-приложение — подопытный: упаковывается в образ, ждёт базу и корректно останавливается."
+        "tag": "registry и CI",
+        "back": "Свой registry, GHCR, теги и digest, git-теги, GitHub Actions; релиз стека из готовых образов."
       },
       {
-        "tag": "база",
-        "back": "PostgreSQL 18 нужен, чтобы отработать тома, сеть по имени контейнера и ожидание готовности (wait-for-postgres.sh)."
+        "tag": "сквозной проект",
+        "back": "CoffeeShop: nginx + Node.js API + PostgreSQL 18 + Adminer; в конце — проверенный starter/ для Traefik, Kubernetes и Ansible."
       }
     ],
     learn: [
       {
         "tab": "Слои и кэш",
         "title": "Порядок инструкций решает скорость сборки",
-        "text": "Каждая инструкция Dockerfile — отдельный слой, а изменённый слой сбрасывает кэш всех слоёв ниже. Ловушка: COPY . . перед установкой зависимостей заставляет переустанавливать их при каждом коммите.",
+        "text": "Каждая инструкция Dockerfile — слой, а изменённый слой сбрасывает кэш всех слоёв ниже. Поэтому сначала копируют только файлы зависимостей и ставят пакеты, а код — после.",
         "points": [
-          "Слои, overlay2 и хэш кэша",
-          "Манифесты зависимостей копируются раньше исходников",
-          "Тот же приём для Composer"
+          "Образ — стопка слоёв только для чтения",
+          "COPY . . до npm ci заново ставит пакеты при каждой правке",
+          "Удаление файла в следующем слое образ не уменьшает"
         ],
-        "code": "FROM node:24-slim\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . ."
+        "code": "FROM node:24-alpine\nWORKDIR /app\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\nCOPY server.js ./\nUSER node\nCMD [\"node\", \"server.js\"]"
       },
       {
-        "tab": "Bash strict mode",
-        "title": "Три строки для каждого entrypoint",
-        "text": "Без строгого режима скрипт молча идёт дальше после ошибки, а опечатка в имени переменной превращается в пустую строку. Три флага делают падение громким и ранним.",
+        "tab": "exec \"$@\"",
+        "title": "Одно слово между быстрой остановкой и десятью секундами",
+        "text": "docker stop шлёт SIGTERM процессу с PID 1. Если entrypoint-скрипт запускает приложение без exec, PID 1 остаётся у sh, сигнал не доходит до Node, и через 10 секунд приходит SIGKILL (код 137).",
         "points": [
-          "-e: остановка на первой ошибке",
-          "-u: необъявленная переменная — ошибка",
-          "-o pipefail: упавшая команда в конвейере валит весь конвейер"
+          "ENTRYPOINT + CMD — всегда в exec-форме",
+          "exec заменяет скрипт приложением",
+          "Проверка: время docker stop и код выхода"
         ],
-        "code": "#!/usr/bin/env bash\nset -euo pipefail\n\n# значение по умолчанию, не нарушающее set -u\necho \"Имя приложения: ${APP_NAME:-контейнер}\""
+        "code": "#!/bin/sh\nset -e\necho \"[entrypoint] режим: ${APP_ENV:-dev}\"\nexec \"$@\"   # без exec: stop = 10 с и код 137"
       },
       {
-        "tab": "ENTRYPOINT и CMD",
-        "title": "Где встречаются Docker и Bash",
-        "text": "ENTRYPOINT задаёт скрипт-обёртку с проверками, CMD — команду по умолчанию, которую можно переопределить. Ловушка: без exec приложение не станет PID 1 и не получит сигнал остановки.",
+        "tab": "Multi-stage",
+        "title": "Сборка отдельно, запуск отдельно",
+        "text": "В итоговый образ попадает только последний этап. Инструменты сборки остаются на «стройке»; distroless-образ без оболочки и npm не содержит и уязвимостей этих пакетов.",
         "points": [
-          "Exec form против shell form",
-          "CMD приходит в скрипт как $1 $2 …",
-          "exec \"$@\" заменяет bash процессом приложения"
+          "COPY --from=этап переносит результат",
+          "Итоговый образ работает от nonroot",
+          "Trivy: у старого образа 8 HIGH, у distroless — 0"
         ],
-        "code": "ENTRYPOINT [\"/usr/local/bin/entrypoint.sh\"]\nCMD [\"node\", \"server.js\"]\n\n# entrypoint.sh, последняя строка:\nexec \"$@\""
+        "code": "FROM node:24-alpine AS deps\nWORKDIR /app\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\n\nFROM gcr.io/distroless/nodejs24-debian13\nWORKDIR /app\nCOPY --from=deps /app/node_modules ./node_modules\nCOPY package.json server.js ./\nUSER nonroot\nCMD [\"server.js\"]"
       },
       {
         "tab": "Тома и данные",
         "title": "Данные переживают контейнер",
-        "text": "Файловая система контейнера исчезает вместе с ним. Named volume, bind mount и tmpfs решают разные задачи, а запуск от root оставляет на хосте файлы, принадлежащие root.",
+        "text": "Файловая система контейнера исчезает вместе с ним. У PostgreSQL 18 том монтируется в /var/lib/postgresql: старый путь /var/lib/postgresql/data образ отвергает.",
         "points": [
-          "Named volume для данных БД",
-          "Bind mount для исходников при разработке",
-          "Режим :ro и USER вместо root"
+          "Именованный том для базы, bind mount для файлов хоста",
+          "Анонимные тома «осиротевают» после docker rm",
+          "pg_dump — бэкап, том бэкапом не является"
         ],
-        "code": "docker run -v pgdata:/var/lib/postgresql postgres:18\n\ndocker run -v /home/user/project/src:/app/src myapp\n\n-v ./config:/etc/app/config:ro"
+        "code": "docker volume create coffee-pgdata\ndocker run -d --name pg \\\n  -e POSTGRES_PASSWORD=secret \\\n  -v coffee-pgdata:/var/lib/postgresql \\\n  postgres:18"
       },
       {
         "tab": "Сети и DNS",
-        "title": "Имена вместо IP",
-        "text": "В пользовательской сети Docker поднимает встроенный DNS, и контейнеры обращаются друг к другу по имени. Сеть по умолчанию такого DNS не имеет, а EXPOSE — лишь документация, порт наружу открывает -p.",
+        "title": "Имена вместо IP, изоляция вместо открытых портов",
+        "text": "В пользовательской сети работает встроенный DNS: api находит db по имени. Две сети (front и back) не дают сайту видеть базу, а у базы нет опубликованных портов.",
         "points": [
-          "Своя bridge-сеть под проект",
-          "EXPOSE и -p — не одно и то же",
-          "Compose создаёт такую сеть сам"
+          "В сети bridge по умолчанию DNS по именам нет",
+          "-p публикует порт, EXPOSE — только подсказка",
+          "Диагностика: ps -a → logs → network inspect → nslookup"
         ],
-        "code": "docker network create lab-net\n\ndocker run -d --name postgres --network lab-net postgres:18-alpine\ndocker run -d --name app --network lab-net myapp\n\ndocker run -p 8080:3000 myapp"
+        "code": "docker network create coffee-front\ndocker network create coffee-back\ndocker run -d --name db  --network coffee-back  postgres:18\ndocker run -d --name api --network coffee-back  coffee-api\ndocker network connect coffee-front api"
       },
       {
         "tab": "Compose и healthcheck",
         "title": "«Запущен» не значит «готов»",
-        "text": "Обычный depends_on гарантирует лишь порядок старта, а база ещё инициализируется — отсюда «connection refused» при первом запуске. Healthcheck с condition: service_healthy ждёт реальной готовности.",
+        "text": "Обычный depends_on ждёт только старта контейнера, а база ещё инициализируется — отсюда ECONNREFUSED. healthcheck и condition: service_healthy ждут настоящей готовности.",
         "points": [
-          "Анатомия docker-compose.yml",
-          "healthcheck через pg_isready",
-          "Ожидание БД в entrypoint как второй рубеж"
+          "Знак $$ в healthcheck.test: подстановку делает оболочка в контейнере",
+          "Профили, override и prod-накладка: один набор файлов на все режимы",
+          "restart, лимиты памяти, ограничение логов — в compose.prod.yaml"
         ],
-        "code": "postgres:\n  healthcheck:\n    test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n    interval: 5s\n    retries: 5\napp:\n  depends_on:\n    postgres:\n      condition: service_healthy"
+        "code": "db:\n  healthcheck:\n    test: [\"CMD-SHELL\", \"pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}\"]\n    interval: 2s\n    retries: 15\napi:\n  depends_on:\n    db:\n      condition: service_healthy"
       }
     ],
     sessions: [
       {
+        "h": "~3,5 ч",
+        "t": "Азбука контейнеров и установка",
+        "r": "docker run hello-world по шагам; путь команды docker → dockerd → containerd → runc; namespaces и cgroups показаны запуском"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Контейнеры и жизненный цикл",
+        "r": "nginx в фоне с пробросом порта; logs, exec, cp, inspect; коды выхода 137 и 143; починен контейнер, который сразу Exited"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Образы",
+        "r": "Слои, теги и digest, save/load; выбор базы alpine/slim/distroless; первый Dockerfile и найденный «раздувшийся» слой"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Dockerfile полностью",
+        "r": "CoffeeShop API в образе: порядок слоёв и кэш, .dockerignore, USER node, exec \"$@\" и остановка за доли секунды"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Multi-stage, BuildKit, безопасность",
+        "r": "API на distroless без уязвимостей, сайт двумя этапами на nginx, секрет сборки, read-only и cap-drop, Trivy"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Сети",
+        "r": "bridge, DNS по имени, две сети front/back: БД без опубликованного порта; диагностика «A не видит B»"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Хранение данных",
+        "r": "Тома, bind mount, tmpfs, права и UID; бэкап PostgreSQL 18 и восстановление; три поломки: старый путь тома, анонимный том, Is a directory"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Docker Compose, часть 1",
+        "r": "YAML, команды, переменные и .env, healthcheck с service_healthy; полный стек CoffeeShop одной командой, заказы переживают down"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Docker Compose, часть 2",
+        "r": "Профили, override, extends/include, watch, restart и лимиты, --scale; dev и prod одним репозиторием; Production Hell 1"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Registry, GHCR, CI",
+        "r": "Свой registry и приватный registry с паролем, теги и digest, git-теги, workflow GitHub Actions; GHCR — самостоятельно"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Итоговый проект CoffeeShop",
+        "r": "Образы без root и без уязвимостей, prod с read_only и лимитами, чек-лист релиза скриптом, запуск из registry, starter/; Production Hell 2"
+      },
+      {
         "h": "~3 ч",
-        "t": "Первый образ и bash-entrypoint",
-        "r": "Образ Node-приложения с .dockerignore и entrypoint.sh, который проверяет окружение и передаёт управление через exec"
-      },
-      {
-        "h": "~3,5 ч",
-        "t": "Данные, сеть, ожидание БД",
-        "r": "PostgreSQL в своей сети с volume; приложение ждёт БД, корректно останавливается по SIGTERM; образ собран multi-stage"
-      },
-      {
-        "h": "~3,5 ч",
-        "t": "Compose и Production Hell",
-        "r": "Весь стек поднимается одной командой с .env, restart policy и лимитами; сломанный compose починен без подсказок"
+        "t": "Итоговое задание",
+        "r": "Сервисы report (отчёт в CSV) и backup (pg_dump с ротацией) по ТЗ, без готового ответа"
       }
     ],
     arch: {
-      "title": "Путь запроса и запуск контейнера",
+      "title": "CoffeeShop: две сети, БД закрыта от внешнего мира",
       "rows": [
         {
-          "label": "Хост",
+          "label": "Хост (Mac)",
           "boxes": [
-            "curl localhost:3000",
+            "curl localhost:8080",
             ".env"
           ]
         },
         {
-          "label": "Docker",
+          "label": "Сеть coffee-front",
           "boxes": [
-            "-p 3000:3000",
-            "сеть lab-net (DNS по имени)"
+            "web: nginx-unprivileged",
+            "api (distroless, nonroot)"
           ]
         },
         {
-          "label": "Контейнер app",
+          "label": "Сеть coffee-back",
           "boxes": [
-            "entrypoint.sh",
-            "ожидание postgres",
-            "exec node server.js"
-          ]
-        },
-        {
-          "label": "Контейнер postgres",
-          "boxes": [
-            "postgres:18-alpine",
-            "healthcheck pg_isready"
+            "api",
+            "db: postgres:18 + healthcheck",
+            "adminer (только dev)"
           ]
         },
         {
           "label": "Данные",
           "boxes": [
-            "named volume pgdata"
+            "именованный том pgdata",
+            "db/init.sql (только для пустого тома)"
+          ]
+        },
+        {
+          "label": "Релиз",
+          "boxes": [
+            "git tag v1.0.0",
+            "GitHub Actions",
+            "GHCR → compose.release.yaml"
           ]
         }
       ],
-      "note": "Ловушка: без exec в конце entrypoint.sh PID 1 остаётся у bash, docker stop не доходит до node и ждёт 10 секунд до SIGKILL.",
+      "note": "Опубликован только порт сайта: у db и api нет -p. Сайт не видит базу: api подключён к обеим сетям и служит посредником.",
       "live": {
         "w": 1000,
         "h": 560,
@@ -3837,80 +3884,64 @@ var LABS = [
             "w": 190
           },
           {
-            "t": "Docker · контейнер app",
-            "x": 250,
-            "w": 430
+            "t": "сеть coffee-front",
+            "x": 240,
+            "w": 330
           },
           {
-            "t": "postgres · данные",
-            "x": 710,
-            "w": 276
+            "t": "сеть coffee-back · данные",
+            "x": 590,
+            "w": 396
           }
         ],
         "nodes": [
           {
             "id": "curl",
-            "t": "curl :3000",
+            "t": "curl :8080",
             "s": "запрос с хоста",
             "x": 110,
             "y": 150,
-            "d": "Запрос с хоста на localhost:3000; приложение отвечает строкой с именем из APP_NAME."
+            "d": "Единственный вход снаружи: порт сайта, опубликованный через ports в compose.yaml."
           },
           {
             "id": "env",
             "t": ".env",
-            "s": "подстановка ${VAR}",
+            "s": "DB_PASSWORD, WEB_PORT",
             "x": 110,
-            "y": 350,
-            "d": "Compose подставляет из .env APP_NAME и POSTGRES_PASSWORD; файл в .gitignore, в git идёт только .env.example."
+            "y": 380,
+            "d": "Значения для интерполяции в compose.yaml; файл в .gitignore, в git идёт .env.example."
           },
           {
-            "id": "port",
-            "t": "-p 3000:3000",
-            "s": "хост:контейнер",
-            "x": 350,
-            "y": 110,
-            "d": "Реальный проброс порта; EXPOSE в Dockerfile только документация. Контейнерная часть должна совпадать с портом приложения."
+            "id": "web",
+            "t": "web",
+            "s": "nginx, порт 8080",
+            "x": 330,
+            "y": 150,
+            "d": "nginx-unprivileged работает не от root и слушает 8080; /api/ перенаправляет на api (proxy_pass и resolver 127.0.0.11)."
           },
           {
-            "id": "ep",
-            "t": "entrypoint.sh",
-            "s": "set -euo pipefail",
-            "x": 350,
+            "id": "api",
+            "t": "api",
+            "s": "Node, nonroot",
+            "x": 480,
             "y": 270,
-            "d": "ENTRYPOINT-скрипт проверяет APP_ENV и APP_NAME и падает с exit 1, если в production нет обязательной переменной."
+            "d": "Distroless-образ без оболочки; подключён к front и к back, ждёт healthy у db; healthcheck написан на самом Node."
           },
           {
-            "id": "wait",
-            "t": "ожидание БД",
-            "s": "until /dev/tcp",
-            "x": 350,
-            "y": 430,
-            "d": "Цикл until пробует открыть TCP к postgres:5432 до 30 раз с паузой 2 с, иначе выходит с ошибкой."
+            "id": "db",
+            "t": "db",
+            "s": "postgres:18",
+            "x": 700,
+            "y": 150,
+            "d": "Без опубликованных портов; healthcheck pg_isready; init.sql выполняется только в пустом томе."
           },
           {
-            "id": "net",
-            "t": "сеть lab-net",
-            "s": "DNS по имени",
-            "x": 570,
-            "y": 110,
-            "d": "Пользовательская bridge-сеть со встроенным DNS: имя postgres резолвится в IP контейнера. В сети по умолчанию так не работает."
-          },
-          {
-            "id": "app",
-            "t": "node server.js",
-            "s": "PID 1 через exec",
-            "x": 570,
-            "y": 270,
-            "d": "exec заменяет bash процессом из CMD, поэтому node получает SIGTERM напрямую и останавливается быстро."
-          },
-          {
-            "id": "pg",
-            "t": "postgres:18",
-            "s": "healthcheck",
-            "x": 800,
-            "y": 170,
-            "d": "База в контейнере; healthcheck pg_isready нужен, чтобы depends_on с condition: service_healthy ждал готовности, а не просто старта."
+            "id": "adm",
+            "t": "adminer",
+            "s": "127.0.0.1:8081",
+            "x": 880,
+            "y": 150,
+            "d": "Веб-интерфейс к базе только для разработки (compose.override.yaml), порт доступен лишь с localhost."
           },
           {
             "id": "vol",
@@ -3918,106 +3949,103 @@ var LABS = [
             "s": "named volume",
             "x": 800,
             "y": 380,
-            "d": "Named volume на /var/lib/postgresql: данные переживают удаление контейнера."
+            "d": "Том на /var/lib/postgresql (PostgreSQL 18): данные переживают docker compose down; down -v их стирает."
+          },
+          {
+            "id": "reg",
+            "t": "GHCR",
+            "s": "образы по тегу",
+            "x": 330,
+            "y": 440,
+            "d": "git-тег v1.0.0 запускает workflow: образы api и web публикуются как 1.0.0, 1.0, 1; сервер запускает их через compose.release.yaml."
           }
         ],
         "edges": [
           {
             "a": "curl",
-            "b": "port"
-          },
-          {
-            "a": "port",
-            "b": "ep"
+            "b": "web"
           },
           {
             "a": "env",
-            "b": "ep"
+            "b": "web"
           },
           {
-            "a": "ep",
-            "b": "wait"
+            "a": "web",
+            "b": "api"
           },
           {
-            "a": "wait",
-            "b": "net"
+            "a": "api",
+            "b": "db"
           },
           {
-            "a": "net",
-            "b": "pg"
+            "a": "adm",
+            "b": "db"
           },
           {
-            "a": "pg",
-            "b": "app"
-          },
-          {
-            "a": "pg",
+            "a": "db",
             "b": "vol"
           },
           {
-            "a": "app",
-            "b": "port",
-            "back": true
+            "a": "reg",
+            "b": "api"
           }
         ],
         "flow": [
           {
             "n": "env",
-            "txt": "Compose подставляет значения из .env и запускает контейнер app."
+            "txt": "Compose подставляет значения из .env и поднимает сервисы в порядке зависимостей."
           },
           {
-            "n": "ep",
-            "txt": "entrypoint.sh проверяет окружение (APP_ENV, APP_NAME)."
+            "n": "db",
+            "txt": "db стартует первой; healthcheck pg_isready решает, когда её можно считать готовой."
           },
           {
-            "n": "wait",
-            "txt": "Цикл until ждёт, пока postgres:5432 начнёт принимать соединения."
+            "n": "api",
+            "txt": "api стартует после healthy у db и сам проходит healthcheck."
           },
           {
-            "n": "net",
-            "txt": "Имя postgres резолвится DNS сети lab-net."
-          },
-          {
-            "n": "pg",
-            "txt": "healthcheck pg_isready проходит, база готова."
-          },
-          {
-            "n": "app",
-            "txt": "exec \"$@\": node становится PID 1 и слушает порт 3000."
-          },
-          {
-            "n": "port",
-            "txt": "Docker пробрасывает ответ с порта 3000 контейнера на хост.",
-            "back": true
+            "n": "web",
+            "txt": "web стартует после healthy у api."
           },
           {
             "n": "curl",
-            "txt": "curl получает: «Привет! Меня зовут …».",
-            "back": true
+            "txt": "Запрос с хоста идёт на порт сайта."
+          },
+          {
+            "n": "web",
+            "txt": "nginx отдаёт страницу или пересылает /api/… на api по имени сервиса."
+          },
+          {
+            "n": "api",
+            "txt": "api читает меню и пишет заказы в db по сети back."
+          },
+          {
+            "n": "vol",
+            "txt": "Данные лежат в томе pgdata и переживают пересоздание контейнеров."
           }
         ]
       }
     },
     faq: [
       {
-        "q": "Зачем в конце entrypoint-скрипта пишут exec \"$@\", а не просто \"$@\"?",
-        "a": "exec заменяет процесс bash процессом из аргументов: тот же PID, но другой код внутри. Без него команда стартует дочерним процессом, а PID 1 остаётся у bash, и сигналы остановки приходят ему, а не приложению."
+        "q": "Почему docker stop иногда занимает 10 секунд и заканчивается кодом 137?",
+        "a": "Docker шлёт SIGTERM процессу с PID 1. Если PID 1 — скрипт или программа без обработчика SIGTERM, сигнал игнорируется, и через 10 секунд приходит SIGKILL (128 + 9 = 137). Лечение: exec-форма CMD и exec \"$@\" в конце entrypoint-скрипта."
       },
       {
-        "q": "Что произойдёт при docker stop, если PID 1 — bash-скрипт без exec?",
-        "a": "Docker шлёт SIGTERM в PID 1 и ждёт 10 секунд. Bash не пересылает сигнал дочернему node, поэтому тот о нём не узнаёт, и по таймауту всё убивается через SIGKILL, минуя graceful shutdown."
+        "q": "Чем «контейнер запущен» отличается от «сервис готов» и как это решает Compose?",
+        "a": "Обычный depends_on ждёт старта контейнера, а PostgreSQL ещё инициализируется и отвечает ECONNREFUSED. healthcheck у базы и depends_on с condition: service_healthy заставляют зависимый сервис ждать настоящей готовности."
       },
       {
-        "q": "Зачем нужен healthcheck вместе с обычным depends_on?",
-        "a": "Обычный depends_on гарантирует только порядок старта контейнеров, но не готовность: процесс postgres запущен, а порт 5432 ещё не принимает соединения. condition: service_healthy ждёт успешного pg_isready, а остаточную гонку закрывает ожидание БД в самом entrypoint."
+        "q": "Почему удаление файла отдельной инструкцией RUN не уменьшает образ?",
+        "a": "Слои неизменяемы: следующий слой лишь помечает файл удалённым, а слой с самим файлом остаётся в образе. Создавать и удалять временное нужно в одной инструкции RUN, а для сборки — использовать multi-stage."
       },
       {
-        "q": "Почему имена контейнеров резолвятся по DNS в пользовательской bridge-сети, но не в дефолтной?",
-        "a": "Встроенный DNS Docker обслуживает только сети, созданные через docker network create; у сети bridge по умолчанию его нет по историческим причинам совместимости. Поэтому для проекта из нескольких контейнеров создают свою сеть, а Compose делает это автоматически."
+        "q": "Куда монтировать том для PostgreSQL 18 и что будет при старом пути?",
+        "a": "В /var/lib/postgresql: образ 18+ кладёт данные в подкаталог версии (18/docker). При монтировании в старый /var/lib/postgresql/data контейнер завершается с ошибкой «unused mount/volume» и просит один том на /var/lib/postgresql."
       },
       {
-        "q": "Как multi-stage build уменьшает итоговый образ?",
-        "a": "Сборка и тесты идут в первом стейдже со всеми зависимостями, а в финальный через COPY --from=builder переносятся только нужные файлы и ставятся production-зависимости. devDependencies, исходники тестов и слои первого стейджа в итоговый образ не попадают."
+        "q": "Почему latest в продакшне — ловушка и чем её заменить?",
+        "a": "Тег latest — подвижная метка: сегодня он указывает на один образ, завтра на другой. Для воспроизводимости используют точные семантические теги (1.0.0) и при необходимости digest; точный тег никогда не перезаписывают, поэтому откат — смена номера версии."
       }
     ],
     accent: '#2496ED',

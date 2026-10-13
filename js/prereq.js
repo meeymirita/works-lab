@@ -30,9 +30,9 @@
       name: 'Docker Lab', file: 'docker/docker.html', accent: '#2496ED', level: 'zero',
       headline: 'Ничего знать не нужно — лаба идёт с нуля',
       know: ['Уметь открыть терминал и запустить команду',
-             'Про контейнеры, образы и Bash заранее знать не нужно: оба объясняются с нуля, Bash идёт параллельным треком'],
-      meet: ['Docker и Docker Compose', 'Bash: entrypoint-скрипты, set -euo pipefail, trap', 'Учебное Node.js-приложение и PostgreSQL'],
-      before: [], tip: 'Нужен установленный Docker.'
+             'Про контейнеры, образы и Compose заранее знать не нужно: всё объясняется с нуля, с аналогиями и схемами. Bash желателен, но не обязателен'],
+      meet: ['Docker и Docker Compose', 'Dockerfile, multi-stage, BuildKit, безопасность образа', 'Сети, тома, registry, GitHub Actions', 'Стек CoffeeShop: nginx + Node.js + PostgreSQL 18'],
+      before: [], tip: 'Нужен установленный Docker Desktop (шаг 1.3). Шаги с GHCR и GitHub Actions выполняются со своим аккаунтом GitHub.'
     },
     'php-coffee': {
       name: 'OOP Lab', file: 'php-coffee/php-coffee.html', accent: '#777BB4', level: 'light',
