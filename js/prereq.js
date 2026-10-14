@@ -135,7 +135,7 @@
       know: ['Базовый синтаксис JS: переменные, функции, условия, циклы',
              'Терминал и браузер с консолью разработчика — больше лаба ничего не требует'],
       meet: ['var/let/const, this, замыкания', 'Прототипы и class', 'Event loop и async/await', 'DOM без фреймворка', 'ESM-модули и реактивность на Proxy', 'node:test', 'Promise.all/allSettled, повторы и пул (сессия 9)', 'Итоговое ТЗ без решения (сессия 10)'],
-      before: [], tip: 'Общий фундамент для Vue и TypeScript: логично проходить первой из трёх.'
+      before: [], tip: 'Общий фундамент для Vue, TypeScript и Express: логично проходить первой.'
     },
     vue: {
       name: 'Vue Lab', file: 'vue/vue.html', accent: '#42B883', level: 'heavy',
@@ -188,14 +188,14 @@
       tip: 'Бэкенд готовый (api/server.mjs), лаба целиком про фронтенд.'
     },
     express: {
-      name: 'Express Lab', file: 'express/express.html', accent: '#52D12E', level: 'zero',
-      headline: 'С нуля: ничего про Node и Express знать не нужно',
-      know: ['Самостоятельная лаба — не требует других лаб',
-             'JavaScript на базовом уровне (переменные, функции) — остальное объясняется по ходу',
-             'Node нужен на Mac с первой сессии; PostgreSQL в Docker — только с сессии 5, с согласия'],
-      meet: ['Node 24: event loop, модули, streams', 'Express 5: роутер, middleware, слои', 'PostgreSQL и Prisma 7', 'JWT-аутентификация с ротацией refresh', 'Файлы потоком до 200 МБ, share-ссылки', 'node:test, supertest, Docker'],
-      before: [],
-      tip: 'Введение перед TypeScript и NestJS: объясняет сам Node и Express, которых в NestJS-лабе уже нет.'
+      name: 'Express Lab', file: 'express/express.html', accent: '#52D12E', level: 'solid',
+      headline: 'Нужен пройденный JS Lab — часть I не повторяет язык',
+      know: ['JavaScript целиком на уровне JS Lab: scope, this, замыкания, прототипы, event loop, промисы/async-await, fetch, DOM, модули — здесь не повторяется',
+             'Про сам Node и Express знать не нужно — часть I (сессии 1–8) идёт с нуля: рантайм, протокол HTTP, свой сервер, процессы, архитектура, тесты',
+             'Node нужен на Mac с первой сессии; PostgreSQL в Docker — только в части II (сессия 12), с согласия'],
+      meet: ['Node 24: рантайм, HTTP-протокол, свой http-сервер, процессы и потоки (часть I)', 'Express 5: роутер, middleware, слои, REST и идемпотентность', 'PostgreSQL и Prisma 7', 'JWT-аутентификация с ротацией refresh', 'Файлы потоком до 200 МБ, share-ссылки', 'node:test, supertest, Docker', 'Два финальных проекта без подсказок: «Загрузчик страниц» и ShareBox Teams'],
+      before: [{ key: 'js', kind: 'know', why: 'язык (scope, промисы, event loop, DOM, модули) не повторяется — часть I сразу про сеть и Node' }],
+      tip: 'Введение перед TypeScript и NestJS: объясняет сам Node и Express, которых в NestJS-лабе уже нет. 19 сессий в двух частях — переписана 14.10.2026.'
     },
     nestjs: {
       name: 'NestJS Lab', file: 'nestjs/nestjs.html', accent: '#E0234E', level: 'heavy',

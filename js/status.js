@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 0d9d47f4ab019521 */
+/* verification-md-hash: 2807e5c3c5952ead */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -245,13 +245,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/common/_verification.md"
  },
  "express": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "вам остаётся проверить самим",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "прохождение владельцем, реальный Mac без Docker, сессия 11.5 (Compose+Caddy) и 11.6 (Production Hell, текстовые/конфигурационные шаги без run-блоков) — проверите сами при реальном прохождении",
+  "rest": "2 открытых пункта без решения: (1) сессия 14 — редкий SyntaxError при разборе ответа логина, не воспроизведён надёжно за отведённое время; (2) архитектурная нестыковка Prisma-миграций с сырым schema.sql — Drift detected возвращается периодически (сессии 13, 17), миграция роли в сессии 17 по факту не долетает до базы без ручного migrate reset (не внесено перестройкой 14.10, существовало и в версии 12.10, просто не было поймано тогда); плюс обычное — прохождение владельцем, реальный Mac без Docker",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/express.md"
  }
 };
