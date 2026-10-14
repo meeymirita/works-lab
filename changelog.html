@@ -829,6 +829,9 @@ var DAYS = [
   {lab:'express', type:'fixed', text:'<b>Два открытых пункта без решения</b> (честно оставлены как есть, не моя перестройка их создала): редкий <code>SyntaxError</code> при разборе ответа логина в сессии 14 (не воспроизведён надёжно); периодический <code>Drift detected</code> у Prisma из-за двух параллельных способов завести схему (сырой <code>schema.sql</code> и миграции Prisma) — миграция роли в сессии 17 по факту не долетает до базы без ручного <code>migrate reset</code>, существовало и в версии 12.10.'},
   {lab:'site', type:'changed', text:'Пререквизит части I (<code>js-lab</code>) добавлен в окно «что знать до старта» (<code>works/js/prereq.js</code>) и в <code>fixes/common/_order.md</code>; статус Express в <code>_verification.md</code>/<code>_proofread.md</code> понижен с ✅ до 🟡 (два открытых пункта), а не замалчивается.'}
 ]},
+{date:'2026-10-14', title:'Закрыта мелкая находка вычитки Nuxt (tr без tbody)', items:[
+  {lab:'nuxt', type:'fixed', text:'Шаг 4.5, шаблон <code>app/pages/agent/index.vue</code>: строки <code>&lt;tr&gt;</code> обёрнуты в <code>&lt;tbody&gt;</code> — убрано предупреждение гидрации Vue. Находка из <code>fixes/frontend/nuxt.md</code>.'}
+]},
 ];
 
 // ── рендер ───────────────────────────────────────────────────────────────
