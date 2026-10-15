@@ -5341,34 +5341,74 @@ var LABS = [
     ],
     sessions: [
       {
-        "h": "~4 ч",
+        "h": "~3.5 ч",
         "t": "TypeScript для Nest и как на самом деле работает DI",
-        "r": "TypeScript для Nest, свой мини-DI и метаданные декораторов"
+        "r": "Свои декораторы и мини-DI-контейнер руками, два сломать-почини (emitDecoratorMetadata, забытый @Injectable())"
       },
       {
-        "h": "~3 ч",
+        "h": "~1.5 ч",
         "t": "Модули, конфигурация, провайдеры",
-        "r": "Модули, конфигурация, провайдеры и их области видимости"
+        "r": "Первый модуль, конфигурация с валидацией, провайдеры: токены, useValue, useFactory"
       },
       {
-        "h": "~3,5 ч",
-        "t": "База данных: Docker, Prisma, CRUD, валидация, ошибки, транзакции",
-        "r": "PostgreSQL в Docker, Prisma, DTO и ValidationPipe, CRUD тикетов"
+        "h": "~2 ч",
+        "t": "PostgreSQL и Prisma",
+        "r": "PostgreSQL в Docker, схема и первая миграция, PrismaService, тестовые данные"
       },
       {
-        "h": "~3,5 ч",
-        "t": "Пользователи и безопасность: хэши, JWT, guards, refresh-ротация, роли",
-        "r": "Хэши паролей, JWT и стратегия, глобальный guard, ротация refresh-токенов, роли и TicketPolicy"
+        "h": "~1 ч",
+        "t": "DTO и ValidationPipe, CRUD тикетов",
+        "r": "DTO и глобальный ValidationPipe, CRUD тикетов"
       },
       {
-        "h": "~3,5 ч",
-        "t": "Комментарии, события, real-time, сквозная функциональность",
-        "r": "Комментарии, доменные события, WebSocket-шлюз, interceptors, Swagger, helmet и throttler"
+        "h": "~1 ч",
+        "t": "Ошибки Prisma в HTTP, транзакции, слои приложения",
+        "r": "Ошибки Prisma в HTTP-ответы, транзакции и история изменений"
       },
       {
-        "h": "~3,5 ч",
-        "t": "Тесты, продакшн-готовность, Production Hell",
-        "r": "Unit и e2e тесты, динамический модуль, health-чеки, Docker-образ, Production Hell"
+        "h": "~1.5 ч",
+        "t": "Регистрация и хэши, логин и JwtStrategy",
+        "r": "Регистрация с безопасным выводом, логин и JwtStrategy"
+      },
+      {
+        "h": "~1 ч",
+        "t": "Guards, @Public()/@CurrentUser(), Reflector",
+        "r": "Глобальный guard, @Public()/@CurrentUser(), свой декоратор @Auth()"
+      },
+      {
+        "h": "~1.5 ч",
+        "t": "Refresh-токены: ротация и обнаружение повторного использования",
+        "r": "Ротация refresh-токенов, reuse-detection, гонка двух параллельных /auth/refresh"
+      },
+      {
+        "h": "~1.5 ч",
+        "t": "Роли и владение ресурсом, доменные события",
+        "r": "RolesGuard и TicketPolicy, доменные события"
+      },
+      {
+        "h": "~1 ч",
+        "t": "Комментарии и внутренние заметки",
+        "r": "Комментарии и внутренние заметки, сериализация не даёт internal-заметке утечь"
+      },
+      {
+        "h": "~1 ч",
+        "t": "WebSocket-шлюз: комнаты, авторизация на handshake",
+        "r": "WebSocket-шлюз, комнаты, авторизация на handshake, исключения и уборка при отключении"
+      },
+      {
+        "h": "~1.5 ч",
+        "t": "Middleware, interceptors, Swagger, безопасность",
+        "r": "Request id и access-лог, Swagger, CORS, helmet, rate limiting"
+      },
+      {
+        "h": "~1.5 ч",
+        "t": "Unit- и e2e-тесты",
+        "r": "Unit-тесты с моком Prisma и guard, e2e на настоящей БД"
+      },
+      {
+        "h": "~2.5 ч",
+        "t": "Свой динамический модуль, health-чеки, Docker, Production Hell",
+        "r": "Свой динамический модуль, health-чеки, graceful shutdown, Docker-образ, Production Hell — 10 заданий без подсказок"
       }
     ],
     arch: {

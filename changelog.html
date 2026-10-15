@@ -832,6 +832,12 @@ var DAYS = [
 {date:'2026-10-14', title:'Закрыта мелкая находка вычитки Nuxt (tr без tbody)', items:[
   {lab:'nuxt', type:'fixed', text:'Шаг 4.5, шаблон <code>app/pages/agent/index.vue</code>: строки <code>&lt;tr&gt;</code> обёрнуты в <code>&lt;tbody&gt;</code> — убрано предупреждение гидрации Vue. Находка из <code>fixes/frontend/nuxt.md</code>.'}
 ]},
+{date:'2026-10-15', title:'NestJS Lab: перестройка 5→14 сессий доведена до конца (работа была прервана сбоем IDE)', items:[
+  {main:1, lab:'nestjs', type:'changed', text:'<b>Все 14 сессий дописаны</b> (37 шагов): PostgreSQL/Prisma, DTO и ValidationPipe, ошибки Prisma в HTTP и транзакции, JWT-ротация с reuse-detection, роли и доменные события, комментарии и внутренние заметки, WebSocket-шлюз, middleware/interceptors/Swagger/безопасность, unit- и e2e-тесты, свой динамический модуль, health-чеки, Docker и «Production Hell» на 10 заданий без подсказок.', milestone:true},
+  {lab:'nestjs', type:'fixed', text:'В разделе 1 (теория) 8 блоков-«заблуждений» были написаны инлайн-стилем (<code>background:var(--color-accent)</code>) вместо формата Caddy — приведены к тому же виду, что у PostgreSQL/Bash/Express (голый <code>&lt;div&gt;</code> + <code>&lt;div class="tip"&gt;</code> с решением). Заодно в шаблон методички добавлено правило <code>.tip,.trap</code> (его не было — блоки «Решение в этом плане» рендерились без оформления).'},
+  {lab:'site', type:'changed', text:'Карточка NestJS на главной (убрана плашка «перестройка», обновлён <code>note</code>), <code>works/js/lab.js</code> (список сессий — 6 старых заменены на 14 новых), README лабы и статусы в <code>_proofread.md</code>/<code>_verification.md</code> понижены до 🟡 честно: написано полностью, но построчной вычитки и прогона в Docker по сессиям 2–14 ещё не было.'},
+  {lab:'site', type:'fixed', text:'<code>tools/build-toc.py</code> пересобран (оглавление лабы отставало от новой структуры разделов).'}
+]},
 ];
 
 // ── рендер ───────────────────────────────────────────────────────────────

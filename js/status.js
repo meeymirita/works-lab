@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 2807e5c3c5952ead */
+/* verification-md-hash: 875fcb130b3d903c */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -155,13 +155,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/laravel.md"
  },
  "nestjs": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "вам остаётся проверить самим",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "задания 9.5 «Production Hell» без подсказок",
+  "rest": "задания 14.3 «Production Hell» без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/nestjs.md"
  },
  "graphql": {
