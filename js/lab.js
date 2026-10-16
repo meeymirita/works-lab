@@ -2516,7 +2516,7 @@ var LABS = [
     titleMain: 'vue',
     title: 'Vue Lab',
     subtitle: 'Helpdesk на Vue 3',
-    desc: 'Система тикетов на Vue 3 с нуля: реактивность, компоненты, слоты, Pinia, Vue Router с guard-ами, WebSocket, канбан-доска, тесты на Vitest.',
+    desc: 'Система тикетов на Vue 3 с нуля: реактивность, компоненты, слоты, Pinia, Vue Router с guard-ами, WebSocket, канбан-доска, тесты на Vitest, формы и валидация, composable-паттерны, производительность, Pinia в масштабе, доступность, i18n, безопасность, MSW и e2e на Playwright, Production Hell, итоговое ТЗ.',
     stack: ['Vue 3.5', 'Vite 7', 'Pinia 2+', 'Vue Router', 'Node'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/vue/vue-anime.png',
@@ -2637,6 +2637,56 @@ var LABS = [
         "h": "~3,5 ч",
         "t": "Продвинутое: WebSocket, канбан, тесты, сборка",
         "r": "Канбан с живыми обновлениями, 12 тестов, production-сборка"
+      },
+      {
+        "h": "~2,5 часа",
+        "t": "Формы и валидация",
+        "r": "Форма тикета с валидацией, серверными ошибками и вложением с прогрессом"
+      },
+      {
+        "h": "~2,5 часа",
+        "t": "Composable-паттерны",
+        "r": "useFetch, useLocalStorage, useClipboard, Suspense, onErrorCaptured"
+      },
+      {
+        "h": "~2,5 часа",
+        "t": "Производительность",
+        "r": "Список из 5000 тикетов без лагов: v-memo, shallowRef, виртуальный список"
+      },
+      {
+        "h": "~2,5 часа",
+        "t": "Pinia в большом приложении",
+        "r": "Модульные store, композиция store-в-store, аудит через $subscribe/$onAction"
+      },
+      {
+        "h": "~2,5 часа",
+        "t": "Доступность",
+        "r": "Focus trap, ARIA и объявления aria-live на канбане, контраст, reduced motion"
+      },
+      {
+        "h": "~2 часа",
+        "t": "Интернационализация",
+        "r": "vue-i18n, множественное число, даты и числа через Intl"
+      },
+      {
+        "h": "~2 часа",
+        "t": "Безопасность фронтенда",
+        "r": "Санитайзинг, токен и CSRF, CSP, защищённый WebSocket"
+      },
+      {
+        "h": "~3 часа",
+        "t": "Продвинутое тестирование",
+        "r": "MSW, e2e на Playwright, надёжные тесты сокета и guard"
+      },
+      {
+        "h": "~2 часа",
+        "t": "Production Hell",
+        "r": "Диагностика сломанного прод-билда; SSR и гидратация"
+      },
+      {
+        "h": "~4 часа",
+        "t": "Итоговое ТЗ",
+        "r": "Модуль SLA и эскалации — без ответа"
       }
     ],
     arch: {

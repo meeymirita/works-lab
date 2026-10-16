@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 875fcb130b3d903c */
+/* verification-md-hash: a4d1ae45d2339bf5 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -196,14 +196,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/typescript.md"
  },
  "vue": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "",
+  "rest": "построчная вычитка новых сессий 6–15 человеком/ассистентом построчно — не делалась; Vue SFC (.vue, defineModel, Suspense) не компилировались и не монтировались в реальном Vite-проекте; MSW и Playwright e2e (13.2) — только написаны, не выполнены; весь стенд (Vite + NestJS-бэкенд из сессии 1) не поднимался целиком с новыми сессиями; задание 15.1 не решалось; прохождение владельцем",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/vue.md"
  },
  "nuxt": {

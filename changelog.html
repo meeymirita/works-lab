@@ -838,6 +838,12 @@ var DAYS = [
   {lab:'site', type:'changed', text:'Карточка NestJS на главной (убрана плашка «перестройка», обновлён <code>note</code>), <code>works/js/lab.js</code> (список сессий — 6 старых заменены на 14 новых), README лабы и статусы в <code>_proofread.md</code>/<code>_verification.md</code> понижены до 🟡 честно: написано полностью, но построчной вычитки и прогона в Docker по сессиям 2–14 ещё не было.'},
   {lab:'site', type:'fixed', text:'<code>tools/build-toc.py</code> пересобран (оглавление лабы отставало от новой структуры разделов).'}
 ]},
+{date:'2026-10-16', title:'Vue Lab расширена с 5 до 15 сессий', items:[
+  {main:1, lab:'vue', type:'changed', text:'<b>Добавлены 10 новых сессий (27 шагов)</b>: формы и валидация (<code>defineModel</code> с модификаторами, <code>useForm</code>, вложения с прогрессом), composable-паттерны (<code>useFetch</code>, <code>useLocalStorage</code>, <code>useClipboard</code>, <code>Suspense</code>, <code>onErrorCaptured</code>), производительность (профилирование, <code>v-memo</code>, <code>shallowRef</code>, виртуальный список), Pinia в большом приложении (границы store, композиция, <code>$subscribe</code>/<code>$onAction</code>), доступность, интернационализация, безопасность фронтенда, продвинутое тестирование (MSW, Playwright), Production Hell и итоговое ТЗ без ответа (модуль SLA и эскалации).', milestone:true},
+  {lab:'vue', type:'fixed', text:'Доступность канбана (10.2) написана по факту: в лабе канбан с сессии 5.2 уже кнопочный, drag&amp;drop там нет вовсе — шаг не выдумывает альтернативу, а добавляет <code>aria-label</code> вместо голого <code>title</code> и <code>aria-live</code>-объявление результата; e2e-тест (13.2) и вопрос к шагу 8.1 исправлены вслед за этим.'},
+  {lab:'vue', type:'changed', text:'В шаблон методички добавлены правила <code>.tip</code>/<code>.trap</code> (их не было — ни одна плашка подсказки/ловушки в старых сессиях 1–5 раньше не оформлялась); новые шаги написаны без инлайн-стилей, в формате Caddy.'},
+  {lab:'vue', type:'changed', text:'<code>works/js/lab.js</code> (список сессий, описание карточки), README лабы, статусы в <code>_proofread.md</code>/<code>_verification.md</code> понижены до 🟡 честно: логика composables/store реально прогнана в Vitest (Docker, node:24 — 9 spec-файлов, 27/27 тестов зелёных; прогон нашёл и дал исправить 2 неточности до публикации), но построчной вычитки, сборки реального Vite-проекта, MSW и Playwright e2e не было.'},
+]},
 ];
 
 // ── рендер ───────────────────────────────────────────────────────────────
