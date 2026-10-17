@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: a4d1ae45d2339bf5 */
+/* verification-md-hash: 0d9d47f4ab019521 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -155,13 +155,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/laravel.md"
  },
  "nestjs": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "задания 14.3 «Production Hell» без подсказок",
+  "rest": "задания 9.5 «Production Hell» без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/nestjs.md"
  },
  "graphql": {
@@ -196,14 +196,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/typescript.md"
  },
  "vue": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "построчная вычитка новых сессий 6–15 человеком/ассистентом построчно — не делалась; Vue SFC (.vue, defineModel, Suspense) не компилировались и не монтировались в реальном Vite-проекте; MSW и Playwright e2e (13.2) — только написаны, не выполнены; весь стенд (Vite + NestJS-бэкенд из сессии 1) не поднимался целиком с новыми сессиями; задание 15.1 не решалось; прохождение владельцем",
+  "rest": "",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/vue.md"
  },
  "nuxt": {
@@ -245,13 +245,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/common/_verification.md"
  },
  "express": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "2 открытых пункта без решения: (1) сессия 14 — редкий SyntaxError при разборе ответа логина, не воспроизведён надёжно за отведённое время; (2) архитектурная нестыковка Prisma-миграций с сырым schema.sql — Drift detected возвращается периодически (сессии 13, 17), миграция роли в сессии 17 по факту не долетает до базы без ручного migrate reset (не внесено перестройкой 14.10, существовало и в версии 12.10, просто не было поймано тогда); плюс обычное — прохождение владельцем, реальный Mac без Docker",
+  "rest": "прохождение владельцем, реальный Mac без Docker, сессия 11.5 (Compose+Caddy) и 11.6 (Production Hell, текстовые/конфигурационные шаги без run-блоков) — проверите сами при реальном прохождении",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/express.md"
  }
 };
