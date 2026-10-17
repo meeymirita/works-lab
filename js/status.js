@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: a4d1ae45d2339bf5 */
+/* verification-md-hash: a1c199840d9efeb4 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -179,7 +179,8 @@ window.LAB_STATUS = {
   "head": "Вычитана и проверена",
   "tail": "не запускалось",
   "method": [
-   "запуск в Docker"
+   "запуск в Docker",
+   "проверка в браузере"
   ],
   "rest": "",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/js.md"
