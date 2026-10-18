@@ -220,12 +220,12 @@
     },
     traefik: {
       name: 'Traefik Lab', file: 'traefik/traefik.html', accent: '#14B8A6', level: 'light',
-      headline: 'Нужен Docker Compose на уровне «поднять и читать логи»',
-      know: ['Docker Compose: поднять сервис, прочитать логи',
-             'Новичкам в контейнерах — вводный раздел 0 «Docker с нуля» внутри лабы'],
-      meet: ['Traefik 3: EntryPoint → Router → Middleware → Service', 'Docker provider и labels', 'API, frontend, PostgreSQL, Adminer', 'Балансировка и canary', 'TLS: mkcert, Let\'s Encrypt'],
-      before: [{ key: 'docker', kind: 'know', why: 'контейнеры, сети, volume и compose' }],
-      tip: 'Let\'s Encrypt требует публичный домен; локально — mkcert.'
+      headline: 'Самостоятельная лаба: Docker объясняется ровно в нужном объёме',
+      know: ['Уметь пользоваться терминалом',
+             'Docker и Compose — желательно, но шаг 1.4 объясняет минимум (контейнер, образ, порт, сеть)'],
+      meet: ['Traefik v3: вход → роутер → middleware → сервис', 'Метки Docker, файловый провайдер, правила и приоритеты', 'Middlewares, лимиты, ретраи, forwardAuth', 'Балансировка, canary, blue/green', 'TLS: mkcert, mTLS, ACME (Pebble), HTTP/3', 'TCP и UDP, IP клиента, плагины, Prometheus и Grafana'],
+      before: [{ key: 'docker', kind: 'help', why: 'контейнеры, сети, volume и compose (режим «продолжение»: проект CoffeeShop оттуда)' }],
+      tip: 'Реальный домен и токен DNS-провайдера нужны только для настоящего Let’s Encrypt; в лабе вместо него тестовый ACME-сервер Pebble.'
     },
     bash: {
       name: 'Bash Lab', file: 'bash/bash.html', accent: '#4EAA25', level: 'zero',

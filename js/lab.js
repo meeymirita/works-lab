@@ -730,8 +730,8 @@ var LABS = [
     titleMain: 'traefik',
     title: 'Traefik Lab',
     subtitle: 'Reverse proxy, service discovery, TLS',
-    desc: 'Reverse proxy и service discovery для стека из нескольких сервисов без ручной правки конфигов: EntryPoint → Router → Middleware → Service, TLS, canary-деплой.',
-    stack: ['Traefik 3', 'Docker Compose', 'Node.js', 'PostgreSQL', 'mkcert / Let\'s Encrypt'],
+    desc: 'Reverse proxy, который сам находит контейнеры: маршруты, middleware, балансировка и canary, TLS (mkcert, ACME), TCP/UDP и наблюдаемость на сквозном проекте CoffeeShop — от трёх открытых портов до одного входа.',
+    stack: ['Traefik v3.7', 'Docker Compose', 'Node.js', 'PostgreSQL', 'mkcert / ACME (Pebble)', 'Prometheus / Grafana'],
     difficulty: 'Низкая–средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/traefik/traefik.png',
     open: 'https://meeymirita-files.storage.yandexcloud.net/traefik/traefik.html',
@@ -761,75 +761,115 @@ var LABS = [
     learn: [
       {
         "tab": "Модель Traefik",
-        "title": "Пять сущностей на пути запроса",
-        "text": "Запрос проходит EntryPoint, затем Router, цепочку Middleware и Service. Providers — источник этих правил; их можно комбинировать: часть в labels, общие middlewares в файле.",
+        "title": "Путь запроса: вход → роутер → middleware → сервис",
+        "text": "Статическая конфигурация (traefik.yml) читается при запуске, динамическая (метки контейнеров, файлы) — на лету. Первый вопрос при любой поломке: чей это ответ — Traefik или приложения.",
         "points": [
-          "EntryPoint — порт, Provider — источник конфигурации",
-          "Router сопоставляет Host и Path",
-          "Статическая и динамическая конфигурация"
+          "404 page not found — роутер не найден; 502/503/504 — проблема сервиса",
+          "exposedByDefault: false и traefik.enable=true",
+          "Дашборд и журнал показывают, как Traefik понял метки"
         ],
-        "code": "Клиент → EntryPoint (:80/:443) → Router (matches Host/Path)\n       → [Middleware chain] → Service → контейнер(ы)"
+        "code": "Клиент → EntryPoint (:80/:443) → Router (rule) → [Middlewares] → Service → контейнеры"
       },
       {
-        "tab": "Service Discovery",
-        "title": "Маршруты в labels контейнера",
-        "text": "Traefik читает Docker-сокет и создаёт роуты по labels на лету. Ловушка: без exposedByDefault=false маршрут получит любой контейнер, а неверный порт сервиса даёт 502 Bad Gateway.",
+        "tab": "Метки",
+        "title": "Маршрут одной строкой на контейнере",
+        "text": "Метки читаются слева направо: протокол, тип объекта, имя, поле. Имена общие на весь Traefik — добавляй префикс проекта. Знак $ в метках Compose удваивают.",
         "points": [
-          "Формат traefik.http.routers.<имя>.<свойство>",
-          "Явное включение через traefik.enable=true",
-          "loadbalancer.server.port — порт внутри контейнера"
+          "Host(), PathPrefix(), Header(), Method() и их комбинации",
+          "Приоритет по умолчанию — длина правила",
+          "stripprefix, redirect, headers, basicAuth подключаются к роутеру списком"
         ],
-        "code": "labels:\n  - \"traefik.enable=true\"\n  - \"traefik.http.routers.whoami.rule=Host(`whoami.localhost`)\"\n  - \"traefik.http.routers.whoami.entrypoints=web\"\n  - \"traefik.http.services.whoami.loadbalancer.server.port=80\""
+        "code": "labels:\n  - traefik.enable=true\n  - traefik.http.routers.coffee-api.rule=Host(`shop.localhost`) && PathPrefix(`/api`)\n  - traefik.http.routers.coffee-api.entrypoints=websecure\n  - traefik.http.routers.coffee-api.tls=true\n  - traefik.http.routers.coffee-api.middlewares=coffee-strip\n  - traefik.http.middlewares.coffee-strip.stripprefix.prefixes=/api\n  - traefik.http.services.coffee-api.loadbalancer.server.port=3000"
       },
       {
-        "tab": "Middlewares",
-        "title": "Цепочка обработки запроса",
-        "text": "Rate limit, заголовки, basicAuth и stripPrefix подключаются к роутеру списком. Порядок важен: middleware, который должен сработать и на отказных ответах, ставят первым.",
+        "tab": "Защита",
+        "title": "Лимиты, повторы, предохранитель",
+        "text": "rateLimit режет частоту, inFlightReq — параллельность, ipAllowList — адреса. retry повторяет запрос, только если не удалось соединиться, а circuitBreaker сам отвечает 503, когда сервис болен.",
         "points": [
-          "Общие middlewares в dynamic/middlewares.yml",
-          "rateLimit: average и burst",
-          "Порядок в router.middlewares"
+          "429 с заголовком Retry-After",
+          "Повтор POST без ключа идемпотентности создаёт дубли",
+          "Подделка X-Forwarded-For: trustedIPs только для своих прокси"
         ],
-        "code": "http:\n  middlewares:\n    api-ratelimit:\n      rateLimit:\n        average: 10\n        burst: 20\n\n# label:\n\"traefik.http.routers.api.middlewares=secure-headers@file,api-ratelimit@file\"  # @file обязателен: без суффикса Traefik ищет middleware в @docker → 404\""
+        "code": "- traefik.http.middlewares.coffee-limit.ratelimit.average=20\n- traefik.http.middlewares.coffee-limit.ratelimit.burst=40\n- traefik.http.middlewares.cb.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.5"
       },
       {
-        "tab": "Балансировка",
-        "title": "Load balancing и canary",
-        "text": "По умолчанию реплики получают трафик по round robin, нездоровые исключаются health check-ом. Для canary-релиза два сервиса оборачиваются в weighted service с долей трафика.",
+        "tab": "Выкатка",
+        "title": "Healthcheck, canary и blue/green",
+        "text": "Несколько копий сервиса Traefik балансирует по кругу, больных исключает healthcheck. Для canary и blue/green составной сервис с весами описывается в файле и меняется без перезапуска.",
         "points": [
-          "Round robin и health check",
-          "Weighted service: 90% на 10%",
-          "Суффикс @docker для сервисов из labels"
+          "Round robin, sticky cookie",
+          "Weighted: 90/10 → 50/50 → 0/100",
+          "Mirroring: копия трафика на новую версию"
         ],
-        "code": "http:\n  services:\n    api-canary:\n      weighted:\n        services:\n          - name: api@docker\n            weight: 9\n          - name: api-v2@docker\n            weight: 1"
+        "code": "http:\n  services:\n    shop-canary:\n      weighted:\n        services:\n          - name: canary-v1@docker\n            weight: 90\n          - name: canary-v2@docker\n            weight: 10"
       },
       {
-        "tab": "TLS",
-        "title": "mkcert и Let's Encrypt",
-        "text": "mkcert подходит для локальной разработки, Let's Encrypt — для реального домена. Сначала всегда staging-резолвер: он не тратит лимиты боевого CA, а переключение на продакшен — одна строка.",
+        "tab": "TLS и ACME",
+        "title": "mkcert, mTLS и автоматические сертификаты",
+        "text": "Локально HTTPS даёт mkcert; для настоящего домена Traefik сам заказывает сертификаты по ACME (HTTP-01, TLS-ALPN-01, DNS-01 для wildcard). Отлаживай на staging, acme.json держи на томе с правами 600.",
         "points": [
-          "HTTP-01 challenge через entrypoint web",
-          "Staging против production",
-          "acme.json как хранилище сертификатов"
+          "TLS options: minVersion, sniStrict, клиентские сертификаты (mTLS)",
+          "Wildcard — только DNS-01; токены DNS-провайдера вне git",
+          "HTTP/3 — http3: {} и порт 443/udp"
         ],
-        "code": "certificatesResolvers:\n  letsencrypt:\n    acme:\n      email: you@example.com\n      storage: /etc/traefik/acme/acme.json\n      caServer: \"https://acme-staging-v02.api.letsencrypt.org/directory\"\n      httpChallenge:\n        entryPoint: web"
+        "code": "certificatesResolvers:\n  le:\n    acme:\n      email: admin@example.com\n      storage: /letsencrypt/acme.json\n      caServer: https://acme-staging-v02.api.letsencrypt.org/directory\n      httpChallenge:\n        entryPoint: web"
       }
     ],
     sessions: [
       {
-        "h": "~3 ч",
-        "t": "Базовая инфраструктура и первый маршрут",
-        "r": "Traefik с Docker provider, роутер на whoami через labels и дашборд под basicauth"
+        "h": "~3,5 ч",
+        "t": "Азбука: прокси, HTTP, TLS",
+        "r": "Азбука прокси, HTTP и TLS; стенд CoffeeShop на трёх портах, имена *.localhost"
       },
       {
         "h": "~3,5 ч",
-        "t": "API, frontend и БД за прокси",
-        "r": "Три реплики API с healthcheck и балансировкой, frontend по /app со StripPrefix, PostgreSQL и Adminer, цепочка middlewares"
+        "t": "Установка и первый маршрут",
+        "r": "Traefik в Docker, первый маршрут whoami по меткам, дашборд, диагностика «404 / 502 / 504»"
       },
       {
-        "h": "~3,5 ч",
-        "t": "TLS и Production Hell",
-        "r": "HTTPS через mkcert и Let's Encrypt staging, canary-деплой 90/10 и починенные сломанные сценарии"
+        "h": "~4 ч",
+        "t": "Docker provider и правила маршрутизации",
+        "r": "Docker provider: правила Host/Path/Header, приоритеты, сети и порты; CoffeeShop за одним входом"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Middlewares: преобразование запросов",
+        "r": "Middlewares: StripPrefix, redirect, headers и CORS, compress, basicAuth, chain, общий файл; защита дашборда и Adminer"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Надёжность и защита",
+        "r": "rateLimit, inFlightReq, ipAllowList, retry, circuitBreaker, forwardAuth; нагрузка k6 и повтор небезопасных запросов"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Балансировка и выкатка",
+        "r": "Балансировка, healthcheck, sticky, canary 90/10, mirroring, blue/green и «все копии больны»"
+      },
+      {
+        "h": "~4 ч",
+        "t": "TLS, часть 1: локальные сертификаты",
+        "r": "TLS: рукопожатие, mkcert, websecure, редирект на HTTPS, TLS options и mTLS"
+      },
+      {
+        "h": "~4 ч",
+        "t": "TLS, часть 2: Let’s Encrypt",
+        "r": "ACME: HTTP-01, TLS-ALPN-01, DNS-01 и wildcard на тестовом сервере Pebble, секреты, HTTP/3, переезд на сервер"
+      },
+      {
+        "h": "~4 ч",
+        "t": "TCP/UDP, файловый провайдер, IP клиента",
+        "r": "Сервис вне Docker, TCP (PostgreSQL) и UDP (DNS), реальный IP клиента, плагин на Go, миграция v2 → v3"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Наблюдаемость и итоговый проект",
+        "r": "Журнал JSON, метрики Prometheus и Grafana, трассировка, дерево вопросов, итоговый стек с up.sh и smoke.sh, Production Hell"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Итоговое задание",
+        "r": "Итоговое ТЗ без ответа: партнёрский API с mTLS, лимитами, выкаткой по метрикам и наблюдаемостью"
       }
     ],
     arch: {
@@ -838,7 +878,7 @@ var LABS = [
         {
           "label": "Клиент",
           "boxes": [
-            "браузер https://api.localhost",
+            "браузер https://shop.localhost",
             "TLS: mkcert / Let's Encrypt"
           ]
         },
@@ -852,15 +892,15 @@ var LABS = [
         {
           "label": "Маршрутизация",
           "boxes": [
-            "Router Host(`api.localhost`)",
-            "Middlewares: secure-headers → api-ratelimit"
+            "Router Host(`shop.localhost`)&&PathPrefix(`/api`)",
+            "Middlewares: strip → ratelimit"
           ]
         },
         {
           "label": "Сервис",
           "boxes": [
             "Service api: round robin + /health",
-            "api ×3 (Node :3000)"
+            "api ×2 (Node :3000)"
           ]
         },
         {
@@ -896,7 +936,7 @@ var LABS = [
           {
             "id": "browser",
             "t": "Браузер",
-            "s": "https://api.localhost",
+            "s": "https://shop.localhost",
             "x": 110,
             "y": 150,
             "d": "Отправляет GET /users/42 на домен, который резолвится на Traefik."
@@ -928,7 +968,7 @@ var LABS = [
           {
             "id": "rt",
             "t": "Router",
-            "s": "Host(`api.localhost`)",
+            "s": "Host(`shop.localhost`)",
             "x": 570,
             "y": 110,
             "d": "Правило Host/PathPrefix; при нескольких совпадениях побеждает более специфичное или с явным priority."
@@ -936,10 +976,10 @@ var LABS = [
           {
             "id": "mw",
             "t": "Middlewares",
-            "s": "headers → ratelimit",
+            "s": "strip → ratelimit",
             "x": 570,
             "y": 270,
-            "d": "Цепочка выполняется по порядку: secure-headers, затем api-ratelimit (average 10, burst 20)."
+            "d": "Цепочка выполняется по порядку: coffee-strip, затем coffee-limit (average 20, burst 40)."
           },
           {
             "id": "svc",
@@ -951,11 +991,11 @@ var LABS = [
           },
           {
             "id": "api",
-            "t": "api × 3",
+            "t": "api × 2",
             "s": "Node :3000",
             "x": 800,
             "y": 170,
-            "d": "Реплики, поднятые через docker compose up -d --scale api=3; отвечают servedBy с hostname контейнера."
+            "d": "Реплики (deploy.replicas: 2); отвечают servedBy с hostname контейнера."
           },
           {
             "id": "db",
@@ -1016,7 +1056,7 @@ var LABS = [
           },
           {
             "n": "rt",
-            "txt": "Router находит правило Host(`api.localhost`)."
+            "txt": "Router находит правило Host(`shop.localhost`)."
           },
           {
             "n": "mw",

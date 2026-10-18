@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: a1c199840d9efeb4 */
+/* verification-md-hash: 79c8c649c7d191df */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -77,11 +77,11 @@ window.LAB_STATUS = {
  "traefik": {
   "level": "ok",
   "head": "Вычитана и проверена",
-  "tail": "вам остаётся проверить самим",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "нужен публичный домен: Let's Encrypt",
+  "rest": "реальный Let's Encrypt и токены DNS-провайдеров (шаг 8.4 — только конфигурация), proxy protocol с внешним балансировщиком, плагины из каталога, Podman/rootless, переезд на настоящий сервер (8.6 — только проверка синтаксиса), итоговое ТЗ (11.1) не решалось; на Mac отличаются host.docker.internal, права на смонтированные файлы (шаг 8.7), mkcert -install с запросом пароля; владелец не проходила",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/traefik.md"
  },
  "caddy": {
