@@ -253,14 +253,14 @@
     },
     kubernetes: {
       name: 'Kubernetes Lab', file: 'kubernetes/kubernetes.html', accent: '#326CE5', level: 'heavy',
-      headline: 'Нужны пройденные Docker и Traefik',
-      know: ['Образ, контейнер, сеть, volume, healthcheck — по Docker-лабе',
-             'Модель Traefik EntryPoint → Router → Middleware → Service — по Traefik-лабе',
-             'Код api/ из Traefik-лабы (Dockerfile, server.js, package.json); он приведён и здесь, но свой образ нужен'],
+      headline: 'Нужны знания Docker и Traefik; стек CoffeeShop берётся из их лаб',
+      know: ['Образ, контейнер, Dockerfile, сеть, volume, healthcheck, Compose — по Docker-лабе',
+             'Модель Traefik «вход → роутер → middleware → сервис», правила, healthcheck, TLS — по Traefik-лабе (желательно)',
+             'Стек CoffeeShop (API, сайт, PostgreSQL, Adminer): в новой Traefik-лабе он собирается как папка starter/ (шаг 10.5); в этой методичке код api/ приведён целиком'],
       meet: ['kind и kubectl', 'Pod, Deployment, Service и DNS', 'ConfigMap, Secret, PVC', 'Readiness и liveness probes', 'Traefik как Ingress-контроллер', 'HorizontalPodAutoscaler и metrics-server'],
-      before: [{ key: 'traefik', kind: 'need', why: 'берёт стек и образ api из Traefik-лабы' },
+      before: [{ key: 'traefik', kind: 'know', why: 'стек CoffeeShop (starter/ из шага 10.5) и понятия: роутер, middleware, healthcheck, TLS' },
                { key: 'docker', kind: 'know', why: 'все понятия контейнеров' }],
-      tip: 'Нужны kind v0.33 и kubectl; кластер поднимается на ноутбуке.'
+      tip: 'Нужны kind v0.33, kubectl и helm; кластер поднимается на ноутбуке.'
     }
   };
 
