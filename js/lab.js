@@ -5439,6 +5439,7 @@ var LABS = [
     difficulty: 'Средняя–высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/prisma/prisma.png',
     open: 'https://meeymirita-files.storage.yandexcloud.net/prisma/prisma.html',
+    download: { label: 'Скачать дамп базы (12 МБ)', url: 'https://meeymirita-files.storage.yandexcloud.net/prisma/rental-legacy.dump' },
     repo: 'https://github.com/meeymirita/prisma-lab',
     stackInfo: [
       {
@@ -5890,7 +5891,7 @@ var LABS = [
         "a": "Нет. Сессия 2 даёт минимум: типы, union и null, async/await, модули, немного generic'ов. Дальше «Под капотом» объясняет происходящее и ссылается на TypeScript-лабу, где тема разобрана глубже. Знание PostgreSQL (индексы, EXPLAIN, транзакции) нужно из PostgreSQL-лабы."
       }
     ],
-    accent: '#5B6EF5',
+    accent: '#FFC933',
   },
   {
     key: 'nestjs',
@@ -10556,6 +10557,11 @@ function renderLabPage(key) {
     ? '<a href="' + lab.open + '" target="_blank" rel="noopener" class="lab-btn lab-btn-primary mono">Открыть методичку</a>'
     : '<span class="lab-btn lab-btn-primary mono" style="opacity:.5;cursor:not-allowed">Методичка скоро</span>';
 
+  // необязательная вторая кнопка: ссылка на скачивание файла (стартовый дамп базы и т. п.): lab.download = { label, url }
+  var downloadHtml = lab.download
+    ? '<a href="' + lab.download.url + '" download class="lab-btn lab-btn-outline mono">' + escapeHtml(lab.download.label) + '</a>'
+    : '';
+
   var pageHtml =
     '<nav class="lab-nav">' +
       '<div class="lab-nav-brand">' +
@@ -10582,6 +10588,7 @@ function renderLabPage(key) {
           '<p class="lab-desc">' + escapeHtml(lab.desc) + '</p>' +
           '<div class="lab-hero-actions">' +
             openHtml +
+            downloadHtml +
             '<a href="#inside" class="lab-btn lab-btn-outline mono">что внутри ↓</a>' +
           '</div>' +
         '</div>' +

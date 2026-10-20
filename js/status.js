@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: f182519cb3685106 */
+/* verification-md-hash: 961989dfc63ebee5 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -127,7 +127,7 @@ window.LAB_STATUS = {
   "head": "Не вычитана и не проверена запуском",
   "tail": "не проверено",
   "method": [],
-  "rest": "всё: команды, схема, миграции, дамп базы «Прокат», версии Prisma 7 (на npm latest — 8 RC, версии закреплены), TypedSQL, relationLoadStrategy, пул и PgBouncer, трассировка; вычитки нет",
+  "rest": "всё: команды, схема, миграции, версии Prisma 7 (на npm latest — 8 RC, версии закреплены), TypedSQL, relationLoadStrategy, пул и PgBouncer, трассировка; вычитки нет",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/prisma.md"
  },
  "redis": {

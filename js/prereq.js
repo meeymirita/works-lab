@@ -20,9 +20,9 @@
   };
 
   // Рекомендуемый порядок прохождения (зависимости из fixes/common/_order.md).
-  var ORDER = ['bash', 'docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'prisma', 'rabbitmq', 'redis', 'laravel',
+  var ORDER = ['bash', 'docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
     'laravel-performance', 'css', 'tailwind', 'js', 'vue', 'inertia', 'typescript', 'nuxt', 'angular',
-    'express', 'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
+    'prisma', 'express', 'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
 
   // Сила связи в «before»: need — без неё шаги не выполнить; know — методичка опирается на её знания; help — полезно.
   var LABS = {
@@ -199,7 +199,7 @@
       tip: 'Введение перед TypeScript и NestJS: объясняет сам Node и Express, которых в NestJS-лабе уже нет. 19 сессий в двух частях — переписана 14.10.2026.'
     },
     prisma: {
-      name: 'Prisma Lab', file: 'prisma/prisma.html', accent: '#5B6EF5', level: 'heavy',
+      name: 'Prisma Lab', file: 'prisma/prisma.html', accent: '#FFC933', level: 'heavy',
       headline: 'Нужен PostgreSQL: индексы, EXPLAIN, транзакции; TypeScript — по ходу',
       know: ['PostgreSQL на уровне PostgreSQL-лабы: JOIN, индексы и EXPLAIN, транзакции и уровни изоляции, блокировки — здесь они применяются, а не объясняются заново',
              'JavaScript на уровне «пишу функции, знаю промисы и async/await»; TypeScript знать не обязательно — сессия 2 даёт минимум, глубже в TypeScript-лабе',
