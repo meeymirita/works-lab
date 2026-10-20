@@ -20,7 +20,7 @@
   };
 
   // Рекомендуемый порядок прохождения (зависимости из fixes/common/_order.md).
-  var ORDER = ['bash', 'docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'rabbitmq', 'redis', 'laravel',
+  var ORDER = ['bash', 'docker', 'php-coffee', 'php', 'algorithms-php', 'postgresql', 'prisma', 'rabbitmq', 'redis', 'laravel',
     'laravel-performance', 'css', 'tailwind', 'js', 'vue', 'inertia', 'typescript', 'nuxt', 'angular',
     'express', 'nestjs', 'graphql', 'centrifugo', 'traefik', 'caddy', 'kubernetes'];
 
@@ -194,8 +194,21 @@
              'Про сам Node и Express знать не нужно — часть I (сессии 1–8) идёт с нуля: рантайм, протокол HTTP, свой сервер, процессы, архитектура, тесты',
              'Node нужен на Mac с первой сессии; PostgreSQL в Docker — только в части II (сессия 12), с согласия'],
       meet: ['Node 24: рантайм, HTTP-протокол, свой http-сервер, процессы и потоки (часть I)', 'Express 5: роутер, middleware, слои, REST и идемпотентность', 'PostgreSQL и Prisma 7', 'JWT-аутентификация с ротацией refresh', 'Файлы потоком до 200 МБ, share-ссылки', 'node:test, supertest, Docker', 'Два финальных проекта без подсказок: «Загрузчик страниц» и ShareBox Teams'],
-      before: [{ key: 'js', kind: 'know', why: 'язык (scope, промисы, event loop, DOM, модули) не повторяется — часть I сразу про сеть и Node' }],
+      before: [{ key: 'js', kind: 'know', why: 'язык (scope, промисы, event loop, DOM, модули) не повторяется — часть I сразу про сеть и Node' },
+               { key: 'prisma', kind: 'help', why: 'Prisma 7 подробно (сессия 13 здесь — краткое введение)' }],
       tip: 'Введение перед TypeScript и NestJS: объясняет сам Node и Express, которых в NestJS-лабе уже нет. 19 сессий в двух частях — переписана 14.10.2026.'
+    },
+    prisma: {
+      name: 'Prisma Lab', file: 'prisma/prisma.html', accent: '#5B6EF5', level: 'heavy',
+      headline: 'Нужен PostgreSQL: индексы, EXPLAIN, транзакции; TypeScript — по ходу',
+      know: ['PostgreSQL на уровне PostgreSQL-лабы: JOIN, индексы и EXPLAIN, транзакции и уровни изоляции, блокировки — здесь они применяются, а не объясняются заново',
+             'JavaScript на уровне «пишу функции, знаю промисы и async/await»; TypeScript знать не обязательно — сессия 2 даёт минимум, глубже в TypeScript-лабе',
+             'Prisma знать не нужно: лаба идёт с нуля и ведёт от чужой «грязной» базы к типизированному слою данных'],
+      meet: ['Prisma 7 (не 8): схема, клиент с адаптером pg, миграции', 'Чужая база: db pull, baseline, чистка данных без простоя', 'Связи, N+1, пагинация, EXPLAIN запросов Prisma', 'Raw SQL и TypedSQL', 'Транзакции, гонки, двойная бронь на диапазонах дат', 'Деньги: Decimal, идемпотентность, сверка', 'Расширения клиента, RLS и филиалы', 'Тесты на настоящей базе, CI, Production Hell, итоговое ТЗ'],
+      before: [{ key: 'postgresql', kind: 'know', why: 'индексы, EXPLAIN, транзакции, блокировки и RLS здесь применяются на практике' },
+               { key: 'typescript', kind: 'help', why: 'минимум TS есть в сессии 2, с типами из TypeScript-лабы проще' },
+               { key: 'js', kind: 'help', why: 'async/await, модули, Node' }],
+      tip: 'Нужны Docker (PostgreSQL 18) и Node.js 24. Версия Prisma закреплена на 7: на npm latest уже Prisma 8 (RC) с другой моделью работы.'
     },
     nestjs: {
       name: 'NestJS Lab', file: 'nestjs/nestjs.html', accent: '#E0234E', level: 'heavy',
@@ -205,7 +218,8 @@
              'Лаба полностью самостоятельна: других лаб проходить не требуется'],
       meet: ['NestJS 11: DI, модули, scopes', 'Prisma 7 и PostgreSQL 18', 'JWT с ротацией refresh-токенов, argon2', 'RBAC, события, WebSocket (Socket.IO)', 'Swagger, helmet, rate limit', 'Unit- и e2e-тесты, Docker'],
       before: [{ key: 'typescript', kind: 'help', why: 'TS-минимум есть и в сессии 1, но с типами проще' },
-               { key: 'express', kind: 'help', why: 'сам Node и Express — то, что в NestJS уже не объясняется' }],
+               { key: 'express', kind: 'help', why: 'сам Node и Express — то, что в NestJS уже не объясняется' },
+               { key: 'prisma', kind: 'help', why: 'Prisma 7 подробно: схема, миграции, транзакции, расширения' }],
       tip: 'Это не лаба на один вечер: по словам самой методички, за один присест к середине начинается копипаст без понимания.'
     },
     graphql: {
@@ -215,7 +229,8 @@
              'TypeScript: классы, интерфейсы, async/await',
              'Остальное, включая сам язык запросов, объясняется по ходу'],
       meet: ['NestJS и Apollo Server', 'Prisma 7 и PostgreSQL 18', 'DataLoader и N+1', 'JWT и права на уровне полей', 'Подписки через Redis', 'Защита от тяжёлых запросов, тесты'],
-      before: [{ key: 'nestjs', kind: 'help', why: 'основы NestJS' }],
+      before: [{ key: 'nestjs', kind: 'help', why: 'основы NestJS' },
+               { key: 'prisma', kind: 'help', why: 'Prisma 7 подробно: связи, N+1 и пагинация' }],
       tip: 'Проект самостоятельный: свой домен (каталог фильмов).'
     },
     traefik: {

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prisma Lab — Наследство: чужая база на Prisma 7 · ANITECH</title>
+<meta name="description" content="Чужая грязная база «Прокат снаряжения» превращается в типизированный слой данных на Prisma 7 и TypeScript: аудит и db pull, схема и клиент, связи и N+1, пагинация, индексы и EXPLAIN, raw SQL и…">
+<!-- seo:start -->
+<link rel="canonical" href="https://anitech.meeymirita.ru/works/prisma.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ANITECH PERFORMANCE">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Prisma Lab — Наследство: чужая база на Prisma 7 · ANITECH">
+<meta property="og:description" content="Чужая грязная база «Прокат снаряжения» превращается в типизированный слой данных на Prisma 7 и TypeScript: аудит и db pull, схема и клиент, связи и N+1, пагинация, индексы и EXPLAIN, raw SQL и…">
+<meta property="og:url" content="https://anitech.meeymirita.ru/works/prisma.html">
+<meta property="og:image" content="https://meeymirita-files.storage.yandexcloud.net/prisma/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1200">
+<meta property="og:image:alt" content="Prisma Lab — Наследство: чужая база на Prisma 7 · ANITECH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Prisma Lab — Наследство: чужая база на Prisma 7 · ANITECH">
+<meta name="twitter:description" content="Чужая грязная база «Прокат снаряжения» превращается в типизированный слой данных на Prisma 7 и TypeScript: аудит и db pull, схема и клиент, связи и N+1, пагинация, индексы и EXPLAIN, raw SQL и…">
+<meta name="twitter:image" content="https://meeymirita-files.storage.yandexcloud.net/prisma/og.jpg">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Course", "name": "Prisma Lab", "description": "Чужая грязная база «Прокат снаряжения» превращается в типизированный слой данных на Prisma 7 и TypeScript: аудит и db pull, схема и клиент, связи и N+1, пагинация, индексы и EXPLAIN, raw SQL и…", "url": "https://anitech.meeymirita.ru/works/prisma.html", "inLanguage": "ru", "educationalLevel": "Средняя–высокая", "author": {"@type": "Person", "name": "meeymirita", "url": "https://github.com/meeymirita"}, "image": "https://meeymirita-files.storage.yandexcloud.net/prisma/og.jpg", "provider": {"@type": "Organization", "name": "ANITECH PERFORMANCE", "url": "https://anitech.meeymirita.ru/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "ANITECH PERFORMANCE", "item": "https://anitech.meeymirita.ru/"}, {"@type": "ListItem", "position": 2, "name": "Prisma Lab", "item": "https://anitech.meeymirita.ru/works/prisma.html"}]}</script>
+<!-- seo:end -->
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+KR:wght@400;700;900&family=Space+Mono:wght@400;700&family=Dela+Gothic+One&family=Onest:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/lab.css">
+<link rel="stylesheet" href="css/lab-anime.css">
+<script src="js/slide.js"></script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113510962', 'ym');
+
+    ym(113510962, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113510962" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body>
+<script src="js/page-loader.js"></script>
+<div id="lab-root"><!-- seo-static:start --><main class="seo-static"><nav aria-label="Навигация"><a href="/">ANITECH PERFORMANCE</a> › <a href="/#projects">Лабораторные</a></nav><h1>Prisma Lab</h1><p>Наследство: чужая база на Prisma 7</p><p>Чужая грязная база «Прокат снаряжения» превращается в типизированный слой данных на Prisma 7 и TypeScript: аудит и db pull, схема и клиент, связи и N+1, пагинация, индексы и EXPLAIN, raw SQL и TypedSQL, миграции на живой базе, внешние ключи и слияние дублей, транзакции и гонки, двойная бронь на диапазонах, деньги и идемпотентность, расширения клиента, мультитенантность и RLS, пул и нагрузка, тесты и CI, итоговое ТЗ.</p><p>Стек: Prisma 7, TypeScript, PostgreSQL 18, Node.js 24, Docker, Vitest. Уровень: Средняя–высокая.</p><section><h2>Чужая база становится схемой</h2><p>prisma db pull читает таблицы и пишет по ним модели. Дальше схему приходится причёсывать: давать нормальные имена через @map, превращать числа статусов в enum, заводить связи, которых в базе нет. Версии закреплены явно, а адрес базы лежит в prisma.config.ts.</p><ul><li>db pull не видит модель без первичного ключа</li><li>@map и @@map: красивые имена в коде, старые в базе</li><li>baseline превращает существующую базу в нулевую миграцию</li></ul></section><section><h2>Один вызов — сколько SQL?</h2><p>Клиент с адаптером pg пишет SQL за вас, и его нужно читать: лог запросов показывает, что реально ушло в базу. Вложенный include в цикле даёт N+1, а relationLoadStrategy join собирает связи одним запросом. На большой выборке OFFSET деградирует, cursor нет.</p><ul><li>log: [&#x27;query&#x27;] — смотрим SQL, который шлёт Prisma</li><li>include и select определяют форму SQL</li><li>cursor вместо skip на глубоких страницах</li></ul></section><section><h2>Менять схему, пока работает «прод»</h2><p>Типы колонок меняют по схеме expand/contract: добавить новую колонку, заполнить батчами, переключить код, удалить старую. migrate dev сам создаёт SQL, но переименование превращает в DROP и ADD, поэтому миграцию создают с флагом --create-only и правят руками. Внешние ключи на живой таблице добавляют как NOT VALID.</p><ul><li>--create-only и ручная правка migration.sql</li><li>NOT VALID, затем VALIDATE CONSTRAINT без долгой блокировки</li><li>migrate deploy в CI, migrate dev только локально</li></ul></section><section><h2>Гонки, повторы и двойная бронь</h2><p>Проверка «свободно ли» перед вставкой не спасает от гонки. Серьёзную защиту даёт база: exclusion-ограничение на диапазоне дат, в схеме Prisma оно описывается как Unsupported, а нарушение приходит ошибкой. Для Serializable ловят P2034 и повторяют транзакцию с паузой.</p><ul><li>isolationLevel: Serializable и повтор при P2034</li><li>EXCLUDE USING gist на tstzrange против двойной брони</li><li>SKIP LOCKED для очереди выдачи без дублей</li></ul></section><section><h2>Soft delete, аудит и изоляция филиалов</h2><p>client extensions оборачивают каждый запрос: фильтруют удалённые строки, пишут аудит, подставляют филиал. Для RLS филиал передаётся через set_config внутри транзакции, иначе соединение из пула сохранит прежнее значение и один филиал увидит чужие брони.</p><ul><li>$extends с query, result и model</li><li>set_config внутри транзакции, а не вне её</li><li>роль приложения без прав на DDL</li></ul></section><section><h2>Когда Prisma не хватает</h2><p>Оконные функции, CTE и LATERAL проще писать на SQL. $queryRaw с tagged template передаёт параметры отдельно и защищает от инъекции, а склеивание строк через $queryRawUnsafe открывает дыру. TypedSQL превращает файл .sql в функцию с типизированным результатом.</p><ul><li>$queryRaw`...${value}` — параметры не склеиваются</li><li>count возвращает BigInt, деньги — Decimal</li><li>TypedSQL: .sql файл и prisma generate --sql</li></ul></section><section><h2>Содержание методички</h2><ol><li>0. Как проходить и среда</li><li>1. Шпаргалка: CLI, схема, запросы, ошибки</li><li>2. Справочник ошибок: симптом → причина → что делать</li><li>3. Глоссарий</li><li>4. Вопросы на понимание и собеседование</li><li>5. Что дальше</li><li>Шаги по сессиям</li></ol></section><p><a href="https://github.com/meeymirita/prisma-lab">Репозиторий лабы на GitHub</a></p><p><a href="kubernetes.html">← Kubernetes Lab</a> · <a href="nestjs.html">NestJS Lab →</a></p></main><!-- seo-static:end --></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/MorphSVGPlugin.min.js"></script>
+<script src="js/status.js"></script>
+<script src="js/flip-gallery.js"></script>
+<script src="js/lab.js"></script>
+<script src="js/lab-anime.js"></script>
+<script>renderLabPage('prisma'); animeEnhance('prisma');</script>
+</body>
+</html>

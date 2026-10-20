@@ -5430,6 +5430,469 @@ var LABS = [
     accent: '#326CE5',
   },
   {
+    key: 'prisma',
+    titleMain: 'prisma',
+    title: 'Prisma Lab',
+    subtitle: 'Наследство: чужая база на Prisma 7',
+    desc: "Чужая грязная база «Прокат снаряжения» превращается в типизированный слой данных на Prisma 7 и TypeScript: аудит и db pull, схема и клиент, связи и N+1, пагинация, индексы и EXPLAIN, raw SQL и TypedSQL, миграции на живой базе, внешние ключи и слияние дублей, транзакции и гонки, двойная бронь на диапазонах, деньги и идемпотентность, расширения клиента, мультитенантность и RLS, пул и нагрузка, тесты и CI, итоговое ТЗ.",
+    stack: ["Prisma 7", "TypeScript", "PostgreSQL 18", "Node.js 24", "Docker", "Vitest"],
+    difficulty: 'Средняя–высокая',
+    image: 'https://meeymirita-files.storage.yandexcloud.net/prisma/prisma.png',
+    open: 'https://meeymirita-files.storage.yandexcloud.net/prisma/prisma.html',
+    repo: 'https://github.com/meeymirita/prisma-lab',
+    stackInfo: [
+      {
+        "tag": "ORM",
+        "back": "Prisma 7: схема, типизированный клиент, миграции, driver adapter pg. Версия закреплена: на npm latest уже Prisma 8 (RC), с другой моделью работы."
+      },
+      {
+        "tag": "язык",
+        "back": "TypeScript в минимуме: типы, union и null, async/await, модули, немного generic'ов. Всё объясняется по ходу, глубже — в TypeScript-лабе."
+      },
+      {
+        "tag": "база",
+        "back": "PostgreSQL 18 в контейнере и чужой дамп «Проката»: без ключей, с дублями, датами в трёх форматах. Здесь применяются индексы, изоляция и RLS из PostgreSQL-лабы."
+      },
+      {
+        "tag": "среда",
+        "back": "Node.js 24 на Mac: tsx для запуска, один проект, схема и миграции в Git."
+      },
+      {
+        "tag": "контейнеры",
+        "back": "Docker Desktop: только PostgreSQL и восстановление дампа; приложение запускается на Mac."
+      },
+      {
+        "tag": "тесты",
+        "back": "Vitest на настоящей базе: шаблонная база, фабрики, откат транзакцией, запуск в CI."
+      }
+    ],
+    learn: [
+      {
+        "tab": "Схема",
+        "title": "Чужая база становится схемой",
+        "text": "prisma db pull читает таблицы и пишет по ним модели. Дальше схему приходится причёсывать: давать нормальные имена через @map, превращать числа статусов в enum, заводить связи, которых в базе нет. Версии закреплены явно, а адрес базы лежит в prisma.config.ts.",
+        "points": [
+          "db pull не видит модель без первичного ключа",
+          "@map и @@map: красивые имена в коде, старые в базе",
+          "baseline превращает существующую базу в нулевую миграцию"
+        ],
+        "code": "model Booking {\n  id         Int           @id @default(autoincrement())\n  customerId Int           @map(\"cust_id\")\n  status     BookingStatus\n  priceCents Decimal       @db.Decimal(12, 2) @map(\"price\")\n  customer   Customer      @relation(fields: [customerId], references: [id])\n\n  @@map(\"tbl_Bookings\")\n  @@index([customerId, status])\n}"
+      },
+      {
+        "tab": "Запросы",
+        "title": "Один вызов — сколько SQL?",
+        "text": "Клиент с адаптером pg пишет SQL за вас, и его нужно читать: лог запросов показывает, что реально ушло в базу. Вложенный include в цикле даёт N+1, а relationLoadStrategy join собирает связи одним запросом. На большой выборке OFFSET деградирует, cursor нет.",
+        "points": [
+          "log: ['query'] — смотрим SQL, который шлёт Prisma",
+          "include и select определяют форму SQL",
+          "cursor вместо skip на глубоких страницах"
+        ],
+        "code": "const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })\nconst prisma = new PrismaClient({ adapter, log: ['query'] })\n\nconst page = await prisma.booking.findMany({\n  take: 50,\n  cursor: { id: lastId },\n  skip: 1,\n  orderBy: { id: 'asc' },\n  include: { customer: { select: { name: true } } },\n  relationLoadStrategy: 'join',\n})"
+      },
+      {
+        "tab": "Миграции",
+        "title": "Менять схему, пока работает «прод»",
+        "text": "Типы колонок меняют по схеме expand/contract: добавить новую колонку, заполнить батчами, переключить код, удалить старую. migrate dev сам создаёт SQL, но переименование превращает в DROP и ADD, поэтому миграцию создают с флагом --create-only и правят руками. Внешние ключи на живой таблице добавляют как NOT VALID.",
+        "points": [
+          "--create-only и ручная правка migration.sql",
+          "NOT VALID, затем VALIDATE CONSTRAINT без долгой блокировки",
+          "migrate deploy в CI, migrate dev только локально"
+        ],
+        "code": "-- migration.sql (правим руками)\nALTER TABLE \"tbl_Bookings\" ADD COLUMN \"starts_at\" timestamptz;\n\nUPDATE \"tbl_Bookings\"\nSET \"starts_at\" = to_timestamp(\"d_from\"::bigint)\nWHERE \"d_from\" ~ '^[0-9]+$' AND \"starts_at\" IS NULL;\n\nALTER TABLE \"tbl_Bookings\"\n  ADD CONSTRAINT fk_cust FOREIGN KEY (cust_id) REFERENCES customers(id) NOT VALID;\nALTER TABLE \"tbl_Bookings\" VALIDATE CONSTRAINT fk_cust;"
+      },
+      {
+        "tab": "Транзакции",
+        "title": "Гонки, повторы и двойная бронь",
+        "text": "Проверка «свободно ли» перед вставкой не спасает от гонки. Серьёзную защиту даёт база: exclusion-ограничение на диапазоне дат, в схеме Prisma оно описывается как Unsupported, а нарушение приходит ошибкой. Для Serializable ловят P2034 и повторяют транзакцию с паузой.",
+        "points": [
+          "isolationLevel: Serializable и повтор при P2034",
+          "EXCLUDE USING gist на tstzrange против двойной брони",
+          "SKIP LOCKED для очереди выдачи без дублей"
+        ],
+        "code": "async function book(data: BookingInput) {\n  for (let attempt = 1; attempt <= 5; attempt++) {\n    try {\n      return await prisma.$transaction(\n        (tx) => tx.booking.create({ data }),\n        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },\n      )\n    } catch (e) {\n      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2034') continue\n      throw e\n    }\n  }\n}"
+      },
+      {
+        "tab": "Расширения",
+        "title": "Soft delete, аудит и изоляция филиалов",
+        "text": "client extensions оборачивают каждый запрос: фильтруют удалённые строки, пишут аудит, подставляют филиал. Для RLS филиал передаётся через set_config внутри транзакции, иначе соединение из пула сохранит прежнее значение и один филиал увидит чужие брони.",
+        "points": [
+          "$extends с query, result и model",
+          "set_config внутри транзакции, а не вне её",
+          "роль приложения без прав на DDL"
+        ],
+        "code": "const scoped = (branchId: number) =>\n  prisma.$extends({\n    query: {\n      $allModels: {\n        async $allOperations({ args, query }) {\n          const [, result] = await prisma.$transaction([\n            prisma.$executeRaw`SELECT set_config('app.branch_id', ${String(branchId)}, true)`,\n            query(args),\n          ])\n          return result\n        },\n      },\n    },\n  })"
+      },
+      {
+        "tab": "Raw SQL",
+        "title": "Когда Prisma не хватает",
+        "text": "Оконные функции, CTE и LATERAL проще писать на SQL. $queryRaw с tagged template передаёт параметры отдельно и защищает от инъекции, а склеивание строк через $queryRawUnsafe открывает дыру. TypedSQL превращает файл .sql в функцию с типизированным результатом.",
+        "points": [
+          "$queryRaw`...${value}` — параметры не склеиваются",
+          "count возвращает BigInt, деньги — Decimal",
+          "TypedSQL: .sql файл и prisma generate --sql"
+        ],
+        "code": "const top = await prisma.$queryRaw<{ branch: string; revenue: Prisma.Decimal }[]>`\n  SELECT b.name AS branch,\n         sum(p.amount) AS revenue,\n         rank() OVER (ORDER BY sum(p.amount) DESC) AS rnk\n  FROM payments p JOIN branches b ON b.id = p.branch_id\n  WHERE p.paid_at >= ${since}\n  GROUP BY b.name`"
+      }
+    ],
+    sessions: [
+      {
+        "h": "~4 ч",
+        "t": "Азбука и окружение",
+        "r": "дамп «Проката» в PostgreSQL 18, Node 24, первый взгляд на чужую базу"
+      },
+      {
+        "h": "~4 ч",
+        "t": "TypeScript ровно настолько, насколько нужно",
+        "r": "типы, union и null, async/await, модули и minimum generic'ов"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Чужая база: аудит и db pull",
+        "r": "список болячек, интроспекция, baseline миграций"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Схема Prisma",
+        "r": "модели, типы, enum вместо чисел, @map, генератор"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Клиент и чтение",
+        "r": "PrismaClient с адаптером, where и select, SQL из лога"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Связи и N+1",
+        "r": "relationMode, include, join против query, pg_stat_statements"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Запись, типы данных, ошибки",
+        "r": "create и upsert, Decimal и Json, коды P2002/P2025"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Пагинация, индексы, EXPLAIN",
+        "r": "skip против cursor, @@index, планы запросов Prisma"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Raw SQL и TypedSQL",
+        "r": "$queryRaw, инъекция, окна и CTE, типизированный SQL"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Чистка данных I: миграции на живой базе",
+        "r": "даты, деньги и статусы приводятся к типам без простоя"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Чистка данных II: ключи, дубли, команда",
+        "r": "FK NOT VALID, слияние дублей, drift и конфликты миграций"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Транзакции и гонки",
+        "r": "$transaction, изоляция, повтор по P2034, SKIP LOCKED"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Двойная бронь: диапазоны",
+        "r": "tstzrange, EXCLUDE, часовые пояса, свободные предметы"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Деньги",
+        "r": "ledger, Decimal, идемпотентные платежи, сверка"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Расширения клиента",
+        "r": "$extends: soft delete, аудит, вычисляемые поля"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Мультитенантность и безопасность",
+        "r": "роль приложения, RLS по филиалу, set_config в транзакции"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Эксплуатация: пул и нагрузка",
+        "r": "пул, singleton клиента, PgBouncer, сидирование миллиона строк"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Тесты, поставка и Production Hell",
+        "r": "Vitest на настоящей базе, CI, пять поломок слоя данных"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Итоговое задание",
+        "r": "RentKit 2.0 по ТЗ без решения"
+      }
+    ],
+    arch: {
+      "title": "Путь запроса: от кода до базы",
+      "rows": [
+        {
+          "label": "Приложение",
+          "boxes": [
+            "TypeScript-код слоя данных",
+            "типы из схемы Prisma"
+          ]
+        },
+        {
+          "label": "Клиент",
+          "boxes": [
+            "PrismaClient + $extends",
+            "soft delete, аудит, филиал"
+          ]
+        },
+        {
+          "label": "Драйвер",
+          "boxes": [
+            "adapter-pg",
+            "пул соединений"
+          ]
+        },
+        {
+          "label": "База",
+          "boxes": [
+            "PostgreSQL 18",
+            "RLS, ограничения, индексы"
+          ]
+        },
+        {
+          "label": "Миграции",
+          "boxes": [
+            "schema.prisma → migration.sql",
+            "migrate deploy в CI"
+          ]
+        }
+      ],
+      "note": "Ловушка: set_config вне транзакции протекает через пул соединений, и один филиал увидит чужие данные.",
+      "live": {
+        "w": 1000,
+        "h": 560,
+        "zones": [
+          {
+            "t": "приложение",
+            "x": 14,
+            "w": 250
+          },
+          {
+            "t": "Prisma",
+            "x": 290,
+            "w": 330
+          },
+          {
+            "t": "PostgreSQL",
+            "x": 650,
+            "w": 336
+          }
+        ],
+        "nodes": [
+          {
+            "id": "app",
+            "t": "Код на TypeScript",
+            "s": "слой данных RentKit",
+            "x": 130,
+            "y": 150,
+            "d": "Функции бронирования, платежей и отчётов; типы результата берутся из схемы Prisma, а не пишутся руками."
+          },
+          {
+            "id": "tests",
+            "t": "Vitest",
+            "s": "настоящая база",
+            "x": 130,
+            "y": 380,
+            "d": "Тесты слоя данных идут против PostgreSQL: шаблонная база, фабрики, откат транзакцией; в CI то же с migrate deploy."
+          },
+          {
+            "id": "client",
+            "t": "PrismaClient",
+            "s": "типизированные запросы",
+            "x": 330,
+            "y": 110,
+            "d": "Строит SQL по вызову: findMany, create, $transaction; лог query показывает, что реально уходит в базу."
+          },
+          {
+            "id": "ext",
+            "t": "$extends",
+            "s": "soft delete · аудит · филиал",
+            "x": 520,
+            "y": 110,
+            "d": "Оборачивает каждый запрос: прячет удалённое, пишет аудит, передаёт филиал через set_config внутри транзакции."
+          },
+          {
+            "id": "adapter",
+            "t": "adapter-pg",
+            "s": "пул соединений",
+            "x": 420,
+            "y": 270,
+            "d": "Драйвер pg: размер пула и таймауты; число процессов умножить на размер пула, и сумма не должна превысить max_connections."
+          },
+          {
+            "id": "raw",
+            "t": "$queryRaw · TypedSQL",
+            "s": "окна, CTE, диапазоны",
+            "x": 420,
+            "y": 430,
+            "d": "Для того, что Prisma не выражает: оконные функции, tstzrange, SKIP LOCKED; параметры передаются отдельно от текста запроса."
+          },
+          {
+            "id": "pg",
+            "t": "PostgreSQL 18",
+            "s": "таблицы «Проката»",
+            "x": 810,
+            "y": 170,
+            "d": "Чужая база после чистки: внешние ключи, enum, numeric вместо текста, индексы под реальные запросы."
+          },
+          {
+            "id": "rls",
+            "t": "RLS и роль",
+            "s": "изоляция филиалов",
+            "x": 810,
+            "y": 330,
+            "d": "Политики по филиалу и роль приложения без прав на DDL; миграции идут отдельной ролью."
+          },
+          {
+            "id": "mig",
+            "t": "migrate deploy",
+            "s": "SQL-миграции",
+            "x": 810,
+            "y": 470,
+            "d": "Миграции данных по expand/contract, FK как NOT VALID, exclusion-ограничение на брони; в команде порядок миграций согласуется заранее."
+          }
+        ],
+        "edges": [
+          {
+            "a": "app",
+            "b": "client"
+          },
+          {
+            "a": "client",
+            "b": "ext"
+          },
+          {
+            "a": "ext",
+            "b": "adapter"
+          },
+          {
+            "a": "app",
+            "b": "raw"
+          },
+          {
+            "a": "raw",
+            "b": "adapter"
+          },
+          {
+            "a": "adapter",
+            "b": "pg"
+          },
+          {
+            "a": "pg",
+            "b": "rls"
+          },
+          {
+            "a": "mig",
+            "b": "pg"
+          },
+          {
+            "a": "tests",
+            "b": "app"
+          },
+          {
+            "a": "pg",
+            "b": "adapter",
+            "back": true
+          },
+          {
+            "a": "adapter",
+            "b": "client",
+            "back": true
+          }
+        ],
+        "flow": [
+          {
+            "n": "app",
+            "txt": "Приложение просит брони филиала 7 за неделю."
+          },
+          {
+            "n": "client",
+            "txt": "PrismaClient строит SELECT по условиям и include."
+          },
+          {
+            "n": "ext",
+            "txt": "Расширение в транзакции ставит set_config('app.branch_id', '7') и добавляет фильтр удалённых."
+          },
+          {
+            "n": "adapter",
+            "txt": "Адаптер берёт соединение из пула и отправляет запрос."
+          },
+          {
+            "n": "pg",
+            "txt": "PostgreSQL выбирает индекс и возвращает строки."
+          },
+          {
+            "n": "rls",
+            "txt": "Политика RLS отсекает строки других филиалов."
+          },
+          {
+            "n": "adapter",
+            "txt": "Результат возвращается в пул и клиенту.",
+            "back": true
+          },
+          {
+            "n": "client",
+            "txt": "Prisma собирает объекты с типами, Decimal вместо number.",
+            "back": true
+          },
+          {
+            "n": "app",
+            "txt": "Код получает типизированный список броней.",
+            "back": true
+          }
+        ]
+      }
+    },
+    faq: [
+      {
+        "q": "Зачем ORM, если есть pg и SQL?",
+        "a": "Prisma даёт типы из схемы, миграции в одном месте и безопасные по умолчанию запросы: опечатка в поле ловится при компиляции. Цена: SQL приходится читать в логе, а сложные запросы всё равно пишут вручную через $queryRaw. Лаба показывает обе стороны на живой базе."
+      },
+      {
+        "q": "Почему лаба на Prisma 7, а не 8?",
+        "a": "Prisma 8 вышла как release candidate и работает иначе: контракт вместо schema.prisma, свой клиент вместо @prisma/client, другие миграции и middleware. Prisma 7 стабильна, на ней стоят Express, NestJS и GraphQL лаб, документация к ней остаётся в разделе v7. Поэтому версии в package.json закрепляются: иначе npm install prisma принесёт 8."
+      },
+      {
+        "q": "Что делать, если в базе нет внешних ключей?",
+        "a": "db pull создаст модели без связей, их описывают вручную с relationMode prisma. Дальше осиротевшие строки находят запросом, чинят и добавляют ключи в два этапа: NOT VALID, затем VALIDATE CONSTRAINT, чтобы не держать долгую блокировку."
+      },
+      {
+        "q": "Как поменять тип колонки, не останавливая приложение?",
+        "a": "По схеме expand/contract: добавить новую колонку, заполнить её батчами, переключить код на неё, потом удалить старую. migrate dev переименование колонки превращает в DROP и ADD и теряет данные, поэтому миграцию создают с --create-only и правят вручную."
+      },
+      {
+        "q": "Почему проверки «свободно ли» перед вставкой не защищают от двойной брони?",
+        "a": "Две параллельные транзакции обе увидят «свободно» и обе вставят строку. Защита должна жить в базе: exclusion-ограничение на tstzrange не даст сохранить пересекающиеся брони, а клиент превращает ошибку в понятное «предмет занят»."
+      },
+      {
+        "q": "Почему деньги нельзя хранить в number?",
+        "a": "У числа с плавающей точкой есть ошибки округления: копейки расходятся при суммировании. В схеме используют Decimal (numeric в базе), в коде Prisma.Decimal. Повторы платежа гасит уникальный идемпотентный ключ."
+      },
+      {
+        "q": "Как изолировать филиалы друг от друга в одной базе?",
+        "a": "RLS-политиками по филиалу и ролью приложения без права обходить политики. Филиал передаётся через set_config внутри той же транзакции, что и запрос: если установить его вне транзакции, соединение из пула сохранит значение и один филиал увидит чужие данные."
+      },
+      {
+        "q": "Нужна ли TypeScript-лаба до этой?",
+        "a": "Нет. Сессия 2 даёт минимум: типы, union и null, async/await, модули, немного generic'ов. Дальше «Под капотом» объясняет происходящее и ссылается на TypeScript-лабу, где тема разобрана глубже. Знание PostgreSQL (индексы, EXPLAIN, транзакции) нужно из PostgreSQL-лабы."
+      }
+    ],
+    accent: '#5B6EF5',
+  },
+  {
     key: 'nestjs',
     titleMain: 'nestjs',
     title: 'NestJS Lab',
