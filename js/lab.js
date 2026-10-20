@@ -4976,9 +4976,9 @@ var LABS = [
     key: 'kubernetes',
     titleMain: 'kubernetes',
     title: 'Kubernetes Lab',
-    subtitle: 'От Compose к оркестрации',
-    desc: 'Миграция стека из Traefik-лабы в Kubernetes (kind): Pod и Deployment, Service и DNS, ConfigMap/Secret, Volumes и PVC, readiness/liveness-пробы, Traefik как Ingress-контроллер, HorizontalPodAutoscaler.',
-    stack: ['Kubernetes v1.37.0', 'kind v0.33.0', 'kubectl', 'Traefik', 'PostgreSQL'],
+    subtitle: 'Kubernetes и Helm с нуля',
+    desc: "Kubernetes и Helm с нуля, стек CoffeeShop из Traefik-лабы переезжает из Compose в кластер kind: архитектура и kubectl, Pod и Service, Deployment и обновления, Ingress (Traefik), хранение данных и StatefulSet, ConfigMap и Secret, пробы и ресурсы, RBAC и NetworkPolicy, автомасштабирование, Prometheus и Grafana, Helm (chart, шаблоны, репозитории, релизы), umbrella chart и Kustomize.",
+    stack: ["Kubernetes v1.37.0", "kind v0.33", "kubectl", "Helm 4", "Traefik v3.7 (Ingress)", "Prometheus / Grafana"],
     difficulty: 'Средняя–высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/kubernetes.png',
     open: 'https://meeymirita-files.storage.yandexcloud.net/kubernetes/kubernetes.html',
@@ -4986,108 +4986,177 @@ var LABS = [
     stackInfo: [
       {
         "tag": "оркестратор",
-        "back": "Pod, Deployment, Service, пробы и автомасштабирование вместо Compose."
+        "back": "Pod, Deployment, StatefulSet, Service, Job вместо Compose: желаемое состояние описано в манифестах, кластер сам его поддерживает."
       },
       {
         "tag": "кластер",
-        "back": "Локальный кластер в контейнерах Docker для экспериментов."
+        "back": "kind: control-plane и два рабочих узла в контейнерах Docker; ничего больше ставить на Mac не нужно."
       },
       {
         "tag": "CLI",
-        "back": "Основной инструмент: apply, get, describe, exec, logs."
+        "back": "kubectl: apply, get, describe, logs, exec, rollout, auth can-i. Главная привычка: сначала describe и события, потом догадки."
+      },
+      {
+        "tag": "Helm",
+        "back": "Chart, values, release, шаблоны Go, репозиторий, umbrella chart; плюс Kustomize для сравнения."
       },
       {
         "tag": "ingress",
-        "back": "Тот же роутинг, что в Traefik-лабе, но как Ingress-контроллер."
+        "back": "Traefik v3.7 как Ingress-контроллер: Ingress и IngressRoute вместо меток Docker. ingress-nginx в лабе не используется — проект свёрнут."
       },
       {
-        "tag": "данные",
-        "back": "База на PersistentVolumeClaim: данные не теряются при пересоздании Pod (шаг 2.2)."
+        "tag": "наблюдаемость",
+        "back": "metrics-server, HPA, kube-prometheus-stack и Grafana: числа и графики вместо kubectl exec."
       }
     ],
     learn: [
       {
         "tab": "Deployment",
         "title": "Желаемое состояние вместо команд",
-        "text": "Deployment создаёт ReplicaSet, а тот следит, чтобы Pod'ов с нужными label'ами было ровно replicas. При смене образа поднимается новый ReplicaSet — так работает rolling-обновление без остановки сервиса.",
+        "text": "Deployment создаёт ReplicaSet, а тот следит, чтобы Pod'ов с нужными метками было ровно replicas. Смена образа запускает rolling update: старые Pod уходят по одному, новые приходят, сервис не останавливается; плохую версию откатывает rollout undo.",
         "points": [
           "replicas: 3 — утверждение, а не разовая команда",
-          "selector.matchLabels связывает Deployment и Pod'ы",
-          "Самолечение через reconciliation loop"
+          "selector.matchLabels обязан совпадать с метками шаблона",
+          "maxSurge и maxUnavailable задают скорость волны"
         ],
-        "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: api"
+        "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: coffeeshop-api\nspec:\n  replicas: 3\n  selector:\n    matchLabels: {app: coffeeshop-api}\n  template:\n    metadata:\n      labels: {app: coffeeshop-api}\n    spec:\n      containers:\n        - name: api\n          image: coffeeshop-api:v1"
       },
       {
-        "tab": "Service и DNS",
-        "title": "Стабильный адрес для меняющихся Pod'ов",
-        "text": "У Pod'ов нет постоянного IP, поэтому перед ними ставится Service. Он находит Pod'ы по selector, а имя резолвит CoreDNS. ClusterIP по умолчанию виден только внутри кластера.",
+        "tab": "Service и Ingress",
+        "title": "Стабильный адрес и один вход",
+        "text": "У Pod'ов адреса меняются, поэтому перед ними стоит Service: находит Pod по меткам, берёт только готовых и имеет DNS-имя. Снаружи на несколько Service смотрит один Ingress, который выполняет контроллер (у нас Traefik).",
         "points": [
-          "selector совпадает с label'ами Deployment",
-          "api-service.default.svc.cluster.local",
-          "kube-proxy распределяет трафик между Pod'ами"
+          "selector Service = метки Pod",
+          "db.default.svc.cluster.local внутри кластера",
+          "Ingress — только правила; без контроллера они мёртвый текст"
         ],
-        "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: api-service\nspec:\n  selector:\n    app: api\n  ports:\n    - port: 3000\n      targetPort: 3000"
+        "code": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: coffeeshop\nspec:\n  ingressClassName: traefik\n  rules:\n    - host: shop.localhost\n      http:\n        paths:\n          - path: /api\n            pathType: Prefix\n            backend:\n              service: {name: coffeeshop-api, port: {number: 80}}"
       },
       {
-        "tab": "ConfigMap и Secret",
-        "title": "Конфигурация отдельно от образа",
-        "text": "Не секретные значения живут в ConfigMap, пароли — в Secret. Ловушка: base64 в Secret — это кодирование, а не шифрование; защищает только ограничение доступа через RBAC.",
+        "tab": "Данные и секреты",
+        "title": "Том переживает Pod, пароль живёт отдельно",
+        "text": "База хранит данные на PersistentVolumeClaim: Pod можно удалить, том и данные остаются. Для БД используют StatefulSet. Конфиг и пароль выносят из образа в ConfigMap и Secret; base64 в Secret — кодирование, а не шифрование.",
         "points": [
-          "envFrom подключает все переменные разом",
-          "stringData удобнее ручного base64",
-          "Секреты в git — плохая практика"
+          "PVC → PV → диск; StorageClass создаёт тома сам",
+          "StatefulSet: стабильные имена и volumeClaimTemplates",
+          "secretKeyRef берёт одну переменную под своим именем"
         ],
-        "code": "containers:\n  - name: api\n    image: traefik-lab-api:v1\n    envFrom:\n      - configMapRef:\n          name: api-config\n      - secretRef:\n          name: api-secret"
+        "code": "env:\n  - name: DB_PASSWORD\n    valueFrom:\n      secretKeyRef:\n        name: db-credentials\n        key: POSTGRES_PASSWORD\nvolumeClaimTemplates:\n  - metadata: {name: data}\n    spec:\n      accessModes: [ReadWriteOnce]\n      resources: {requests: {storage: 1Gi}}"
       },
       {
-        "tab": "Тома и PVC",
-        "title": "Данные, переживающие Pod",
-        "text": "Pod может пересоздаться на другом узле, поэтому данные БД выносят в PersistentVolumeClaim — «заявку» на место нужного размера. В kind StorageClass создаёт PV автоматически.",
-        "points": [
-          "emptyDir, PV и PVC — три уровня",
-          "accessModes и storage в заявке",
-          "Подключение через volumes и volumeMounts"
-        ],
-        "code": "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: postgres-pvc\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 1Gi"
-      },
-      {
-        "tab": "Пробы",
+        "tab": "Пробы и ресурсы",
         "title": "Готов и жив — разные вопросы",
-        "text": "readinessProbe убирает Pod из Service, но не перезапускает его; livenessProbe убивает и пересоздаёт контейнер. Занятый, но живой процесс не должен погибать из-за медленного ответа.",
+        "text": "readinessProbe убирает Pod из Service, livenessProbe перезапускает контейнер. requests бронируют ресурсы и служат базой для HPA, limits по памяти — потолок, за которым OOMKilled. Диагностика идёт по таблице «статус → причина».",
         "points": [
-          "httpGet для API, exec для PostgreSQL",
-          "initialDelaySeconds и periodSeconds",
-          "Аналог healthcheck из Compose, разделённый надвое"
+          "Running 0/1 — не проходит readiness",
+          "OOMKilled — превышен limits.memory",
+          "describe pod и Events — первая команда любого разбора"
         ],
-        "code": "readinessProbe:\n  httpGet:\n    path: /health\n    port: 3000\n  initialDelaySeconds: 3\n  periodSeconds: 5\nlivenessProbe:\n  httpGet:\n    path: /health\n    port: 3000\n  failureThreshold: 3"
+        "code": "readinessProbe:\n  httpGet: {path: /health, port: 3000}\n  periodSeconds: 5\nlivenessProbe:\n  httpGet: {path: /health, port: 3000}\n  initialDelaySeconds: 10\nresources:\n  requests: {cpu: 100m, memory: 128Mi}\n  limits: {memory: 256Mi}"
       },
       {
-        "tab": "Ingress и HPA",
-        "title": "Вход снаружи и автомасштабирование",
-        "text": "Traefik работает как Ingress-контроллер: те же роутеры, но описанные через IngressRoute на Service. HPA сам считает число реплик по CPU, но без resources.requests он работать не может.",
+        "tab": "Безопасность и масштаб",
+        "title": "Права, запреты и автоскейлинг",
+        "text": "RBAC выдаёт права через Role и RoleBinding, securityContext отнимает лишнее у контейнера, NetworkPolicy запирает базу от всех, кроме API. HPA сам считает число реплик по CPU, но без requests и metrics-server показывает <unknown>.",
         "points": [
-          "IngressRoute вместо labels",
-          "HPA опирается на metrics-server",
-          "requests и limits обязательны для автоскейлинга"
+          "kubectl auth can-i --as проверяет права",
+          "политика сети работает только если CNI её применяет",
+          "HPA растёт быстро, падает через окно стабилизации"
         ],
-        "code": "spec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: api\n  minReplicas: 1\n  maxReplicas: 5\n  metrics:\n    - type: Resource\n      resource:\n        name: cpu\n        target:\n          type: Utilization\n          averageUtilization: 50"
+        "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata: {name: coffeeshop-api}\nspec:\n  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: coffeeshop-api}\n  minReplicas: 2\n  maxReplicas: 6\n  metrics:\n    - type: Resource\n      resource:\n        name: cpu\n        target: {type: Utilization, averageUtilization: 50}"
+      },
+      {
+        "tab": "Helm",
+        "title": "Один chart, любое окружение",
+        "text": "Chart — шаблоны манифестов плюс значения по умолчанию, release — установка с журналом ревизий. Отличия dev и prod лежат в файлах values; upgrade с --atomic откатывается сам, а rollback возвращает прежнюю ревизию.",
+        "points": [
+          "helm template — репетиция: читай готовый YAML",
+          "toYaml | nindent N — главный приём и главная ловушка",
+          "umbrella chart собирает db, api и web одной командой"
+        ],
+        "code": "helm upgrade --install coffee ./coffeeshop \\\n  -n coffee --create-namespace \\\n  -f values-prod.yaml \\\n  --set global.dbPassword=\"$DB_PASSWORD\" \\\n  --atomic --wait --timeout 6m"
       }
     ],
     sessions: [
       {
-        "h": "~3 ч",
-        "t": "Кластер и первые объекты",
-        "r": "kind-кластер, Deployment с самолечением и Service со стабильным адресом для API"
+        "h": "~4 ч",
+        "t": "Азбука и окружение",
+        "r": "кластер kind из трёх узлов, kubectl и helm, проверка starter/"
       },
       {
-        "h": "~3,5 ч",
-        "t": "Полный стек: конфиги, данные, пробы",
-        "r": "API с ConfigMap и Secret, PostgreSQL на PVC, пробы готовности и requests/limits"
+        "h": "~4 ч",
+        "t": "Архитектура и объекты",
+        "r": "путь apply по компонентам, reconcile, метки и API-группы"
       },
       {
-        "h": "~3,5 ч",
-        "t": "Ingress и автоскейлинг",
-        "r": "Traefik в кластере с IngressRoute, HPA вместо ручных реплик и финальный Production Hell"
+        "h": "~4 ч",
+        "t": "Pod и Service",
+        "r": "Pod, жизненный цикл, Service и DNS, образ в kind"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Deployment и обновления",
+        "r": "rolling update, откат, застрявший rollout"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Сети и Ingress",
+        "r": "типы Service, Traefik как Ingress-контроллер, доступ с Mac"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Хранение данных",
+        "r": "PostgreSQL на PVC, StatefulSet, резервная копия"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Секреты и конфигурация",
+        "r": "ConfigMap, Secret, весь стек CoffeeShop в кластере"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Эксплуатация и диагностика",
+        "r": "namespace и квоты, пробы, ресурсы, Job, Production Hell 1"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Безопасность и сеть-политики",
+        "r": "RBAC, ServiceAccount, securityContext, Pod Security, NetworkPolicy"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Автомасштабирование",
+        "r": "metrics-server, HPA под нагрузкой, обзор VPA и Cluster Autoscaler"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Наблюдаемость",
+        "r": "kube-prometheus-stack, ServiceMonitor, дашборд Grafana, логи"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Helm, основы",
+        "r": "первый chart для API, install, upgrade, отладка YAML"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Шаблоны Helm",
+        "r": "функции, if/range, _helpers, chart для БД, subcharts"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Репозитории, релизы, окружения",
+        "r": "свой репозиторий, atomic, rollback, values-dev и values-prod"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Итоговый проект",
+        "r": "umbrella chart CoffeeShop, Kustomize, Production Hell 2"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Итоговое задание",
+        "r": "продакшн-релиз по ТЗ без ответа"
       }
     ],
     arch: {
@@ -5096,41 +5165,41 @@ var LABS = [
         {
           "label": "Хост",
           "boxes": [
-            "браузер api.localhost",
+            "браузер shop.localhost",
             "kind extraPortMappings 80/443"
           ]
         },
         {
           "label": "Вход в кластер",
           "boxes": [
-            "Traefik Pod (hostPort)",
-            "IngressRoute api-route"
+            "Traefik Pod (Ingress-контроллер)",
+            "Ingress coffeeshop"
           ]
         },
         {
           "label": "Сеть",
           "boxes": [
-            "Service api-service :3000",
-            "CoreDNS + kube-proxy"
+            "Service coffeeshop-api :80",
+            "CoreDNS + NetworkPolicy"
           ]
         },
         {
           "label": "Приложение",
           "boxes": [
-            "Deployment api → ReplicaSet → Pod ×3",
-            "HPA api-hpa",
+            "Deployment coffeeshop-api → Pod ×3",
+            "HPA coffeeshop-api",
             "ConfigMap + Secret"
           ]
         },
         {
           "label": "Данные",
           "boxes": [
-            "PostgreSQL Pod",
-            "PVC postgres-pvc"
+            "StatefulSet db (PostgreSQL 18)",
+            "PVC data"
           ]
         }
       ],
-      "note": "Ловушка: HPA не работает без resources.requests, а Service типа LoadBalancer в kind не получает внешний IP, поэтому порты хоста пробрасывают в узел.",
+      "note": "Ловушка: HPA не работает без resources.requests и metrics-server, а Service типа LoadBalancer в kind не получает внешний IP, поэтому порты хоста пробрасывают в узел.",
       "live": {
         "w": 1000,
         "h": 560,
@@ -5155,10 +5224,10 @@ var LABS = [
           {
             "id": "browser",
             "t": "Браузер",
-            "s": "api.localhost",
+            "s": "shop.localhost",
             "x": 110,
             "y": 150,
-            "d": "Запрос на api.localhost попадает на порт 80 хоста."
+            "d": "Запрос на shop.localhost/api попадает на порт 80 хоста."
           },
           {
             "id": "kind",
@@ -5174,23 +5243,23 @@ var LABS = [
             "s": "Ingress-контроллер",
             "x": 350,
             "y": 110,
-            "d": "Тот же Traefik, но развёрнутый Pod'ом в кластере; берёт порты узла через hostPort и читает маршруты из CRD."
+            "d": "Тот же Traefik, что в прошлой лабе, но Pod'ом в кластере; слушает порты узла и читает правила из API Kubernetes."
           },
           {
             "id": "ir",
-            "t": "IngressRoute",
-            "s": "Host(`api.localhost`)",
+            "t": "Ingress",
+            "s": "Host(`shop.localhost`) /api",
             "x": 570,
             "y": 110,
-            "d": "Аналог Docker-labels из Traefik-лабы: правило match и ссылка на имя Kubernetes Service."
+            "d": "Правило «этот Host и путь — на этот Service»; сам ничего не слушает, его выполняет контроллер."
           },
           {
             "id": "svc",
-            "t": "api-service",
-            "s": "ClusterIP :3000",
+            "t": "coffeeshop-api",
+            "s": "Service ClusterIP",
             "x": 350,
             "y": 270,
-            "d": "Стабильный адрес поверх Pod'ов: находит их через selector app: api, имя резолвит CoreDNS, трафик распределяет kube-proxy."
+            "d": "Стабильный адрес поверх Pod'ов: находит их по метке app, берёт только готовых; имя резолвит CoreDNS."
           },
           {
             "id": "dep",
@@ -5198,39 +5267,39 @@ var LABS = [
             "s": "ReplicaSet · 3 Pod",
             "x": 570,
             "y": 270,
-            "d": "Deployment создаёт ReplicaSet, тот держит три Pod'а и пересоздаёт упавшие; readiness и liveness-пробы бьют в /health."
+            "d": "Deployment создаёт ReplicaSet, тот держит нужное число Pod'ов; readiness и liveness бьют в /health, обновление идёт волной."
           },
           {
             "id": "hpa",
-            "t": "HPA api-hpa",
-            "s": "CPU 50% · 1–5 реплик",
+            "t": "HPA",
+            "s": "CPU 50% · 2–6 реплик",
             "x": 350,
             "y": 430,
-            "d": "Раз в 15 секунд спрашивает metrics-server о загрузке и сам меняет replicas у Deployment."
+            "d": "Опрашивает metrics-server и сам меняет replicas у Deployment; без requests показывает <unknown>."
           },
           {
             "id": "cfg",
             "t": "ConfigMap/Secret",
-            "s": "envFrom",
+            "s": "api-config, db-credentials",
             "x": 570,
             "y": 430,
-            "d": "Несекретные значения в ConfigMap api-config, пароль в Secret api-secret; подключаются в Pod через envFrom."
+            "d": "Несекретные значения в ConfigMap, пароль в Secret; подключаются к Pod через envFrom и secretKeyRef."
           },
           {
             "id": "pg",
             "t": "PostgreSQL",
-            "s": "Pod · pg_isready",
+            "s": "StatefulSet db",
             "x": 800,
             "y": 170,
-            "d": "База с readiness-пробой командой pg_isready, доступна внутри кластера через ClusterIP Service."
+            "d": "База с readiness-пробой pg_isready; NetworkPolicy пускает к ней только API."
           },
           {
             "id": "pvc",
-            "t": "postgres-pvc",
+            "t": "PVC data",
             "s": "1Gi · StorageClass",
             "x": 800,
             "y": 380,
-            "d": "Заявка на хранилище: StorageClass standard в kind сам создаёт PV, данные переживают пересоздание Pod'а."
+            "d": "Заявка на хранилище: StorageClass kind сам создаёт PV; данные переживают удаление Pod'а."
           }
         ],
         "edges": [
@@ -5284,7 +5353,7 @@ var LABS = [
         "flow": [
           {
             "n": "browser",
-            "txt": "GET http://api.localhost/users/1."
+            "txt": "GET http://shop.localhost/api/menu."
           },
           {
             "n": "kind",
@@ -5292,19 +5361,19 @@ var LABS = [
           },
           {
             "n": "traefik",
-            "txt": "Traefik Pod принимает запрос на hostPort."
+            "txt": "Traefik Pod принимает запрос."
           },
           {
             "n": "ir",
-            "txt": "IngressRoute api-route: Host(`api.localhost`) совпал."
+            "txt": "Ingress coffeeshop: Host и путь /api совпали."
           },
           {
             "n": "svc",
-            "txt": "api-service выбирает Pod по selector (kube-proxy)."
+            "txt": "Service coffeeshop-api выбирает готовый Pod по метке."
           },
           {
             "n": "dep",
-            "txt": "Pod из Deployment api отвечает; HPA следит за его CPU."
+            "txt": "Pod из Deployment отвечает, запрашивая данные у БД; HPA следит за CPU."
           },
           {
             "n": "svc",
@@ -5318,7 +5387,7 @@ var LABS = [
           },
           {
             "n": "browser",
-            "txt": "Браузер получает JSON с servedBy.",
+            "txt": "Браузер получает JSON с меню.",
             "back": true
           }
         ]
@@ -5327,23 +5396,35 @@ var LABS = [
     faq: [
       {
         "q": "Deployment создаёт Pod'ы напрямую или через промежуточный объект?",
-        "a": "Через ReplicaSet: он следит за числом Pod'ов с нужными label'ами по selector.matchLabels. Deployment поверх него нужен для rolling-обновлений: при смене image создаётся новый ReplicaSet и трафик переключается постепенно. Удалённый вручную Pod пересоздаётся, а голый Pod без Deployment никто не вернёт."
+        "a": "Через ReplicaSet: он следит за числом Pod'ов с нужными метками. Deployment поверх него нужен для rolling update: при смене образа создаётся новый ReplicaSet, старый постепенно сворачивается, а rollout undo возвращает прежний. Удалённый вручную Pod пересоздаётся, а голый Pod без Deployment никто не вернёт."
       },
       {
         "q": "В чём разница между readinessProbe и livenessProbe?",
-        "a": "При провале readinessProbe Pod убирается из Service и перестаёт получать трафик, но не перезапускается. При провале livenessProbe контейнер убивается и пересоздаётся. Разделение нужно, чтобы занятый, но живой процесс не убивали."
+        "a": "При провале readiness Pod убирается из endpoints Service и перестаёт получать трафик, но не перезапускается. При провале liveness контейнер убивается и создаётся заново. Разделение нужно, чтобы занятый, но живой процесс не убивали."
       },
       {
-        "q": "Почему Secret в Kubernetes не является средством шифрования?",
-        "a": "Kubernetes хранит значения в base64, а это кодирование, разворачивается одной командой. Защита держится на RBAC: кто может выполнить kubectl get secret -o yaml, тот прочитает пароль. Для настоящей секретности нужны внешние инструменты вроде Vault, Sealed Secrets или SOPS."
+        "q": "Почему Secret в Kubernetes не шифрование?",
+        "a": "Значения хранятся в base64 — это кодирование, оно снимается одной командой. Защита держится на RBAC и на том, что секреты не лежат в Git. Для настоящей секретности используют Sealed Secrets, SOPS или внешнее хранилище вроде Vault."
       },
       {
-        "q": "Почему HorizontalPodAutoscaler не работает без resources.requests?",
-        "a": "HPA сам ничего не измеряет: раз в 15 секунд он спрашивает metrics-server, какой процент от requests.cpu потребляет каждый Pod. Без requests не от чего считать проценты. Сам metrics-server в kind по умолчанию нет, его ставят вручную."
+        "q": "Почему HorizontalPodAutoscaler показывает <unknown>?",
+        "a": "HPA сам ничего не измеряет: он спрашивает metrics-server, какой процент от requests.cpu использует Pod. Если metrics-server не установлен (в kind его нет по умолчанию) или у контейнера нет requests, считать не от чего. Причину называет kubectl describe hpa."
       },
       {
-        "q": "Почему в kind Service типа LoadBalancer не даёт внешний IP и как это обходится?",
-        "a": "В облаке внешний IP выдаёт провайдер, а в kind провайдера нет. Поэтому при создании кластера в kind-config.yaml задают extraPortMappings, которые пробрасывают порты 80 и 443 хоста в узел, а Pod с Traefik запрашивает эти порты через hostPort."
+        "q": "Как пережить удаление Pod'а с базой данных?",
+        "a": "Данные нужно хранить на PersistentVolumeClaim, а базу запускать как StatefulSet с volumeClaimTemplates. Pod можно удалять — новый подключит тот же PVC. Данные пропадут только при удалении самого PVC."
+      },
+      {
+        "q": "Почему NetworkPolicy может «не работать» без единой ошибки?",
+        "a": "Объект принимает API, но правила выполняет сетевой плагин (CNI). Если плагин политики не применяет, они ничего не блокируют; если селектор политики с опечаткой, она выбирает ноль Pod. Поэтому работу проверяют запросом изнутри Pod'а, а не по виду объекта."
+      },
+      {
+        "q": "Чем Helm-релиз отличается от chart'а и зачем --atomic?",
+        "a": "Chart — пакет с шаблонами и значениями по умолчанию, release — его установка с именем и журналом ревизий. Флаг --atomic при неудачном upgrade сам откатывает релиз, а --wait заставляет ждать готовности Pod'ов; без них Helm рапортует об успехе сразу после отправки манифестов."
+      },
+      {
+        "q": "Почему лаба использует Traefik, а не ingress-nginx?",
+        "a": "Проект ingress-nginx официально свёрнут: поддержка закончилась весной 2026 года, репозиторий заморожен. Traefik активно развивается, и его модель «роутер → middleware → сервис» читателю уже знакома по Traefik-лабе."
       }
     ],
     accent: '#326CE5',

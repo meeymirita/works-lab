@@ -256,8 +256,8 @@
       headline: 'Нужны знания Docker и Traefik; стек CoffeeShop берётся из их лаб',
       know: ['Образ, контейнер, Dockerfile, сеть, volume, healthcheck, Compose — по Docker-лабе',
              'Модель Traefik «вход → роутер → middleware → сервис», правила, healthcheck, TLS — по Traefik-лабе (желательно)',
-             'Стек CoffeeShop (API, сайт, PostgreSQL, Adminer): в новой Traefik-лабе он собирается как папка starter/ (шаг 10.5); в этой методичке код api/ приведён целиком'],
-      meet: ['kind и kubectl', 'Pod, Deployment, Service и DNS', 'ConfigMap, Secret, PVC', 'Readiness и liveness probes', 'Traefik как Ingress-контроллер', 'HorizontalPodAutoscaler и metrics-server'],
+             'Стек CoffeeShop (API, сайт, PostgreSQL, Adminer): в Traefik-лабе он собирается как папка starter/ (шаг 10.5) — это входная точка этой лабы'],
+      meet: ['kind и kubectl, архитектура кластера', 'Pod, Deployment, Service, DNS, Ingress (Traefik)', 'PVC, StatefulSet, ConfigMap, Secret', 'Пробы, requests/limits, диагностика', 'RBAC, securityContext, NetworkPolicy', 'HPA, Prometheus и Grafana', 'Helm: chart, шаблоны, репозитории, umbrella chart, Kustomize'],
       before: [{ key: 'traefik', kind: 'know', why: 'стек CoffeeShop (starter/ из шага 10.5) и понятия: роутер, middleware, healthcheck, TLS' },
                { key: 'docker', kind: 'know', why: 'все понятия контейнеров' }],
       tip: 'Нужны kind v0.33, kubectl и helm; кластер поднимается на ноутбуке.'

@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 79c8c649c7d191df */
+/* verification-md-hash: 33c8c58f4a3374d6 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -55,13 +55,11 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/inertia.md"
  },
  "kubernetes": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
-  "method": [
-   "запуск в Docker"
-  ],
-  "rest": "",
+  "level": "none",
+  "head": "Не вычитана и не проверена запуском",
+  "tail": "не проверено",
+  "method": [],
+  "rest": "всё: команды и манифесты сессий 1–15 не выполнялись; имена ключей Helm-chart’ов (Traefik metrics), поведение kindnet с NetworkPolicy, helm plugin install, helm test, pending-upgrade",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/kubernetes.md"
  },
  "docker": {
