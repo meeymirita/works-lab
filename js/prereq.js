@@ -85,9 +85,9 @@
       headline: 'Laravel и Docker плюс RabbitMQ-лаба',
       know: ['Laravel и Docker на уровне RabbitMQ-лабы: домен заказов переиспользуется',
              'Идея очередей и воркеров — методичка постоянно сравнивает Streams с брокером'],
-      meet: ['Laravel 13 и PostgreSQL 18', 'Redis 8: кэш, локи, лимитер, Lua, Streams, Pub/Sub'],
+      meet: ['Laravel 13 и PostgreSQL 18', 'Redis 8: кэш, локи, лимитер, Lua, Streams, Pub/Sub', 'Структуры данных, TTL и вытеснение, транзакции и Functions', 'Sentinel, Cluster, ACL и наблюдаемость'],
       before: [{ key: 'rabbitmq', kind: 'know', why: 'почти половина «почему» читается через сравнение с RabbitMQ-лабой' }],
-      tip: 'Задания 3.5 («Production Hell») идут без подсказок.'
+      tip: 'Задания 3.5 («Production Hell») и итоговое ТЗ (сессия 11) идут без подсказок. Сессии 4–11 написаны позже и пока не вычитаны.'
     },
     laravel: {
       name: 'Laravel Lab', file: 'laravel/laravel.html', accent: '#FF2D20', level: 'heavy',
@@ -228,10 +228,10 @@
       know: ['Основы NestJS: модули, DI, декораторы',
              'TypeScript: классы, интерфейсы, async/await',
              'Остальное, включая сам язык запросов, объясняется по ходу'],
-      meet: ['NestJS и Apollo Server', 'Prisma 7 и PostgreSQL 18', 'DataLoader и N+1', 'JWT и права на уровне полей', 'Подписки через Redis', 'Защита от тяжёлых запросов, тесты'],
+      meet: ['NestJS и Apollo Server', 'Prisma 7 и PostgreSQL 18', 'DataLoader и N+1', 'JWT и права на уровне полей', 'Подписки через Redis', 'Защита от тяжёлых запросов, тесты', 'Кеш, APQ и безопасность', 'Федерация и наблюдаемость'],
       before: [{ key: 'nestjs', kind: 'help', why: 'основы NestJS' },
                { key: 'prisma', kind: 'help', why: 'Prisma 7 подробно: связи, N+1 и пагинация' }],
-      tip: 'Проект самостоятельный: свой домен (каталог фильмов).'
+      tip: 'Проект самостоятельный: свой домен (каталог фильмов). Сессии 4–10 написаны позже и пока не вычитаны.'
     },
     traefik: {
       name: 'Traefik Lab', file: 'traefik/traefik.html', accent: '#14B8A6', level: 'light',

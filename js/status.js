@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 050e60a13bde3a0a */
+/* verification-md-hash: ce82ca540c05c7a8 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -131,13 +131,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/prisma.md"
  },
  "redis": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "вам остаётся проверить самим",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "задания 3.5 без подсказок",
+  "rest": "сессии 4–11 — новые: написаны ассистентом по содержанию, не вычитаны, код не запускался (сверено только по документации: Cache::flexible, throttleWithRedis, BF.* в redis:8, поведение Sentinel/AOF в Docker); в 3.5 без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/redis.md"
  },
  "rabbitmq": {
@@ -171,13 +171,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/nestjs.md"
  },
  "graphql": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "вам остаётся проверить самим",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "задания 6.6 «Production Hell» без подсказок",
+  "rest": "сессии 4–10 — новые: написаны ассистентом по содержанию, не вычитаны, код не собирался и не запускался (особо сомнительно: @Scalar, cacheControlFromInfo, опции Federation 2 и ApolloGatewayDriver, ThrottlerGuard, составной ключ Prisma, didResolveSource); в 6.6 «Production Hell» без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/graphql.md"
  },
  "js": {
