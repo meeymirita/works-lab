@@ -2998,7 +2998,7 @@ var LABS = [
     titleMain: 'typescript',
     title: 'TypeScript Lab',
     subtitle: 'Warehouse — складской учёт',
-    desc: 'Типизация домена складского учёта с нуля: generics, размеченные объединения, mapped/conditional types, CLI на Zod, сквозная типизация API + Vue.',
+    desc: 'Типизация домена складского учёта с нуля: generics, размеченные объединения, mapped/conditional types, CLI на Zod, сквозная типизация API + Vue, декораторы TS 5, тесты на типы, project references.',
     stack: ['TypeScript 6', 'Node 24+', 'Zod', 'Vitest'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/typescript/typescript.png',
@@ -3115,6 +3115,31 @@ var LABS = [
         "h": "~3,5 ч",
         "t": "Сквозная типизация",
         "r": "Тот же домен в API и в браузере с одним источником типов"
+      },
+      {
+        "h": "~4 ч",
+        "t": "Conditional types, infer и типобезопасные фильтры",
+        "r": "Filter<T> и FilterKey: типобезопасный фильтр по строке запроса в CLI"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Декораторы TS 5.x и маленький DI-контейнер",
+        "r": "bootstrap() собирает сервисы склада через Container, @logged и @frozen"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Тесты на типы как отдельная дисциплина",
+        "r": "*.types.test.ts: регрессия типа ловится раньше, чем баг в рантайме"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Инструменты и масштаб: project references",
+        "r": "tsc -b, declaration maps, .tsbuildinfo — таблица цены до/после"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Итоговое ТЗ",
+        "r": "Журнал аудита складских операций — решаете сами, без подсказок"
       }
     ],
     arch: {

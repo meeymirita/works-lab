@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 961989dfc63ebee5 */
+/* verification-md-hash: 050e60a13bde3a0a */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -192,14 +192,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/js.md"
  },
  "typescript": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "",
+  "rest": "сессии 6–10 — новые: написаны ассистентом по содержанию, не вычитаны, код не собирался и не запускался",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/typescript.md"
  },
  "vue": {
