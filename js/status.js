@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: ce82ca540c05c7a8 */
+/* verification-md-hash: ea7670d9f38efef7 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -123,11 +123,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/postgresql.md"
  },
  "prisma": {
-  "level": "none",
-  "head": "Не вычитана и не проверена запуском",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
   "tail": "не проверено",
-  "method": [],
-  "rest": "всё: команды, схема, миграции, версии Prisma 7 (на npm latest — 8 RC, версии закреплены), TypedSQL, relationLoadStrategy, пул и PgBouncer, трассировка; вычитки нет",
+  "method": [
+   "запуск в Docker"
+  ],
+  "rest": "решения заданий 🔨 (кроме 6.7); PgBouncer (17.3), GitHub Actions и сборка Docker-образа целиком (18.3–18.4); Prisma 8; «сверьтесь» про версии",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/prisma.md"
  },
  "redis": {
@@ -199,7 +201,7 @@ window.LAB_STATUS = {
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "сессии 6–10 — новые: написаны ассистентом по содержанию, не вычитаны, код не собирался и не запускался",
+  "rest": "пакет web (Vue) и правки к нему; команды docker compose буквально (выполнялось в node:24)",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/typescript.md"
  },
  "vue": {
