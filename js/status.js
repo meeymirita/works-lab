@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: ea7670d9f38efef7 */
+/* verification-md-hash: 75a4916b1a24cbf0 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -33,25 +33,25 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/css.md"
  },
  "tailwind": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "",
+  "rest": "сессии 7–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker/Chromium",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/tailwind.md"
  },
  "inertia": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "вам остаётся проверить самим",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "задания 6.3 «Production Hell» без подсказок",
+  "rest": "сессии 6–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker (задания 6.3 «Production Hell» без подсказок — решаете сами)",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/inertia.md"
  },
  "kubernetes": {
@@ -93,13 +93,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/caddy.md"
  },
  "php-coffee": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "",
+  "rest": "сессии 6–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/php-coffee.md"
  },
  "php": {
@@ -143,13 +143,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/redis.md"
  },
  "rabbitmq": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "",
+  "rest": "сессии 7–11 и 2 новых шага главы 2 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/rabbitmq.md"
  },
  "laravel": {
@@ -227,14 +227,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/nuxt.md"
  },
  "angular": {
-  "level": "ok",
-  "head": "Вычитана и проверена",
-  "tail": "не запускалось",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
+  "tail": "не проверено",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "",
+  "rest": "сессии 7–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/angular.md"
  },
  "bash": {
