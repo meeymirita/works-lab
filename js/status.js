@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 75a4916b1a24cbf0 */
+/* verification-md-hash: 78705e055a6e7b17 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -129,7 +129,7 @@ window.LAB_STATUS = {
   "method": [
    "запуск в Docker"
   ],
-  "rest": "решения заданий 🔨 (кроме 6.7); PgBouncer (17.3), GitHub Actions и сборка Docker-образа целиком (18.3–18.4); Prisma 8; «сверьтесь» про версии",
+  "rest": "решения заданий 🔨 — не проверено; PgBouncer (17.3), GitHub Actions и сборка Docker-образа целиком (18.3–18.4); Prisma 8; «сверьтесь» про версии",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/prisma.md"
  },
  "redis": {
