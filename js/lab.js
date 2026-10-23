@@ -4,7 +4,7 @@ var LABS = [
     titleMain: 'rabbitmq',
     title: 'RabbitMQ Lab',
     subtitle: 'Transactional Outbox, воркеры, DLQ',
-    desc: 'Асинхронная обработка заказов через очереди: Transactional Outbox, идемпотентный consumer, prefetch, crash-тесты, retry с TTL→DLX, priority queues, fanout.',
+    desc: 'Асинхронная обработка заказов через очереди: Transactional Outbox, идемпотентный consumer, prefetch, crash-тесты, retry с TTL→DLX, priority queues, fanout, policies и Single Active Consumer, quorum queues и отказоустойчивость, наблюдаемость (Prometheus), безопасность (vhosts, TLS), сага с компенсацией.',
     stack: ['Laravel 13', 'PostgreSQL 18', 'RabbitMQ', 'Mailpit'],
     difficulty: 'Высокая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/rabbitmq/rabbitmq.png',
@@ -99,18 +99,58 @@ var LABS = [
     sessions: [
       {
         "h": "~3 ч",
-        "t": "Инфраструктура, топология, happy path",
-        "r": "Заказ проходит путь API, outbox, relay, orders.topic и три воркера"
+        "t": "Инфраструктура и топология",
+        "r": "definitions.json, Laravel 13, миграции и модели — стенд поднят"
       },
       {
-        "h": "~3,5 ч",
-        "t": "Надёжность: ack, prefetch, retry, идемпотентность",
-        "r": "Три competing consumers, crash-тест без двойного списания и retry-цепочка до DLQ"
+        "h": "~2,5 ч",
+        "t": "Transactional Outbox: запись, API, атомарность и идемпотентность",
+        "r": "Заказ и событие пишутся атомарно, повторный POST не плодит дублей"
       },
       {
-        "h": "~3 ч",
+        "h": "~2,5 ч",
+        "t": "AMQP-слой: соединение, consumer, relay, воркеры happy path",
+        "r": "Relay с publisher confirms и три воркера доводят заказ от API до почты"
+      },
+      {
+        "h": "~2 ч",
+        "t": "Конкуренция: нагрузка, competing consumers, prefetch, crash-test",
+        "r": "Три воркера под нагрузкой, crash-тест без двойного списания"
+      },
+      {
+        "h": "~2,5 ч",
+        "t": "Надёжность доставки: retry, DLX/DLQ, сравнение с Laravel Queue",
+        "r": "Письмо доходит после retry-цепочки, читатель DLQ разбирает отказавшие"
+      },
+      {
+        "h": "~2,5 ч",
         "t": "Priority, Fanout, Production Hell",
         "r": "Приоритетные заказы, fanout-рассылка и починенные сломанные сценарии"
+      },
+      {
+        "h": "~2 ч",
+        "t": "Policies и Single Active Consumer",
+        "r": "Политика на лету вместо ручных x-аргументов, гарантированный порядок на одной очереди"
+      },
+      {
+        "h": "~2,5 ч",
+        "t": "Quorum queues и отказоустойчивость кластера",
+        "r": "Очередь переживает падение узла, разобран выбор между classic и quorum"
+      },
+      {
+        "h": "~2 ч",
+        "t": "Наблюдаемость: Prometheus и алерты",
+        "r": "Метрики брокера и алерт на растущий backlog DLQ"
+      },
+      {
+        "h": "~2,5 ч",
+        "t": "Безопасность и Production Hell 2",
+        "r": "vhost с правами только на чтение, TLS до брокера, шесть новых сценариев без подсказок"
+      },
+      {
+        "h": "~5 часов",
+        "t": "Итоговое задание",
+        "r": "Сага «оплачен → резерв → отправка → завершение» с компенсацией — решаете сами"
       }
     ],
     arch: {
@@ -2267,7 +2307,7 @@ var LABS = [
     titleMain: 'oop',
     title: 'OOP Lab',
     subtitle: 'Coffee Shop API на PHP 8.4',
-    desc: 'ООП на PHP 8.4 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция.',
+    desc: 'ООП на PHP 8.4 с нуля на маленьком API кофейни: 4 принципа ООП, Factory, Decorator, Strategy, Repository, SOLID, наследование vs композиция, тест-дублёры и PHPUnit Mock, Observer, Adapter, Facade, безопасность и Production Hell.',
     stack: ['PHP 8.4', 'Laravel 13', 'PostgreSQL', 'RabbitMQ'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/php-coffee/php.png',
@@ -2385,6 +2425,31 @@ var LABS = [
         "h": "~3 ч",
         "t": "RabbitMQ: события и воркеры бариста и уведомлений",
         "r": "Полный цикл заказ → оплата → готов → письмо, около 15 тестов за 0,1 с"
+      },
+      {
+        "h": "~3 ч",
+        "t": "SOLID на практике",
+        "r": "LoyaltyAccount и PointsDiscount — четвёртая стратегия скидок без правки старого кода"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Тестирование глубже",
+        "r": "Тест-дублёры (Stub/Fake/Spy/Mock), DataProvider, воркер протестирован без AMQP"
+      },
+      {
+        "h": "~3,5 ч",
+        "t": "Observer, Adapter, Facade",
+        "r": "Уведомления через Observer, внешний платёжный SDK за Adapter, OrderCheckoutFacade"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Безопасность и Production Hell",
+        "r": "Защищённый staff-эндпоинт и разобранный сломанный прод без подсказок"
+      },
+      {
+        "h": "~2,5 ч",
+        "t": "Итоговое задание",
+        "r": "Отмена оплаченного заказа с откатом баллов — решаете сами"
       }
     ],
     arch: {
@@ -7601,7 +7666,7 @@ var LABS = [
     titleMain: 'angular',
     title: 'Angular Lab',
     subtitle: 'RoomBook — бронирование переговорных',
-    desc: 'Внутренний сервис бронирования переговорных на Angular 22: сигналы и OnPush без zone.js, DI и провайдеры, HttpClient, интерцепторы и httpResource, роутер с lazy-загрузкой и guards по ролям, Signal Forms с серверной проверкой слота, RxJS для поиска и живого расписания через SSE, тесты на Vitest и сборка под nginx.',
+    desc: 'Внутренний сервис бронирования переговорных на Angular 22: сигналы и OnPush без zone.js, DI и провайдеры, HttpClient, интерцепторы и httpResource, роутер с lazy-загрузкой и guards по ролям, Signal Forms с серверной проверкой слота, RxJS для поиска и живого расписания через SSE, тесты на Vitest и сборка под nginx, SSR и гидратация, доступность и интернационализация, DomSanitizer и CSP.',
     stack: ['Angular 22', 'TypeScript', 'Signals', 'Signal Forms', 'RxJS'],
     stackInfo: [
       { tag: 'фреймворк', back: 'Каркас всего проекта: standalone-компоненты, zoneless и OnPush по умолчанию.' },
@@ -7665,6 +7730,10 @@ var LABS = [
       { h: '~4 ч', t: 'Формы', r: 'Форма брони с клиентской и серверной проверкой слота' },
       { h: '~3,5 ч', t: 'Авторизация, состояние, потоки', r: 'Вход, роли, стор броней и живое расписание по SSE' },
       { h: '~3,5 ч', t: 'Качество и продакшн', r: 'Тесты, runtime-конфиг, сборка под nginx' },
+      { h: '~3,5 ч', t: 'SSR и гидратация', r: 'Серверный рендер переговорных, TransferState, разбор NG0500' },
+      { h: '~3 ч', t: 'Доступность и интернационализация', r: 'Клавиатура и aria-live в сетке комнат, локали и RTL' },
+      { h: '~3 ч', t: 'Безопасность и Production Hell', r: 'CSP и security-заголовки, сломанный прод без подсказок' },
+      { h: '~3,5 ч', t: 'Итоговое задание', r: 'Лист ожидания переговорных — решаете сами' },
     ],
     arch: {
       title: 'Путь одного запроса',
@@ -8247,7 +8316,7 @@ var LABS = [
     titleMain: 'tailwind',
     title: 'Tailwind Lab',
     subtitle: 'Pulse — сервис аналитики',
-    desc: 'Tailwind CSS v4 с нуля на сервисе аналитики «Pulse»: лендинг, дашборд и настройки. Утилиты и шкалы, тема через @theme, варианты и состояния (group, peer, has-*), адаптив и container queries, тёмная тема, формы, @layer components и @apply, сборка на Vite и nginx. Разметку пишете сами.',
+    desc: 'Tailwind CSS v4 с нуля на сервисе аналитики «Pulse»: лендинг, дашборд и настройки. Утилиты и шкалы, тема через @theme, варианты и состояния (group, peer, has-*), адаптив и container queries, тёмная тема, формы, @layer components и @apply, сборка на Vite и nginx, свои JS-плагины (matchUtilities, addVariant), RTL и forced-colors, производительность сканирования и stylelint. Разметку пишете сами.',
     stack: ['Tailwind CSS 4', '@theme', 'Vite', 'Container Queries', 'Dark mode'],
     difficulty: 'Базовая',
     image: 'https://meeymirita-files.storage.yandexcloud.net/tailwind/tailwind.png',
@@ -8373,6 +8442,26 @@ var LABS = [
         "h": "~3 ч",
         "t": "Продакшн",
         "r": "Prod-образ и итоговая таблица сравнения с CSS"
+      },
+      {
+        "h": "~2 ч",
+        "t": "Свои JS-плагины",
+        "r": "Тень в цвет бренда и свой вариант loading: через matchUtilities/addVariant"
+      },
+      {
+        "h": "~2 ч",
+        "t": "RTL, forced-colors и prefers-contrast",
+        "r": "Логические свойства вместо физических, доступность в системном высоком контрасте"
+      },
+      {
+        "h": "~2 ч",
+        "t": "Производительность сканирования, stylelint, Production Hell",
+        "r": "Граница @source в монорепо, stylelint против опечаток, разбор сломанного прода без подсказок"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Итоговое ТЗ",
+        "r": "Страница биллинга с RTL и доступностью — решаете сами"
       }
     ],
     arch: {
@@ -8620,7 +8709,7 @@ var LABS = [
     titleMain: 'inertia',
     title: 'Inertia Lab',
     subtitle: 'Inkwell — блог-платформа',
-    desc: 'Laravel 13 + Inertia 3 + Vue 3 без starter kit, на блог-платформе «Inkwell»: протокол на проводе и объект страницы, props как публичный API через Resources, формы и валидация без 422, SSR и мета-теги, hydration mismatch и утечка Pinia между посетителями, optional/defer/merge для отложенных props, роли и Policies без дублирования прав на фронте, typed routes через Wayfinder.',
+    desc: 'Laravel 13 + Inertia 3 + Vue 3 без starter kit, на блог-платформе «Inkwell»: протокол на проводе и объект страницы, props как публичный API через Resources, формы и валидация без 422, SSR и мета-теги, hydration mismatch и утечка Pinia между посетителями, optional/defer/merge для отложенных props, роли и Policies без дублирования прав на фронте, typed routes через Wayfinder, Reverb и реальное время, поиск на Scout, instant visits и view transitions, Precognition и E2E-тесты.',
     stack: ['Laravel 13', 'Inertia 3', 'Vue 3', 'TypeScript', 'Pinia'],
     difficulty: 'Средняя',
     image: 'https://meeymirita-files.storage.yandexcloud.net/inertia/inertia.png',
@@ -8741,6 +8830,31 @@ var LABS = [
         "h": "~3 ч",
         "t": "Тесты и продакшн",
         "r": "Тесты assertInertia, сборка и запуск с SSR, Production Hell"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Реальное время",
+        "r": "Reverb вместо опроса: живые комментарии на странице поста"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Теги и поиск",
+        "r": "Scout, полнотекстовый поиск и похожие посты"
+      },
+      {
+        "h": "~3 ч",
+        "t": "UX как в приложении",
+        "r": "Instant visits, view transitions, модалка как маршрут"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Живая валидация и E2E",
+        "r": "Precognition и браузерные end-to-end тесты"
+      },
+      {
+        "h": "~3 ч",
+        "t": "Итоговое задание",
+        "r": "Решаете сами — без подсказок"
       }
     ],
     arch: {
