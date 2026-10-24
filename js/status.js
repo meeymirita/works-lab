@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: cf38494c5632a4f5 */
+/* verification-md-hash: 1fb3d4651aebf99c */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -133,13 +133,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/prisma.md"
  },
  "redis": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "сессии 4–11 — новые: написаны ассистентом по содержанию, не вычитаны, код не запускался (сверено только по документации: Cache::flexible, throttleWithRedis, BF.* в redis:8, поведение Sentinel/AOF в Docker); в 3.5 без подсказок",
+  "rest": "не запускалось: сравнение phpredis и predis, TLS, заполнение redis-cache до 256 МБ, kill -9 воркера List, настоящая конкуренция 7.2, ShouldBeUnique/expireAfter, настоящий кластер; в 3.5 и 11.1 без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/redis.md"
  },
  "rabbitmq": {
