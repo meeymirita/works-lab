@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 78705e055a6e7b17 */
+/* verification-md-hash: cf38494c5632a4f5 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -123,13 +123,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/postgresql.md"
  },
  "prisma": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "решения заданий 🔨 — не проверено; PgBouncer (17.3), GitHub Actions и сборка Docker-образа целиком (18.3–18.4); Prisma 8; «сверьтесь» про версии",
+  "rest": "не запускалось: workflow на самом GitHub — внешний ресурс; Prisma 8 — только справка",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/prisma.md"
  },
  "redis": {
@@ -163,13 +163,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/laravel.md"
  },
  "nestjs": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "задания 14.3 «Production Hell» без подсказок",
+  "rest": "не запускались: задания «Production Hell» 14.3 — для самостоятельного решения",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/nestjs.md"
  },
  "graphql": {
@@ -194,25 +194,25 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/js.md"
  },
  "typescript": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "пакет web (Vue) и правки к нему; команды docker compose буквально (выполнялось в node:24)",
+  "rest": "сессия 10 — итоговое ТЗ без решения",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/typescript.md"
  },
  "vue": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "построчная вычитка новых сессий 6–15 человеком/ассистентом построчно — не делалась; Vue SFC (.vue, defineModel, Suspense) не компилировались и не монтировались в реальном Vite-проекте; MSW и Playwright e2e (13.2) — только написаны, не выполнены; весь стенд (Vite + NestJS-бэкенд из сессии 1) не поднимался целиком с новыми сессиями; задание 15.1 не решалось; прохождение владельцем",
+  "rest": "Vue Devtools 8.1 — инструмент браузера; e2e прогнан на сервере-заглушке, не на NestJS-стенде",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/vue.md"
  },
  "nuxt": {
