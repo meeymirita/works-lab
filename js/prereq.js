@@ -87,7 +87,7 @@
              'Идея очередей и воркеров — методичка постоянно сравнивает Streams с брокером'],
       meet: ['Laravel 13 и PostgreSQL 18', 'Redis 8: кэш, локи, лимитер, Lua, Streams, Pub/Sub', 'Структуры данных, TTL и вытеснение, транзакции и Functions', 'Sentinel, Cluster, ACL и наблюдаемость'],
       before: [{ key: 'rabbitmq', kind: 'know', why: 'почти половина «почему» читается через сравнение с RabbitMQ-лабой' }],
-      tip: 'Задания 3.5 («Production Hell») и итоговое ТЗ (сессия 11) идут без подсказок. Сессии 4–11 написаны позже и пока не вычитаны.'
+      tip: 'Задания 3.5 («Production Hell») и итоговое ТЗ (сессия 11) идут без подсказок. Сессии 4–10 вычитаны и прогнаны в Docker 25.10.2026.'
     },
     laravel: {
       name: 'Laravel Lab', file: 'laravel/laravel.html', accent: '#FF2D20', level: 'heavy',
