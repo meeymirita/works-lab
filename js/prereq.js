@@ -183,9 +183,9 @@
       know: ['TypeScript на уровне сессий 1–3 TS-лабы',
              'Всё, что специфично для Angular (декораторы, DI, сигналы), объясняется внутри лабы',
              'Опыт Vue полезен для сравнений, но не обязателен'],
-      meet: ['Angular 22: сигналы, OnPush, zoneless', 'DI, HttpClient, интерцепторы, httpResource', 'Роутер с lazy и guards', 'Signal Forms и Reactive Forms', 'RxJS и SSE', 'Vitest и nginx'],
+      meet: ['Angular 22: сигналы, OnPush, zoneless', 'DI, HttpClient, интерцепторы, httpResource', 'Роутер с lazy и guards', 'Signal Forms и Reactive Forms', 'RxJS и SSE', 'Vitest и nginx', 'SSR, i18n и CSP'],
       before: [{ key: 'typescript', kind: 'know', why: 'сессии 1–3' }, { key: 'nuxt', kind: 'help', why: 'теория сравнивает с Vue и Nuxt' }],
-      tip: 'Бэкенд готовый (api/server.mjs), лаба целиком про фронтенд.'
+      tip: 'Бэкенд готовый (api/server.mjs), лаба целиком про фронтенд; в сессиях 7 и 9 в него вносятся две небольшие правки. Сессии 7–9 вычитаны и прогнаны 26.10.2026.'
     },
     express: {
       name: 'Express Lab', file: 'express/express.html', accent: '#52D12E', level: 'solid',
@@ -231,7 +231,7 @@
       meet: ['NestJS и Apollo Server', 'Prisma 7 и PostgreSQL 18', 'DataLoader и N+1', 'JWT и права на уровне полей', 'Подписки через Redis', 'Защита от тяжёлых запросов, тесты', 'Кеш, APQ и безопасность', 'Федерация и наблюдаемость'],
       before: [{ key: 'nestjs', kind: 'help', why: 'основы NestJS' },
                { key: 'prisma', kind: 'help', why: 'Prisma 7 подробно: связи, N+1 и пагинация' }],
-      tip: 'Проект самостоятельный: свой домен (каталог фильмов). Сессии 4–10 написаны позже и пока не вычитаны.'
+      tip: 'Проект самостоятельный: свой домен (каталог фильмов). Сессии 4–10 вычитаны и прогнаны в Docker 26.10.2026; итоговое ТЗ (сессия 10) идёт без решения.'
     },
     traefik: {
       name: 'Traefik Lab', file: 'traefik/traefik.html', accent: '#14B8A6', level: 'light',

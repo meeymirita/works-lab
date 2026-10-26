@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 1fb3d4651aebf99c */
+/* verification-md-hash: 55839e339f5fa523 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -173,13 +173,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/nestjs.md"
  },
  "graphql": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "сессии 4–10 — новые: написаны ассистентом по содержанию, не вычитаны, код не собирался и не запускался (особо сомнительно: @Scalar, cacheControlFromInfo, опции Federation 2 и ApolloGatewayDriver, ThrottlerGuard, составной ключ Prisma, didResolveSource); в 6.6 «Production Hell» без подсказок",
+  "rest": "не запускалось: экспорт трасс в настоящий коллектор Jaeger/Tempo, Apollo Router, Redis-хранилище для throttler, клики в GraphiQL — запросы выполнены через curl и скрипты; сессии 1–3 в этот проход не перечитывались построчно; в 6.6 «Production Hell» и 13.1 итоговое ТЗ без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/graphql.md"
  },
  "js": {
@@ -227,14 +227,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/nuxt.md"
  },
  "angular": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "сессии 7–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker",
+  "rest": "не запускалось: озвучка экранным диктором, CSP с nonce, вход в английскую сборку через nginx; сессия 10 — итоговое ТЗ без решения, решаете сами",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/angular.md"
  },
  "bash": {
