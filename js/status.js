@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 7f46ca94056fdb74 */
+/* verification-md-hash: e5947c42843da80f */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -51,7 +51,7 @@ window.LAB_STATUS = {
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "не запускалось: SSR-сборка с новым кодом, прогон на PHP 8.4 вместо 8.5.7 хоста; сессии 1–5 построчно; 6.3 «Production Hell» и 11.1 без подсказок",
+  "rest": "не запускалось: SSR-сборка с новым кодом, прогон на PHP 8.4 вместо 8.5.7 хоста; сессии 1–5 построчно (но 26.10 во все шаги 1.1–6.2 с командами вписаны настоящие результаты: найдены и исправлены curl без X-Inertia-Version (409), пропущенные CommentFactory и роль по умолчанию, SSR-сборка отдельной командой, import './echo' ломал SSR); 6.3 «Production Hell» и 11.1 без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/inertia.md"
  },
  "kubernetes": {
