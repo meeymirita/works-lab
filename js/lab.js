@@ -8849,7 +8849,7 @@ var LABS = [
       {
         "h": "~3 ч",
         "t": "Живая валидация и E2E",
-        "r": "Precognition и браузерные end-to-end тесты"
+        "r": "Precognition, тесты публикации поста и живых комментариев (Pest Feature и скрипт Playwright)"
       },
       {
         "h": "~3 ч",

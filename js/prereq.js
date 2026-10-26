@@ -154,7 +154,7 @@
       meet: ['Laravel 13 без starter kit', 'Inertia 3 и Vue 3 с TypeScript', 'Pinia и Vite', 'SSR и мета-теги', 'Typed routes (Wayfinder)'],
       before: [{ key: 'laravel', kind: 'know', why: 'контроллеры, Eloquent, Policies — без разбора' },
                { key: 'vue', kind: 'know', why: 'Vue 3 Composition API — без разбора' }],
-      tip: 'В общем маршруте Vue идёт раньше Inertia; без Vue лучше сначала пройти его.'
+      tip: 'В общем маршруте Vue идёт раньше Inertia; без Vue лучше сначала пройти его. Сессии 6–9 вычитаны и прогнаны 26.10.2026; тесты — Pest Feature и скрипт Playwright.'
     },
     typescript: {
       name: 'TypeScript Lab', file: 'typescript/typescript.html', accent: '#3178C6', level: 'heavy',

@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 55839e339f5fa523 */
+/* verification-md-hash: 7f46ca94056fdb74 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -44,14 +44,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/tailwind.md"
  },
  "inertia": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "вам остаётся проверить самим",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "сессии 6–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker (задания 6.3 «Production Hell» без подсказок — решаете сами)",
+  "rest": "не запускалось: SSR-сборка с новым кодом, прогон на PHP 8.4 вместо 8.5.7 хоста; сессии 1–5 построчно; 6.3 «Production Hell» и 11.1 без подсказок",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/inertia.md"
  },
  "kubernetes": {
