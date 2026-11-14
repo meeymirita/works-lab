@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: f05034aaba160dba */
+/* verification-md-hash: 56ab865f20da0b11 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -149,7 +149,7 @@ window.LAB_STATUS = {
   "method": [
    "запуск в Docker"
   ],
-  "rest": "новые шаги 2.3–2.4, 9.2 (запуск Prometheus и срабатывание алерта), 9.3, 10.3 и итоговое ТЗ 11.1 не запускались; воркер OrderSequencedWorkerCommand и lab:publish-orders заменены эквивалентным PHP-скриптом",
+  "rest": "9.2 (запуск Prometheus и срабатывание алерта), 9.3, 10.3 и итоговое ТЗ 11.1 не запускались; шаги 2.3–2.4 прогнаны на коде лабы (2 исправления: Pest не установлен, idempotency_key не в #[Fillable]); воркер OrderSequencedWorkerCommand и lab:publish-orders заменены эквивалентным PHP-скриптом",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/rabbitmq.md"
  },
  "laravel": {
