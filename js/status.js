@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: feeb4f0281e7cd63 */
+/* verification-md-hash: f96237a583babc35 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -254,13 +254,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/common/_verification.md"
  },
  "express": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "2 открытых пункта без решения: (1) сессия 14 — редкий SyntaxError при разборе ответа логина, не воспроизведён надёжно за отведённое время; (2) архитектурная нестыковка Prisma-миграций с сырым schema.sql — Drift detected возвращается периодически (сессии 13, 17), миграция роли в сессии 17 по факту не долетает до базы без ручного migrate reset (не внесено перестройкой 14.10, существовало и в версии 12.10, просто не было поймано тогда); плюс обычное — прохождение владельцем, реальный Mac без Docker",
+  "rest": "**15.11.2026 оба открытых пункта закрыты:** (1) редкий SyntaxError в сессии 14 — причина в фиксированном sleep 1 после запуска сервера, воспроизведено на урезанном CPU, исправлено циклом ожидания в сессиях 9, 11, 12–17; (2) Drift detected в сессиях 13 и 17 — два хозяина структуры базы (сырой schema.sql и Prisma), исправлено в 13.5 (первая миграция init, migrate() убран из server.js), в 18.4 — prisma migrate deploy при старте контейнера; повторный прогон 1→18 на чистой базе без Drift; заодно 11.4 теперь различает «до/после починки». Не проверялось: compose с Caddy из 18.5 целиком, прохождение владельцем, реальный Mac без Docker",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/express.md"
  }
 };
