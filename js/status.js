@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 77639f28f66e92c9 */
+/* verification-md-hash: 7e18fe2c883187f3 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -93,13 +93,13 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/devops/caddy.md"
  },
  "php-coffee": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker"
   ],
-  "rest": "сессии 6–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker",
+  "rest": "6.1 (статическое поле) не запускался, повторная доставка в 6.3, репорт 2 из 9.3 (definitions.json), итоговое ТЗ 10.1 (не решается); сессии 6–9 построчно не перечитывались",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/backend/php-coffee.md"
  },
  "php": {
