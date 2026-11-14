@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: 56ab865f20da0b11 */
+/* verification-md-hash: feeb4f0281e7cd63 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -238,9 +238,9 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/angular.md"
  },
  "bash": {
-  "level": "none",
-  "head": "Не вычитана и не проверена запуском",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [],
   "rest": "текст не вычитан человеком; не проверялись: интерактивный ввод (read, Ctrl+C), cron на реальном сервере (проверен только в контейнере), отличия macOS (sed -i, mv -T описаны, не запускались), установка Docker Desktop с нуля, прохождение человеком",
   "detail": ""
