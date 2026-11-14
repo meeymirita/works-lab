@@ -981,6 +981,10 @@ var DAYS = [
 {date:'2026-11-15', title:'GraphQL Lab: настоящие результаты шагов 1.1, 1.4, 3.2', items:[
   {lab:'graphql', type:'changed', text:'Вписан вывод шагов 1.1, 1.4 и 3.2. В 3.2 исправлено число запросов: для CatalogPage с <code>limit: 10</code> их 22, а не «≈ 43» (Prisma склеивает <code>findUnique</code> в <code>IN (…)</code>), «+1 запрос на актёра» на деле +1 на роль; в 1.1 предупреждение npm теперь описано по настоящему имени <code>install-scripts</code>.'},
 ]},
+{date:'2026-11-15', title:'Redis и Laravel: настоящие результаты шагов, найдены пропуски в коде', items:[
+  {lab:'redis', type:'changed', text:'Вписан вывод шагов 1.4, 1.6, 2.3 (и 1.7). Исправлено: в 1.4 не хватало <code>make:model</code>, <code>$guarded</code> и <code>$timestamps = false</code>; в 1.6 шаблон <code>laravel_database_*</code> ничего не находил (сессии лежат под <code>laravel-cache-&lt;id&gt;</code>); в 1.7 не было маршрута <code>/orders</code> (POST давал 419); в 2.3 добавлен <code>LoadGenerator</code> и объяснён всегда пустой PEL.'},
+  {lab:'laravel', type:'changed', text:'Шаг 10.4: вписан вывод <code>php artisan test</code> (10 passed). В 10.3 исправлено: не хватало метода <code>memberOf()</code> в тесте, счёт тестов в результате неверный.'},
+]},
 ];
 
 // ── рендер ───────────────────────────────────────────────────────────────
