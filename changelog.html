@@ -1008,6 +1008,9 @@ var DAYS = [
   {lab:'laravel-performance', type:'changed', text:'Шаг 6.5: вписан настоящий <code>EXPLAIN ANALYZE</code> (56 → 16 мс на миллионе заказов).'},
   {lab:'graphql', type:'changed', text:'Вписан настоящий вывод в 17 шагов сессий 2–6. Исправлено: в 6.4 не был импортирован <code>ComplexityEstimatorArgs</code>, код ошибки глубины — <code>GRAPHQL_VALIDATION_FAILED</code>, пример на 7 уровней на деле глубины 9; в 6.5 без <code>moduleNameMapper</code> падали <code>npm test</code> и e2e. Подтверждено: после DataLoader 4 запроса, сложность ≈180, <code>graphiql: true</code> работает.'},
 ]},
+{date:'2026-11-15', title:'GraphQL Lab: 12 схем на ключевые места', items:[
+  {lab:'graphql', type:'added', text:'В методичку добавлено 12 схем (SVG, цвет по теме): N+1 и DataLoader (22 → 4 запроса), цепочка nullability, курсорная пагинация, подписки на двух процессах, конвейер ограничения глубины и сложности, union для ошибок, <code>Cache-Control</code>, cache-aside, ротация refresh-токенов, gateway федерации, наблюдаемость.'},
+]},
 ];
 
 // ── рендер ───────────────────────────────────────────────────────────────
