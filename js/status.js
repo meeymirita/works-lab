@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: f96237a583babc35 */
+/* verification-md-hash: d599523522de3cbb */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -246,11 +246,11 @@ window.LAB_STATUS = {
   "detail": ""
  },
  "centrifugo": {
-  "level": "none",
-  "head": "Не вычитана и не проверена запуском",
+  "level": "part",
+  "head": "Вычитана, проверена частично",
   "tail": "не проверено",
   "method": [],
-  "rest": "всё: код и команды всех 21 сессий (авторы чата отдельно отметили: 8B, 12B, 13B, 15 и пример k6 не запускались; имена опций consumers, channel_regex, лимитов соединений, emulated_headers, internal_port — по памяти, сверить через centrifugo defaultenv; пакет denis660/laravel-centrifugo не читали в исходниках)",
+  "rest": "код и команды сессий 4–21 (сессии 1–3 прогнаны 15.11) (авторы чата отдельно отметили: 8B, 12B, 13B, 15 и пример k6 не запускались; имена опций consumers, channel_regex, лимитов соединений, emulated_headers, internal_port — по памяти, сверить через centrifugo defaultenv; пакет denis660/laravel-centrifugo не читали в исходниках)",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/common/_verification.md"
  },
  "express": {
