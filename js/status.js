@@ -1,5 +1,5 @@
 /* АВТОГЕНЕРАЦИЯ из fixes/common/_verification.md (tools/build-verification.py) — руками не править. */
-/* verification-md-hash: e5947c42843da80f */
+/* verification-md-hash: 77639f28f66e92c9 */
 window.LAB_STATUS = {
  "algorithms-php": {
   "level": "ok",
@@ -33,14 +33,14 @@ window.LAB_STATUS = {
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/css.md"
  },
  "tailwind": {
-  "level": "part",
-  "head": "Вычитана, проверена частично",
-  "tail": "не проверено",
+  "level": "ok",
+  "head": "Вычитана и проверена",
+  "tail": "не запускалось",
   "method": [
    "запуск в Docker",
    "проверка в браузере"
   ],
-  "rest": "сессии 7–10 — новые: написаны ассистентом по содержанию, без вычитки и без прогона в Docker/Chromium",
+  "rest": "эмуляция forced-colors/prefers-contrast в DevTools (8.2), шаги 8.3 и 9.3 (Production Hell) и итоговое ТЗ 10.1 не запускались; сессии 7–9 построчно не перечитывались",
   "detail": "https://github.com/meeymirita/lab-fixes/blob/main/frontend/tailwind.md"
  },
  "inertia": {
