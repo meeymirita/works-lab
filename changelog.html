@@ -1006,6 +1006,7 @@ var DAYS = [
   {lab:'vue', type:'changed', text:'Шаг 5.4: вписан вывод сборки (102 модуля), в карте проекта 15 компонентов, а не 13.'},
   {lab:'php', type:'changed', text:'Проверены запуском и исправлены: числа <code>memory_get_usage</code> в 2.1, вывод <code>substr</code> в 2.3, запуск сервера и чтение логов в 3.1–8.1 (логи <code>exec -d</code> не видны в <code>docker compose logs</code>), сравнение репозиториев в 6.3, пустой <code>?sort=</code> в 9.3.'},
   {lab:'laravel-performance', type:'changed', text:'Шаг 6.5: вписан настоящий <code>EXPLAIN ANALYZE</code> (56 → 16 мс на миллионе заказов).'},
+  {lab:'graphql', type:'changed', text:'Вписан настоящий вывод в 17 шагов сессий 2–6. Исправлено: в 6.4 не был импортирован <code>ComplexityEstimatorArgs</code>, код ошибки глубины — <code>GRAPHQL_VALIDATION_FAILED</code>, пример на 7 уровней на деле глубины 9; в 6.5 без <code>moduleNameMapper</code> падали <code>npm test</code> и e2e. Подтверждено: после DataLoader 4 запроса, сложность ≈180, <code>graphiql: true</code> работает.'},
 ]},
 ];
 
